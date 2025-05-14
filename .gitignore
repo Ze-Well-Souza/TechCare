@@ -1,0 +1,10 @@
+# Arquivos temporários e configurações
+.cursor/
+nested_project_content/Desenvolvimento de site para manutenЗ╞o de computadores/.cursor/
+**/*.pyc
+__pycache__/
+*.log
+.vscode/
+venv/
+.env
+*.db
