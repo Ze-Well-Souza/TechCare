@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Limpeza de Disco{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-trash-alt me-2" aria-hidden="true"></i> Limpeza de Disco
+            </h1>
+            <p class="lead">Libere espaço em disco removendo arquivos desnecessários.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-list-check me-2" aria-hidden="true"></i> Opções de Limpeza
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="cleanup-form" method="post" action="{{ url_for('cleaner.execute_cleanup') }}">
+                        <!-- Categoria: Arquivos Temporários -->
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Arquivos Temporários</h3>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="temp_system" name="cleanup_options" value="temp_system" checked>
+                                <label class="form-check-label" for="temp_system">
+                                    Arquivos temporários do sistema
+                                    <small class="text-muted d-block">Arquivos temporários criados pelo Windows e aplicativos</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="temp_windows" name="cleanup_options" value="temp_windows" checked>
+                                <label class="form-check-label" for="temp_windows">
+                                    Cache do Windows
+                                    <small class="text-muted d-block">Arquivos temporários de atualizações e outros componentes do sistema</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Categoria: Navegadores -->
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Navegadores</h3>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="browser_cache" name="cleanup_options" value="browser_cache" checked>
+                                <label class="form-check-label" for="browser_cache">
+                                    Cache de navegadores
+                                    <small class="text-muted d-block">Arquivos temporários armazenados pelos navegadores web</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="browser_cookies" name="cleanup_options" value="browser_cookies">
+                                <label class="form-check-label" for="browser_cookies">
+                                    Cookies
+                                    <small class="text-muted d-block">Cookies e dados de sessão de sites (você terá que fazer login novamente em sites)</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="browser_history" name="cleanup_options" value="browser_history">
+                                <label class="form-check-label" for="browser_history">
+                                    Histórico de navegação
+                                    <small class="text-muted d-block">Histórico de sites visitados e entradas no navegador</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Categoria: Sistema -->
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Sistema</h3>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="recycle_bin" name="cleanup_options" value="recycle_bin" checked>
+                                <label class="form-check-label" for="recycle_bin">
+                                    Lixeira
+                                    <small class="text-muted d-block">Arquivos excluídos que estão atualmente na Lixeira</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="thumbnails" name="cleanup_options" value="thumbnails" checked>
+                                <label class="form-check-label" for="thumbnails">
+                                    Miniaturas
+                                    <small class="text-muted d-block">Cache de miniaturas de arquivos e imagens</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="download_cache" name="cleanup_options" value="download_cache" checked>
+                                <label class="form-check-label" for="download_cache">
+                                    Cache de downloads
+                                    <small class="text-muted d-block">Arquivos temporários criados durante downloads</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="start-cleanup">
+                                <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                                Iniciar Limpeza
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Status da Limpeza</h3>
+                </div>
+                <div class="card-body">
+                    <div id="cleanup-status">
+                        <p class="text-center">
+                            <i class="fas fa-info-circle text-info me-2" aria-hidden="true"></i>
+                            Selecione as opções e clique em "Iniciar Limpeza"
+                        </p>
+                    </div>
+
+                    <div id="cleanup-progress" class="d-none">
+                        <div class="text-center mb-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Executando limpeza...</span>
+                            </div>
+                            <p class="mt-2 mb-0" id="progress-text">Executando limpeza...</p>
+                        </div>
+                        <div class="progress mt-3">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div id="cleanup-results" class="d-none">
+                        <h4 class="h6">Resultados da Limpeza</h4>
+                        <div class="alert alert-success"> <!-- Esta classe será alterada para alert-danger em caso de erro -->
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            Limpeza concluída com sucesso! <!-- Esta mensagem será alterada dinamicamente -->
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1"><strong>Espaço liberado:</strong></p>
+                            <h3 class="text-success" id="space-freed">0 MB</h3>
+                        </div>
+                        <hr>
+                        <div id="cleanup-details">
+                            <!-- Detalhes serão preenchidos dinamicamente pelo JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">Dicas</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="small list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            A limpeza da lixeira exclui os arquivos permanentemente.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Limpar cookies vai desconectar você de sites onde esteja logado.
+                        </li>
+                        <li>
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Execute a limpeza de disco regularmente para manter seu sistema otimizado.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('cleanup-form');
+        const startButton = document.getElementById('start-cleanup');
+        const statusDiv = document.getElementById('cleanup-status');
+        const progressDiv = document.getElementById('cleanup-progress');
+        const resultsDiv = document.getElementById('cleanup-results');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        const spaceFreedEl = document.getElementById('space-freed');
+        const cleanupDetailsDiv = document.getElementById('cleanup-details');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            statusDiv.classList.add('d-none');
+            progressDiv.classList.remove('d-none');
+            resultsDiv.classList.add('d-none');
+            startButton.disabled = true;
+            progressBar.style.width = '50%'; // Progresso inicial enquanto aguarda
+            progressBar.setAttribute('aria-valuenow', 50);
+            progressText.textContent = 'Executando limpeza... Por favor, aguarde.';
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Tenta ler o corpo do erro como JSON, se possível
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || errData.error || 'Erro na resposta do servidor: ' + response.statusText);
+                    }).catch(() => {
+                        throw new Error('Erro na resposta do servidor: ' + response.statusText + '. Não foi possível obter detalhes do erro.');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                progressBar.style.width = '100%';
+                progressBar.setAttribute('aria-valuenow', 100);
+                progressText.textContent = 'Limpeza concluída!';
+                
+                setTimeout(() => { // Pequeno delay para o usuário ver a barra completa
+                    progressDiv.classList.add('d-none');
+                    resultsDiv.classList.remove('d-none');
+                    startButton.disabled = false;
+
+                    const alertBox = resultsDiv.querySelector('.alert');
+                    if (data.success) {
+                        alertBox.classList.remove('alert-danger');
+                        alertBox.classList.add('alert-success');
+                        alertBox.innerHTML = '<i class="fas fa-check-circle me-2" aria-hidden="true"></i> ' + (data.message || 'Limpeza concluída com sucesso!');
+                        
+                        spaceFreedEl.textContent = data.total_space_freed_formatted || 'N/A';
+                        cleanupDetailsDiv.innerHTML = ''; 
+
+                        if (data.details && Object.keys(data.details).length > 0) {
+                            for (const key in data.details) {
+                                if (data.details.hasOwnProperty(key)) {
+                                    const detailItem = data.details[key];
+                                    const detailDiv = document.createElement('div');
+                                    detailDiv.classList.add('d-flex', 'justify-content-between', 'small', 'mb-2');
+                                    
+                                    let friendlyName = key.replace(/_/g, ' ');
+                                    friendlyName = friendlyName.charAt(0).toUpperCase() + friendlyName.slice(1);
+                                    
+                                    const nameSpan = document.createElement('span');
+                                    nameSpan.textContent = friendlyName + ':';
+                                    
+                                    const valueSpan = document.createElement('span');
+                                    valueSpan.classList.add(detailItem.status === 'Erro' ? 'text-danger' : 'text-success');
+                                    valueSpan.textContent = detailItem.space_freed_formatted || (detailItem.status || 'N/A');
+                                    
+                                    detailDiv.appendChild(nameSpan);
+                                    detailDiv.appendChild(valueSpan);
+                                    cleanupDetailsDiv.appendChild(detailDiv);
+                                }
+                            }
+                        } else {
+                             cleanupDetailsDiv.innerHTML = '<p class="small">Nenhum detalhe específico fornecido ou nenhuma ação realizada.</p>';
+                        }
+
+                    } else {
+                        alertBox.classList.remove('alert-success');
+                        alertBox.classList.add('alert-danger');
+                        alertBox.innerHTML = '<i class="fas fa-times-circle me-2" aria-hidden="true"></i> Erro na limpeza: ' + (data.message || data.error || 'Ocorreu um erro.');
+                        spaceFreedEl.textContent = '0 MB';
+                        cleanupDetailsDiv.innerHTML = '<p class="small text-danger">' + (data.error || data.message || 'Não foi possível obter detalhes do erro.') + '</p>';
+                    }
+                }, 500);
+            })
+            .catch(error => {
+                progressDiv.classList.add('d-none');
+                resultsDiv.classList.remove('d-none'); 
+                const alertBox = resultsDiv.querySelector('.alert');
+                alertBox.classList.remove('alert-success');
+                alertBox.classList.add('alert-danger');
+                a
+(Content truncated due to size limit. Use line ranges to read in chunks)

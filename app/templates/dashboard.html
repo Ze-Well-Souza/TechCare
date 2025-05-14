@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - TechCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Dashboard</h1>
+    
+    <!-- Informações do usuário -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Informações do Usuário</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Usuário:</strong> {{ data.user_info.username }}</p>
+            <p><strong>Último login:</strong> {{ data.user_info.last_login }}</p>
+            <p><strong>Total de diagnósticos:</strong> {{ data.user_info.total_diagnostics }}</p>
+            <p><strong>Total de reparos:</strong> {{ data.user_info.total_repairs }}</p>
+        </div>
+    </div>
+    
+    <!-- Saúde do sistema -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Saúde do Sistema</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="h6">CPU</h3>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" style="width: {{ data.system_health.cpu }}%;" 
+                                     aria-valuenow="{{ data.system_health.cpu }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ data.system_health.cpu }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ data.system_health.cpu_info.processor or 'Processador desconhecido' }}</small><br>
+                            <small class="text-muted">{{ data.system_health.cpu_info.cpu_count }} núcleos físicos, {{ data.system_health.cpu_info.logical_cpu_count }} lógicos</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="h6">Memória</h3>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" style="width: {{ data.system_health.memory }}%;" 
+                                     aria-valuenow="{{ data.system_health.memory }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ data.system_health.memory }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">Total: {{ data.system_health.memory_info.total }} GB</small><br>
+                            <small class="text-muted">Disponível: {{ data.system_health.memory_info.available }} GB</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="h6">Disco</h3>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" style="width: {{ data.system_health.disk }}%;" 
+                                     aria-valuenow="{{ data.system_health.disk }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ data.system_health.disk }}%
+                                </div>
+                            </div>
+                            {% if data.system_health.disks %}
+                                <ul class="list-unstyled mb-0">
+                                    {% for disk in data.system_health.disks %}
+                                        <li>
+                                            <strong>{{ disk.device }}</strong> ({{ disk.mountpoint }})<br>
+                                            <small class="text-muted">{{ disk.fstype }} | {{ disk.total }} GB total | {{ disk.used }} GB usados | {{ disk.percent }}%</small>
+                                            {% if disk.volume_name %}<br><small class="text-muted">Volume: {{ disk.volume_name }}</small>{% endif %}
+                                            {% if disk.description %}<br><small class="text-muted">{{ disk.description }}</small>{% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">Informação indisponível</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="h6">Geral</h3>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" style="width: {{ data.system_health.overall }}%;" 
+                                     aria-valuenow="{{ data.system_health.overall }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ data.system_health.overall }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">Arquitetura: {{ data.system_health.cpu_info.arch }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6 mb-2">
+                    <strong>Temperatura da CPU:</strong>
+                    {% if data.system_health.temperature != 'Indisponível' and data.system_health.temperature is not none %}
+                        <span class="{{ 'text-danger' if data.system_health.temperature > 80 else 'text-warning' if data.system_health.temperature > 70 else 'text-success' }}">
+                            {{ data.system_health.temperature }}°C
+                        </span>
+                    {% else %}
+                        <span class="text-muted">Informação indisponível</span>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Status de Rede:</strong>
+                    {% if data.system_health.network.connected %}
+                        <span class="text-success">Conectado</span>
+                        {% if data.system_health.network.interface %}
+                            <small class="text-muted">({{ data.system_health.network.interface }})</small>
+                        {% endif %}
+                        {% if data.system_health.network.ip %}
+                            <small class="text-muted">IP: {{ data.system_health.network.ip }}</small>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-danger">Desconectado</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Atividades recentes -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">Atividades Recentes</h2>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for activity in data.recent_activities %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-{% if activity.type == 'diagnostic' %}info{% else %}success{% endif %} me-2">
+                                {{ activity.type|title }}
+                            </span>
+                            {{ activity.result }}
+                        </div>
+                        <small class="text-muted">{{ activity.date }}</small>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Links rápidos -->
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('main.history') }}" class="btn btn-primary w-100">
+                Ver Histórico Completo
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="#" class="btn btn-success w-100">
+                Iniciar Novo Diagnóstico
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="#" class="btn btn-warning w-100">
+                Manutenção do Sistema
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

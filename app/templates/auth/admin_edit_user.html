@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}TechCare - Editar Usuário{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-user-edit"></i> Editar Usuário</h4>
+                <a href="{{ url_for('auth.admin_users') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+            <div class="card-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('auth.admin_edit_user', id=user.id) }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="username" class="form-label">Nome de usuário</label>
+                            <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                            <div class="form-text">O nome de usuário não pode ser alterado.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nome completo</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="role" class="form-label">Função</label>
+                            <select class="form-select" id="role" name="role">
+                                <option value="user" {% if user.role == 'user' %}selected{% endif %}>Usuário</option>
+                                <option value="tech" {% if user.role == 'tech' %}selected{% endif %}>Técnico</option>
+                                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="active" name="active" {% if user.active %}checked{% endif %}>
+                        <label class="form-check-label" for="active">Usuário ativo</label>
+                        <div class="form-text">Desmarque para desativar o acesso do usuário ao sistema.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">Redefinir senha</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <div class="form-text">Deixe em branco para manter a senha atual.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

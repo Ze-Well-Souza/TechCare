@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Limpeza do Sistema{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Limpeza do Sistema</h1>
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Esta página permite executar várias operações de limpeza para melhorar o desempenho do sistema.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Opções de Limpeza</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('cleaner_cleaning.execute_cleaning') }}" method="POST" id="cleaningForm">
+                        <div class="row">
+                            {% for option in cleaning_options %}
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="{{ option.id }}" id="option_{{ option.id }}">
+                                    <label class="form-check-label" for="option_{{ option.id }}">
+                                        {{ option.name }}
+                                        <small class="d-block text-muted">{{ option.description }}</small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-broom me-2"></i>Executar Limpeza
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Arquivos Temporários</h5>
+                </div>
+                <div class="card-body">
+                    <p>Remova arquivos temporários que ocupam espaço desnecessário no seu sistema.</p>
+                    <a href="{{ url_for('cleaner_cleaning.temp_files') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-trash-alt me-2"></i>Gerenciar Arquivos Temporários
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Cache de Navegadores</h5>
+                </div>
+                <div class="card-body">
+                    <p>Limpe o cache dos navegadores para liberar espaço e melhorar o desempenho.</p>
+                    <a href="{{ url_for('cleaner_cleaning.browser_cache') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-globe me-2"></i>Limpar Cache de Navegadores
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Arquivos Duplicados</h5>
+                </div>
+                <div class="card-body">
+                    <p>Identifique e remova arquivos duplicados que ocupam espaço desnecessário.</p>
+                    <a href="{{ url_for('cleaner_cleaning.duplicates') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-copy me-2"></i>Encontrar Duplicados
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Logs do Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <p>Gerencie logs do sistema que podem ocupar muito espaço ao longo do tempo.</p>
+                    <a href="{{ url_for('cleaner_cleaning.system_logs') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-clipboard-list me-2"></i>Gerenciar Logs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cleaningForm = document.getElementById('cleaningForm');
+        
+        cleaningForm.addEventListener('submit', function(e) {
+            const checkboxes = document.querySelectorAll('input[name="cleaning_options"]:checked');
+            
+            if (checkboxes.length === 0) {
+                e.preventDefault();
+                alert('Por favor, selecione pelo menos uma opção de limpeza.');
+            } else {
+                const confirmMsg = 'Tem certeza que deseja executar a limpeza do sistema? Esta ação não pode ser desfeita.';
+                if (!confirm(confirmMsg)) {
+                    e.preventDefault();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %} 

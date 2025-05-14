@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}TechCare - Erro Interno{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+    <h1 class="mt-4">Erro Interno do Servidor</h1>
+    <p class="lead">{{ message|default("Ocorreu um erro inesperado. Nossa equipe foi notificada.") }}</p>
+    <hr>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+        <i class="fas fa-home"></i> Voltar para o Início
+    </a>
+</div>
+{% endblock %} 

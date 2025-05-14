@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Página Não Encontrada{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="error-container">
+                <h1 class="display-1 text-danger">404</h1>
+                <h2 class="mb-4">Página Não Encontrada</h2>
+                <p class="lead mb-4">A página que você procura não existe ou foi movida.</p>
+                <p>{{ message if message else 'Verifique o endereço que você digitou ou volte para a página inicial.' }}</p>
+                <div class="mt-5">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class="fas fa-home me-2" aria-hidden="true"></i> Voltar para a Página Inicial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

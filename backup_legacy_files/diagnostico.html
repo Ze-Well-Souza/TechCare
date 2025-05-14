@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechZe - Diagnóstico e otimização guiada para seu computador. Aprenda a melhorar o desempenho do seu sistema com nosso assistente interativo.">
+    <title>Manutenção Guiada - TechZe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="chat.css">
+    <link rel="stylesheet" href="diagnostico.css">
+    <link rel="icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="logo">TechZe</a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="diagnostico.html" class="active">Manutenção Guiada</a></li>
+                    <li><a href="historico.html">Histórico</a></li>
+                    <li><a href="suporte.html">Suporte</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Seção inicial de seleção de problemas -->
+        <section class="problem-selection" id="problem-selection">
+            <div class="container">
+                <h1>Manutenção Guiada</h1>
+                <p>Selecione o problema que você está enfrentando ou a melhoria que deseja realizar</p>
+                
+                <div class="problem-grid">
+                    <div class="problem-card" data-problem="lentidao">
+                        <div class="problem-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h3>Computador Lento</h3>
+                        <p>Otimize a velocidade do seu sistema com etapas simples e eficazes</p>
+                        <button class="btn btn-outline select-problem">Selecionar</button>
+                    </div>
+                    
+                    <div class="problem-card" data-problem="espaco">
+                        <div class="problem-icon">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <h3>Pouco Espaço em Disco</h3>
+                        <p>Libere espaço identificando e removendo arquivos desnecessários</p>
+                        <button class="btn btn-outline select-problem">Selecionar</button>
+                    </div>
+                    
+                    <div class="problem-card" data-problem="inicializacao">
+                        <div class="problem-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Inicialização Lenta</h3>
+                        <p>Acelere o tempo de inicialização do Windows e seus programas</p>
+                        <button class="btn btn-outline select-problem">Selecionar</button>
+                    </div>
+                    
+                    <div class="problem-card" data-problem="drivers">
+                        <div class="problem-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Atualização de Drivers</h3>
+                        <p>Mantenha seu hardware funcionando perfeitamente com drivers atualizados</p>
+                        <button class="btn btn-outline select-problem">Selecionar</button>
+                    </div>
+                    
+                    <div class="problem-card" data-problem="seguranca">
+                        <div class="problem-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Verificação de Segurança</h3>
+                        <p>Garanta que seu sistema esteja protegido contra ameaças</p>
+                        <button class="btn btn-outline select-problem">Selecionar</button>
+                    </div>
+                    
+                    <div class="problem-card" data-problem="completo">
+                        <div class="problem-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Manutenção Completa</h3>
+                        <p>Realize uma limpeza e otimização completa do seu sistema</p>
+                        <button class="btn btn-primary select-problem">Selecionar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção de guia passo a passo -->
+        <section class="guided-steps" id="guided-steps" style="display: none;">
+            <div class="container">
+                <div class="steps-header">
+                    <h1 id="guide-title">Otimização Guiada</h1>
+                    <p id="guide-description">Siga as instruções passo a passo para melhorar o desempenho do seu computador</p>
+                </div>
+                
+                <div class="steps-progress">
+                    <div class="progress-labels" id="progress-labels">
+                        <!-- Preenchido dinamicamente pelo JavaScript -->
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" id="guide-progress" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                </div>
+                
+                <div class="current-step" id="current-step">
+                    <div class="step-number">
+                        <span id="step-current">1</span>/<span id="step-total">5</span>
+                    </div>
+                    <div class="step-content">
+                        <h2 id="step-title">Carregando...</h2>
+                        <div class="step-instructions">
+                            <p id="step-description">Carregando instruções...</p>
+                            
+                            <div class="step-image" id="step-image">
+                                <!-- Imagem da etapa atual -->
+                            </div>
+                            
+                            <div class="step-details" id="step-details">
+                                <!-- Detalhes adicionais -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-verification">
+                    <div class="verification-question">
+                        <h3>Você completou esta etapa?</h3>
+                        <div class="verification-options">
+                            <button id="step-complete" class="btn btn-primary">Sim, concluí esta etapa</button>
+                            <button id="step-help" class="btn btn-outline">Preciso de ajuda</button>
+                        </div>
+                    </div>
+                    
+                    <div class="step-navigation">
+                        <button id="prev-step" class="btn btn-outline" disabled><i class="fas fa-arrow-left"></i> Etapa Anterior</button>
+                        <button id="next-step" class="btn btn-outline" disabled>Próxima Etapa <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Seção de conclusão -->
+        <section class="completion-section" id="completion-section" style="display: none;">
+            <div class="container">
+                <div class="completion-content">
+                    <div class="completion-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h1>Manutenção Concluída!</h1>
+                    <p>Parabéns! Você concluiu com sucesso todas as etapas de manutenção.</p>
+                    
+                    <div class="completion-summary">
+                        <h2>O que foi realizado:</h2>
+                        <ul id="completion-list">
+                            <!-- Preenchido dinamicamente pelo JavaScript -->
+                        </ul>
+                    </div>
+                    
+                    <div class="next-steps">
+                        <h3>Próximos passos recomendados:</h3>
+                        <div class="next-steps-grid">
+                            <div class="next-step-card">
+                                <div class="next-step-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <h4>Agende Manutenção Regular</h4>
+                                <p>Configurar lembretes mensais para manter seu computador otimizado</p>
+                                <button class="btn btn-outline">Configurar Lembretes</button>
+                            </div>
+                            
+                            <div class="next-step-card">
+                                <div class="next-step-icon">
+                                    <i class="fas fa-tools"></i>
+                                </div>
+                                <h4>Verificação Avançada</h4>
+                                <p>Realize uma análise mais profunda para problemas persistentes</p>
+                                <button class="btn btn-outline">Iniciar Verificação</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="completion-actions">
+                        <button id="save-report" class="btn btn-outline">Salvar Relatório</button>
+                        <button id="new-maintenance" class="btn btn-primary">Nova Manutenção</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="chat-container" id="chat-container">
+            <div class="chat-toggle" id="chat-toggle">
+                <i class="fas fa-comments"></i>
+            </div>
+            
+            <div class="chat-window" id="chat-window">
+                <div class="chat-header">
+                    <h3><i class="fas fa-robot"></i> Assistente TechZe</h3>
+                    <button id="chat-close"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message message-agent">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <p>Olá! Sou o assistente virtual do TechZe. Estou aqui para ajudar com a manutenção do seu computador. Selecione um problema ou me diga como posso ajudar.</p>
+                    </div>
+                </div>
+                
+                <div class="quick-responses">
+                    <button onclick="quickResponse('Como funciona a manutenção guiada?')">Como funciona a manutenção guiada?</button>
+                    <button onclick="quickResponse('Meu computador continua lento')">Meu computador continua lento</button>
+                    <button onclick="quickResponse('Não consigo realizar uma etapa')">Não consigo realizar uma etapa</button>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="chat-input-field" placeholder="Digite sua mensagem...">
+                    <button id="chat-send"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechZe</h3>
+                    <p>Soluções inteligentes para manutenção de computadores.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="diagnostico.html">Manutenção Guiada</a></li>
+                        <li><a href="historico.html">Histórico</a></li>
+                        <li><a href="suporte.html">Suporte</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul>
+                        <li><a href="mailto:contato@techze.com">contato@techze.com</a></li>
+                        <li><a href="tel:+551199999999">(11) 9999-9999</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 TechZe. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="main.js"></script>
+    <script src="guia-manutencao.js"></script>
+    <script src="agente.js"></script>
+</body>
+</html>

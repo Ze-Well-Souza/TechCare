@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Análise do Sistema{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Análise do Sistema</h1>
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Esta página exibe a análise completa do sistema para identificar problemas e áreas que podem ser otimizadas.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Visão Geral do Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <p>Sistema Operacional: {{ analysis.system_info.os }}</p>
+                    <p>Versão: {{ analysis.system_info.version }}</p>
+                    <p>Arquitetura: {{ analysis.system_info.architecture }}</p>
+                    {% if is_windows %}
+                    <p>Windows Build: {{ analysis.system_info.build }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Resultados da Análise</h5>
+                </div>
+                <div class="card-body">
+                    <p>Total de problemas encontrados: 
+                        <span class="badge {% if analysis.total_issues > 10 %}bg-danger{% elif analysis.total_issues > 5 %}bg-warning{% else %}bg-success{% endif %}">
+                            {{ analysis.total_issues|default(0) }}
+                        </span>
+                    </p>
+                    <p>Espaço potencial para limpeza: {{ analysis.cleanup_potential_gb|default(0)|round(2) }} GB</p>
+                    <a href="{{ url_for('cleaner_analysis.analysis_results') }}" class="btn btn-primary">Ver Detalhes Completos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Análise de Disco</h5>
+                </div>
+                <div class="card-body">
+                    <p>Arquivos temporários: {{ analysis.disk_analysis.temp_files_count|default(0) }}</p>
+                    <p>Arquivos duplicados: {{ analysis.disk_analysis.duplicate_files_count|default(0) }}</p>
+                    <a href="{{ url_for('cleaner_analysis.disk_analyzer') }}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Análise de Navegadores</h5>
+                </div>
+                <div class="card-body">
+                    <p>Navegadores detectados: {{ analysis.browser_analysis.browsers_count|default(0) }}</p>
+                    <p>Cache total: {{ analysis.browser_analysis.total_cache_mb|default(0)|round(2) }} MB</p>
+                    <a href="{{ url_for('cleaner_analysis.browser_analyzer') }}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                </div>
+            </div>
+        </div>
+        
+        {% if is_windows %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Análise de Registro</h5>
+                </div>
+                <div class="card-body">
+                    <p>Problemas detectados: {{ analysis.registry_analysis.issues_count|default(0) }}</p>
+                    <p>Nível de fragmentação: {{ analysis.registry_analysis.fragmentation_level|default('Baixo') }}</p>
+                    <a href="{{ url_for('cleaner_analysis.registry_analyzer') }}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Análise de Inicialização</h5>
+                </div>
+                <div class="card-body">
+                    <p>Itens na inicialização: {{ analysis.startup_analysis.items_count|default(0) }}</p>
+                    <p>Impacto no boot: {{ analysis.startup_analysis.boot_impact|default('Médio') }}</p>
+                    <a href="{{ url_for('cleaner_analysis.startup_analyzer') }}" class="btn btn-sm btn-outline-primary">Detalhes</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

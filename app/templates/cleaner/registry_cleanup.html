@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Limpeza de Registro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-database me-2" aria-hidden="true"></i> Limpeza de Registro
+            </h1>
+            <p class="lead">Limpe e otimize o registro do Windows para melhorar o desempenho e a estabilidade do sistema.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-list-check me-2" aria-hidden="true"></i> Problemas Encontrados no Registro
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="registry-cleanup-form" method="post" action="{{ url_for('cleaner.clean_registry') }}">
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Problemas Detectados</h3>
+                            
+                            {% if registry_issues %}
+                                <div class="alert alert-warning mb-3">
+                                    <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+                                    <strong>{{ registry_issues.total_issues }} problemas encontrados no registro.</strong> Estes problemas podem estar afetando o desempenho do sistema.
+                                </div>
+                                
+                                <!-- Atalhos inválidos -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="invalid_shortcuts" name="registry_issues" value="invalid_shortcuts" checked>
+                                    <label class="form-check-label" for="invalid_shortcuts">
+                                        <strong>Atalhos inválidos ({{ registry_issues.invalid_shortcuts }})</strong>
+                                        <small class="text-muted d-block">Atalhos no Registro que apontam para arquivos ou programas inexistentes</small>
+                                    </label>
+                                </div>
+                                
+                                <!-- Software obsoleto -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="obsolete_software" name="registry_issues" value="obsolete_software" checked>
+                                    <label class="form-check-label" for="obsolete_software">
+                                        <strong>Software obsoleto ({{ registry_issues.obsolete_software }})</strong>
+                                        <small class="text-muted d-block">Entradas de registro de programas que foram desinstalados incorretamente</small>
+                                    </label>
+                                </div>
+                                
+                                <!-- Entradas de inicialização -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="startup_entries" name="registry_issues" value="startup_entries" checked>
+                                    <label class="form-check-label" for="startup_entries">
+                                        <strong>Entradas de inicialização ({{ registry_issues.startup_entries }})</strong>
+                                        <small class="text-muted d-block">Entradas de inicialização no registro que estão inválidas ou são desnecessárias</small>
+                                    </label>
+                                </div>
+                                
+                                <!-- DLLs compartilhadas ausentes -->
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="missing_shared_dlls" name="registry_issues" value="missing_shared_dlls" checked>
+                                    <label class="form-check-label" for="missing_shared_dlls">
+                                        <strong>DLLs compartilhadas ausentes ({{ registry_issues.missing_shared_dlls }})</strong>
+                                        <small class="text-muted d-block">Referências a DLLs compartilhadas que não existem mais no sistema</small>
+                                    </label>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success">
+                                    <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                                    <strong>Não foram encontrados problemas no registro.</strong> Seu sistema parece estar em bom estado.
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            Antes de limpar o registro, é recomendável criar um ponto de restauração do sistema.
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            {% if registry_issues and registry_issues.total_issues > 0 %}
+                                <button type="submit" class="btn btn-primary btn-lg" id="start-registry-cleanup">
+                                    <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                                    Limpar e Reparar Registro
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="create-restore-point">
+                                    <i class="fas fa-save me-2" aria-hidden="true"></i>
+                                    Criar Ponto de Restauração
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-primary btn-lg" id="scan-registry">
+                                    <i class="fas fa-search me-2" aria-hidden="true"></i>
+                                    Analisar Registro
+                                </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Status da Limpeza</h3>
+                </div>
+                <div class="card-body">
+                    <div id="registry-cleanup-status">
+                        <p class="text-center">
+                            <i class="fas fa-info-circle text-info me-2" aria-hidden="true"></i>
+                            {% if registry_issues and registry_issues.total_issues > 0 %}
+                                Selecione os problemas que deseja corrigir e clique em "Limpar e Reparar Registro"
+                            {% else %}
+                                Clique em "Analisar Registro" para verificar problemas
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div id="registry-cleanup-progress" class="d-none">
+                        <div class="text-center mb-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Executando limpeza...</span>
+                            </div>
+                            <p class="mt-2 mb-0" id="progress-text">Executando limpeza...</p>
+                        </div>
+                        <div class="progress mt-3">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div id="registry-cleanup-results" class="d-none">
+                        <h4 class="h6">Resultados da Limpeza</h4>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            Limpeza concluída com sucesso!
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1"><strong>Problemas corrigidos:</strong></p>
+                            <h3 class="text-success" id="issues-fixed">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">Dicas</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="small list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            A limpeza de registro deve ser realizada com cautela, pois alterações incorretas podem causar instabilidade.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Sempre crie um ponto de restauração antes de limpar o registro.
+                        </li>
+                        <li>
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Recomendamos realizar a limpeza do registro apenas quando houver problemas de desempenho.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registry-cleanup-form');
+        const scanButton = document.getElementById('scan-registry');
+        const restoreButton = document.getElementById('create-restore-point');
+        const statusDiv = document.getElementById('registry-cleanup-status');
+        const progressDiv = document.getElementById('registry-cleanup-progress');
+        const resultsDiv = document.getElementById('registry-cleanup-results');
+        
+        // Inicialização de botões condicionais
+        if (scanButton) {
+            scanButton.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+        
+        if (restoreButton) {
+            restoreButton.addEventListener('click', function() {
+                alert('Criando ponto de restauração...\n\nEste é apenas um exemplo. Em uma implementação real, o sistema criaria um ponto de restauração do Windows.');
+            });
+        }
+        
+        // Limpeza de registro
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostra o progresso
+                statusDiv.classList.add('d-none');
+                progressDiv.classList.remove('d-none');
+                resultsDiv.classList.add('d-none');
+                
+                // Coleta as opções selecionadas
+                const issues = [];
+                document.querySelectorAll('input[name="registry_issues"]:checked').forEach(function(checkbox) {
+                    issues.push(checkbox.value);
+                });
+                
+                // Simula o progresso da limpeza
+                let progress = 0;
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                const interval = setInterval(function() {
+                    progress += Math.floor(Math.random() * 5) + 1;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        
+                        // Mostra os resultados após a conclusão
+                        setTimeout(function() {
+                            progressDiv.classList.add('d-none');
+                            resultsDiv.classList.remove('d-none');
+                            
+                            // Simula os resultados - conta o número de problemas selecionados para correção
+                            const issuesFixed = issues.length > 0 ? issues.reduce((acc, issue) => {
+                                return acc + ({{ registry_issues.invalid_shortcuts if registry_issues else 0 }} && issue === 'invalid_shortcuts' ? {{ registry_issues.invalid_shortcuts if registry_issues else 0 }} : 0)
+                                    + ({{ registry_issues.obsolete_software if registry_issues else 0 }} && issue === 'obsolete_software' ? {{ registry_issues.obsolete_software if registry_issues else 0 }} : 0)
+                                    + ({{ registry_issues.startup_entries if registry_issues else 0 }} && issue === 'startup_entries' ? {{ registry_issues.startup_entries if registry_issues else 0 }} : 0)
+                                    + ({{ registry_issues.missing_shared_dlls if registry_issues else 0 }} && issue === 'missing_shared_dlls' ? {{ registry_issues.missing_shared_dlls if registry_issues else 0 }} : 0);
+                            }, 0) : 0;
+                            
+                            document.getElementById('issues-fixed').textContent = issuesFixed;
+                        }, 500);
+                    }
+                    
+                    progressBar.style.width = progress + '%';
+                    progressBar.setAttribute('aria-valuenow', progress);
+                    
+                    if (progress < 30) {
+                        progressText.textContent = 'Analisando problemas no registro...';
+                    } else if (progress < 60) {
+                        progressText.textContent = 'Corrigindo entradas inválidas...';
+                    } else if (progress < 90) {
+                        progressText.textContent = 'Removendo referências obsoletas...';
+                    } else {
+                        progressText.textContent = 'Finalizando limpeza...';
+                    }
+                }, 100);
+                
+                // Em uma implementação real, aqui você faria a chamada AJAX para o servidor
+                /*
+                fetch('{{ url_for('cleaner.clean_registry') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ registry_issues: issues })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Atualiza a interface com os resultados
+                    progressDiv.classList.add('d-none');
+                    resultsDiv.classList.remove('d-none');
+                    document.getElementById('issues-fixed').textContent = data.issues_fixed_count;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Ocorreu um erro durante a limpeza. Por favor, tente novamente.');
+                });
+                */
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cleaner.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('cleaner_maintenance.index') }}">Limpeza</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('cleaner_maintenance.index') }}">Manutenção</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Limpeza de Disco</li>
+        </ol>
+    </nav>
+    
+    <h1 class="display-4">Limpeza de Disco</h1>
+    <p class="lead">Libere espaço em disco removendo arquivos desnecessários.</p>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Análise do Disco</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="diskUsageChart" width="400" height="300"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <div class="disk-stats">
+                        <h5>Estatísticas de Uso do Disco</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Espaço Total
+                                <span class="badge bg-primary rounded-pill" id="totalSpace">Calculando...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Espaço Utilizado
+                                <span class="badge bg-danger rounded-pill" id="usedSpace">Calculando...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Espaço Livre
+                                <span class="badge bg-success rounded-pill" id="freeSpace">Calculando...</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Espaço Potencial para Liberar
+                                <span class="badge bg-warning rounded-pill" id="potentialFree">Calculando...</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Opções de Limpeza</h5>
+        </div>
+        <div class="card-body">
+            <form id="diskCleanupForm" method="post" action="{{ url_for('cleaner_cleaning.execute_cleaning') }}">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="temp_files" id="tempFiles" checked>
+                    <label class="form-check-label" for="tempFiles">
+                        Arquivos Temporários <span class="text-muted">(Estimativa: <span id="tempFilesSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="recycle_bin" id="recycleBin" checked>
+                    <label class="form-check-label" for="recycleBin">
+                        Lixeira <span class="text-muted">(Estimativa: <span id="recycleBinSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="download_folder" id="downloadFolder">
+                    <label class="form-check-label" for="downloadFolder">
+                        Limpar pasta de Downloads <span class="text-muted">(Estimativa: <span id="downloadFolderSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="browser_cache" id="browserCache" checked>
+                    <label class="form-check-label" for="browserCache">
+                        Cache de Navegadores <span class="text-muted">(Estimativa: <span id="browserCacheSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="system_logs" id="systemLogs">
+                    <label class="form-check-label" for="systemLogs">
+                        Logs do Sistema <span class="text-muted">(Estimativa: <span id="systemLogsSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="cleaning_options" value="update_cleanup" id="updateCleanup">
+                    <label class="form-check-label" for="updateCleanup">
+                        Arquivos de Atualização <span class="text-muted">(Estimativa: <span id="updateCleanupSize">Calculando...</span>)</span>
+                    </label>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Esta operação não pode ser desfeita. Certifique-se de fazer backup de arquivos importantes.
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="startCleanupBtn">
+                    <i class="fas fa-broom"></i> Iniciar Limpeza
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="cleanupResults" class="card mb-4 d-none">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Resultados da Limpeza</h5>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-3">
+                <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" id="cleanupProgress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+            
+            <div id="cleanupStats" class="d-none">
+                <h5>Estatísticas da Limpeza</h5>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Espaço Total Liberado
+                        <span class="badge bg-success rounded-pill" id="spaceFreed">0 MB</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Arquivos Removidos
+                        <span class="badge bg-danger rounded-pill" id="filesRemoved">0</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Tempo de Execução
+                        <span class="badge bg-info rounded-pill" id="executionTime">0 s</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div id="cleanupLog" class="d-none">
+                <h5 class="mt-3">Log da Limpeza</h5>
+                <pre id="cleanupLogContent" class="pre-scrollable" style="max-height: 300px;"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/cleaner.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simular dados para o gráfico de uso de disco
+            const ctx = document.getElementById('diskUsageChart').getContext('2d');
+            const diskUsageChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Utilizado', 'Livre', 'Potencial para Liberar'],
+                    datasets: [{
+                        data: [70, 25, 5],
+                        backgroundColor: ['#dc3545', '#198754', '#ffc107']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Simular dados do sistema
+            document.getElementById('totalSpace').textContent = '500 GB';
+            document.getElementById('usedSpace').textContent = '350 GB';
+            document.getElementById('freeSpace').textContent = '125 GB';
+            document.getElementById('potentialFree').textContent = '25 GB';
+            
+            document.getElementById('tempFilesSize').textContent = '5.2 GB';
+            document.getElementById('recycleBinSize').textContent = '2.8 GB';
+            document.getElementById('downloadFolderSize').textContent = '8.4 GB';
+            document.getElementById('browserCacheSize').textContent = '3.1 GB';
+            document.getElementById('systemLogsSize').textContent = '1.2 GB';
+            document.getElementById('updateCleanupSize').textContent = '4.3 GB';
+            
+            // Processar o formulário de limpeza
+            document.getElementById('diskCleanupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar progresso
+                document.getElementById('cleanupResults').classList.remove('d-none');
+                
+                // Simular progresso de limpeza
+                let progress = 0;
+                const progressBar = document.getElementById('cleanupProgress');
+                
+                const progressInterval = setInterval(function() {
+                    progress += 5;
+                    progressBar.style.width = progress + '%';
+                    progressBar.setAttribute('aria-valuenow', progress);
+                    progressBar.textContent = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        
+                        // Mostrar estatísticas e log
+                        document.getElementById('cleanupStats').classList.remove('d-none');
+                        document.getElementById('cleanupLog').classList.remove('d-none');
+                        
+                        // Preencher estatísticas finais
+                        document.getElementById('spaceFreed').textContent = '12.4 GB';
+                        document.getElementById('filesRemoved').textContent = '8,723';
+                        document.getElementById('executionTime').textContent = '24 s';
+                        
+                        // Preencher log
+                        document.getElementById('cleanupLogContent').textContent = 
+                            '[INFO] Iniciando limpeza de disco...\n' +
+                            '[INFO] Removendo arquivos temporários...\n' +
+                            '[INFO] 3,452 arquivos temporários removidos (5.2 GB)\n' +
+                            '[INFO] Esvaziando lixeira...\n' +
+                            '[INFO] Lixeira esvaziada (2.8 GB)\n' +
+                            '[INFO] Limpando cache de navegadores...\n' +
+                            '[INFO] Cache de navegadores limpo (3.1 GB)\n' +
+                            '[INFO] Removendo logs do sistema...\n' +
+                            '[INFO] 821 logs do sistema removidos (1.2 GB)\n' +
+                            '[INFO] Limpeza concluída com sucesso!\n' +
+                            '[INFO] Total de espaço liberado: 12.4 GB';
+                    }
+                }, 300);
+            });
+        });
+    </script>
+{% endblock %} 

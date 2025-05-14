@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Planos de Manutenção{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-calendar-check me-2" aria-hidden="true"></i> Planos de Manutenção
+            </h1>
+            <p class="lead">Configure planos de manutenção automáticos para manter seu computador otimizado.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Planos Ativos -->
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-cog me-2" aria-hidden="true"></i> Planos de Manutenção Ativos
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if active_plans and active_plans|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Frequência</th>
+                                        <th>Última Execução</th>
+                                        <th>Próxima Execução</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for plan in active_plans %}
+                                    <tr>
+                                        <td>{{ plan.name }}</td>
+                                        <td>{{ plan.frequency }}</td>
+                                        <td>
+                                            {% if plan.last_run %}
+                                                {{ plan.last_run }}
+                                            {% else %}
+                                                <span class="text-muted">Nunca</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ plan.next_run }}</td>
+                                        <td>
+                                            {% if plan.status == 'active' %}
+                                                <span class="badge bg-success">Ativo</span>
+                                            {% elif plan.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pendente</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inativo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('cleaner.edit_maintenance_plan', plan_id=plan.id) }}" class="btn btn-outline-primary">
+                                                    <i class="fas fa-edit" aria-hidden="true"></i>
+                                                </a>
+                                                <button class="btn btn-outline-danger delete-plan" data-plan-id="{{ plan.id }}">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                                <button class="btn btn-outline-success run-plan" data-plan-id="{{ plan.id }}">
+                                                    <i class="fas fa-play" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            Nenhum plano de manutenção configurado. Crie um novo plano para manter seu sistema otimizado automaticamente.
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newPlanModal">
+                            <i class="fas fa-plus me-2" aria-hidden="true"></i>
+                            Criar Novo Plano
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico de Manutenções -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-history me-2" aria-hidden="true"></i> Histórico de Manutenções
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if maintenance_history and maintenance_history|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Plano</th>
+                                        <th>Data</th>
+                                        <th>Resultado</th>
+                                        <th>Detalhes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in maintenance_history %}
+                                    <tr>
+                                        <td>{{ entry.plan_name }}</td>
+                                        <td>{{ entry.date }}</td>
+                                        <td>
+                                            {% if entry.success %}
+                                                <span class="badge bg-success">Sucesso</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Falha</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-link view-details" data-history-id="{{ entry.id }}">
+                                                Ver Detalhes
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            Nenhuma manutenção foi executada ainda.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Sugestões de Planos -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Planos Recomendados</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action template-plan" data-plan-type="basic">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Manutenção Básica</h5>
+                                <small class="text-primary">Semanal</small>
+                            </div>
+                            <p class="mb-1">Limpeza de arquivos temporários e cache de navegadores.</p>
+                            <small class="text-muted">Recomendado para uso doméstico.</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action template-plan" data-plan-type="advanced">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Manutenção Avançada</h5>
+                                <small class="text-primary">Quinzenal</small>
+                            </div>
+                            <p class="mb-1">Limpeza completa do sistema, incluindo registro e otimização de inicialização.</p>
+                            <small class="text-muted">Recomendado para usuários avançados.</small>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action template-plan" data-plan-type="complete">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Manutenção Completa</h5>
+                                <small class="text-primary">Mensal</small>
+                            </div>
+                            <p class="mb-1">Análise de disco, limpeza profunda e otimização de desempenho.</p>
+                            <small class="text-muted">Recomendado para workstations e computadores profissionais.</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status do Sistema -->
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">Status do Sistema</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="h6 mb-3">Nível de Otimização:</h4>
+                    <div class="progress mb-3" style="height: 24px;">
+                        <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: {{ system_status.optimization_level }}%" aria-valuenow="{{ system_status.optimization_level }}" aria-valuemin="0" aria-valuemax="100">{{ system_status.optimization_level }}%</div>
+                    </div>
+                    
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Arquivos temporários
+                            {% if system_status.temp_status == 'good' %}
+                                <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-exclamation"></i></span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Espaço em disco
+                            {% if system_status.disk_status == 'good' %}
+                                <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                            {% else %}
+                                <span class="badge bg-danger rounded-pill"><i class="fas fa-times"></i></span>
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Inicialização
+                            {% if system_status.startup_status == 'good' %}
+                                <span class="badge bg-success rounded-pill"><i class="fas fa-check"></i></span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-exclamation"></i></span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                    
+                    <div class="alert {% if system_status.needs_maintenance %}alert-warning{% else %}alert-success{% endif %}">
+                        <i class="fas {% if system_status.needs_maintenance %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-2" aria-hidden="true"></i>
+                        {% if system_status.needs_maintenance %}
+                            É recomendável executar uma manutenção em breve.
+                        {% else %}
+                            Seu sistema está bem otimizado.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Criar Novo Plano -->
+<div class="modal fade" id="newPlanModal" tabindex="-1" aria-labelledby="newPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newPlanModalLabel">Criar Novo Plano de Manutenção</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="new-plan-form" method="post" action="{{ url_for('cleaner.save_maintenance_plan') }}">
+                    <div class="mb-3">
+                        <label for="plan-name" class="form-label">Nome do Plano:</label>
+                        <input type="text" class="form-control" id="plan-name" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="plan-frequency" class="form-label">Frequência:</label>
+                        <select class="form-select" id="plan-frequency" name="frequency" required>
+                            <option value="daily">Diária</option>
+                            <option value="weekly" selected>Semanal</option>
+                            <option value="biweekly">Quinzenal</option>
+                            <option value="monthly">Mensal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tarefas de Manutenção:</label>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="task-temp" name="tasks" value="temp_cleanup" checked>
+                            <label class="form-check-label" for="task-temp">
+                                Limpeza de arquivos temporários
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="task-browser" name="tasks" value="browser_cleanup" checked>
+                            <label class="form-check-label" for="task-browser">
+                                Limpeza de cache de navegadores
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="task-disk" name="tasks" value="disk_cleanup">
+                            <label class="form-check-label" for="task-disk">
+                                Limpeza de disco
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="task-registry" name="tasks" value="registry_cleanup">
+                            <label class="form-check-label" for="task-registry">
+                                Limpeza do registro
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="task-startup" name="tasks" value="startup_optimization">
+                            <label class="form-check-label" for="task-startup">
+                                Otimização de inicialização
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Opções Adicionais:</label>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="option-notifications" name="options" value="notifications" checked>
+                            <label class="form-check-label" for="option-notifications">
+                                Mostrar notificações
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="option-reports" name="options" value="reports" checked>
+                            <label class="form-check-label" for="option-reports">
+                                Gerar relatórios
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="option-skip-if-battery" name="options" value="skip_if_battery">
+                            <label class="form-check-label" for="option-skip-if-battery">
+                                Pular se estiver usando bateria (notebooks)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="new-plan-form" class="btn btn-primary">Salvar Plano</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes da Execução -->
+<div class="modal fade" id="historyDetailsModal" tabindex="-1" aria-labelledby="historyDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyDetailsModalLabel">Detalhes da Execução</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" id="history-details-content">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botões de planos recomendados
+        document.querySelectorAll('.template-plan').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const planType = this.getAttribute('data-plan-type');
+                let planName = '';
+                let frequency = 'weekly';
+                const taskCheckboxes = document.querySelectorAll('input[name="tasks"]');
+                
+                // Desmarca todas as tarefas
+                taskCheckboxes.forEach(checkbox => checkbox.checked = false);
+                
+                // Configura as tarefas de acordo com o tipo de plano
+                if (planType === 'basic') {
+                    planName = 'Manutenção Básica';
+                    frequency = 'weekly';
+                    document.getElementById('task-temp').checked = true;
+                    document.getElementById('task-browser').checked = true;
+                } else if (planType === 'advanced') {
+                    planName = 'Manutenção Avançada';
+                    frequency = 'biweekly';
+                    document.getElementById('task-temp').checked = true;
+                    document.getElementById('task-browser').checked = true;
+                    document.getElementById('task-disk').checked = true;
+                    document.getElementById('task-registry').checked = true;
+                } else if (planType === 'complete') {
+                    planName = 'Manutenção Completa';
+                    frequency = 'monthly';
+                    document.getElementById('task-temp').checked = true;
+                    document.getElementById('task-browser').checked = true;
+                    document.getElementById('task-disk').checked = true;
+                    document.getElementById('task-registry').checked = true;
+                    document.getElementById('task-startup').checked = true;
+                }
+                
+                // Preenche o formulário do modal
+                document.getElementById('plan-name').value = planName;
+                document.getElementById('plan-frequency').value = frequency;
+                
+                // Abre o modal
+                const modal = new bootstrap.Modal(document.getElementById('newPlanModal'));
+                modal.show();
+            });
+        });
+        
+        // Botões de visualização de detalhes do histórico
+        document.querySelectorAll('.view-details').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const historyId = this.getAttribute('data-history-id');
+                const modalContent = document.getElementById('history-details-content');
+                
+                // Mostra spinner de carregamento
+                modalContent.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>';
+                
+                // Exibe o modal
+                const modal = new bootstrap.Modal(document.getElementById('historyDetailsModal'));
+                modal.show();
+                
+                // Simula o carregamento dos detalhes
+                setTimeout(function() {
+                    // Aqui você faria uma requisição AJAX para obter os detalhes
+                    // Em uma implementação real, substituiria por uma chamada fetch
+                    
+                    // Dados simulados
+                    const details = {
+                        plan_name: 'Manutenção Semanal',
+                        date: '12/05/2023 15:32',
+                        duration: '3 minutos e 45 segundos',
+                        tasks: [
+                            { name: 'Limpeza de arquivos temporários', status: 'success', result: 'Espaço liberado: 356 MB' },
+                            { name: 'Limpeza de cache de navegadores', status: 'success', result: 'Espaço liberado: 128 MB' }
+                        ],
+                        total_cleaned: '484 MB'
+                    };
+                    
+                    // Constrói o HTML com os detalhes
+                    let html = `
+                        <h5 class="mb-3">${details.plan_name}</h5>
+                        <p><strong>Data:</strong> ${details.date}</p>
+                        <p><strong>Duração:</strong> ${details.duration}</p>
+                        
+                        <h6 class="mt-4 mb-3">Tarefas Executadas:</h6>
+                        <ul class="list-group mb-3">
+                    `;
+                    
+                    // Adiciona as tarefas
+                    details.tasks.forEach(task => {
+                        html += `
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${task.name}</strong>
+                                        <div class="text-muted small">${task.result}</div>
+                                    </div>
+                                    <span class="badge ${task.status === 'success' ? 'bg-success' : 'bg-danger'}">
+                                        <i class="fas ${task.status === 'success' ? 'fa-check' : 'fa-times'}"></i>
+                                    </span>
+                                </div>
+                            </li>
+                        `;
+                    });
+                    
+                    html += `
+                        </ul>
+                        
+                        <div class="alert alert-success">
+                            <strong>Total de espaço liberado:</strong> ${details.total_cleaned}
+                        </div>
+                    `;
+                    
+                    // Atualiza o conteúdo do modal
+                    modalContent.innerHTML = html;
+                }, 800);
+            });
+        });
+        
+        // Botões de exclusão de plano
+        document.querySelectorAll('.delete-plan').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const planId = this.getAttribute('data-plan-id');
+                
+                if (confirm('Tem certeza que deseja excluir este plano de manutenção?')) {
+                    // Em uma implementação real, faria uma requisição AJAX para excluir o plano
+                    alert('Esta funcionalidade excluiria o plano ' + planId);
+                    // Após a exclusão bem-sucedida, você recarregaria a página
+                    // window.location.reload();
+                }
+            });
+        });
+        
+        // Botões de execução de plano
+        document.querySelectorAll('.run-plan').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const planId = this.getAttribute('data-plan-id');
+                
+                if (confirm('Deseja executar este plano de manutenção agora?')) {
+                    // Em uma implementação real, faria uma requisição AJAX para executar o plano
+                    alert('Esta funcionalidade executaria o plano ' + planId);
+                    // Após o início da execução, você poderia redirecionar para uma página de monitoramento
+                    // window.location.href = '{{ url_for('cleaner.monitor_maintenance') }}?plan_id=' + planId;
+                }
+            });
+        });
+        
+        // Formulário de novo plano
+        const newPlanForm = document.getElementById('new-plan-form');
+        if (newPlanForm) {
+            newPlanForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Em uma implementação real, enviaria os dados do formulário para o servidor
+                alert('Em uma implementação real, o plano seria salvo. Esta é apenas uma simulação.');
+                
+                // Fecha o modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newPlanModal'));
+                modal.hide();
+                
+                // Recarrega a página para mostrar o novo plano
+                // window.location.reload();
+            });
+        }
+    });
+</script>
+{% endblock %} 

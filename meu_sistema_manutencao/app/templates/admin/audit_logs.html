@@ -1,0 +1,287 @@
+{% extends "base/base.html" %}
+
+{% block title %}Logs de Auditoria{% endblock %}
+
+{% block extra_css %}
+<style>
+    .audit-log-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .audit-log-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .action-badge {
+        text-transform: uppercase;
+        font-size: 0.7rem;
+    }
+    .action-login { background-color: #28a745; }
+    .action-logout { background-color: #6c757d; }
+    .action-create { background-color: #17a2b8; }
+    .action-update { background-color: #ffc107; }
+    .action-delete { background-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h1>Logs de Auditoria</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    Filtros
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label>Usuário</label>
+                        <select id="userFilter" class="form-control">
+                            <option value="">Todos os Usuários</option>
+                            <!-- Usuários serão populados via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label>Ação</label>
+                        <select id="actionFilter" class="form-control">
+                            <option value="">Todas as Ações</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="create">Criação</option>
+                            <option value="update">Atualização</option>
+                            <option value="delete">Exclusão</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Período</label>
+                        <select id="periodFilter" class="form-control">
+                            <option value="7">Últimos 7 dias</option>
+                            <option value="30" selected>Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="exportLogsBtn" class="btn btn-primary">
+                            Exportar Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div id="auditLogsContainer">
+                <!-- Logs de auditoria serão carregados via JavaScript -->
+            </div>
+
+            <div id="paginationControls" class="d-flex justify-content-between mt-3">
+                <button id="prevPageBtn" class="btn btn-secondary">Anterior</button>
+                <span id="pageInfo">Página 1</span>
+                <button id="nextPageBtn" class="btn btn-secondary">Próximo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalhes do log -->
+<div class="modal fade" id="auditLogDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="auditLogModalTitle">Detalhes do Log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informações Básicas</h6>
+                        <p><strong>Usuário:</strong> <span id="logUsername"></span></p>
+                        <p><strong>Ação:</strong> <span id="logAction"></span></p>
+                        <p><strong>Recurso:</strong> <span id="logResourceType"></span></p>
+                        <p><strong>Timestamp:</strong> <span id="logTimestamp"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Detalhes de Conexão</h6>
+                        <p><strong>Endereço IP:</strong> <span id="logIpAddress"></span></p>
+                        <p><strong>User Agent:</strong> <span id="logUserAgent"></span></p>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Mudanças</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                <pre id="logChangesDetails"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const auditLogsContainer = document.getElementById('auditLogsContainer');
+    const userFilter = document.getElementById('userFilter');
+    const actionFilter = document.getElementById('actionFilter');
+    const periodFilter = document.getElementById('periodFilter');
+    const exportLogsBtn = document.getElementById('exportLogsBtn');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    // Modal
+    const auditLogModal = new bootstrap.Modal(document.getElementById('auditLogDetailModal'));
+    const logUsername = document.getElementById('logUsername');
+    const logAction = document.getElementById('logAction');
+    const logResourceType = document.getElementById('logResourceType');
+    const logTimestamp = document.getElementById('logTimestamp');
+    const logIpAddress = document.getElementById('logIpAddress');
+    const logUserAgent = document.getElementById('logUserAgent');
+    const logChangesDetails = document.getElementById('logChangesDetails');
+
+    let currentPage = 1;
+    const logsPerPage = 10;
+    let currentLogs = [];
+
+    function createAuditLogCard(log) {
+        const card = document.createElement('div');
+        card.classList.add('card', 'mb-3', 'audit-log-card');
+        card.dataset.logId = log.id;
+        
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">${log.username}</h5>
+                    <span class="badge action-${log.action} action-badge">${log.action}</span>
+                </div>
+                <p class="card-text">
+                    <strong>${log.resource_type}</strong> 
+                    (${log.action})
+                </p>
+                <small class="text-muted">${new Date(log.timestamp).toLocaleString()}</small>
+            </div>
+        `;
+
+        card.addEventListener('click', () => showAuditLogDetails(log));
+        return card;
+    }
+
+    function showAuditLogDetails(log) {
+        // Preencher informações básicas
+        logUsername.textContent = log.username;
+        logAction.textContent = log.action;
+        logResourceType.textContent = `${log.resource_type} (ID: ${log.resource_id || 'N/A'})`;
+        logTimestamp.textContent = new Date(log.timestamp).toLocaleString();
+        logIpAddress.textContent = log.ip_address;
+        logUserAgent.textContent = log.user_agent || 'N/A';
+
+        // Mostrar mudanças
+        const changesContent = [];
+        if (log.old_data) {
+            changesContent.push('Dados Anteriores:');
+            changesContent.push(JSON.stringify(log.old_data, null, 2));
+        }
+        if (log.new_data) {
+            changesContent.push('\nDados Novos:');
+            changesContent.push(JSON.stringify(log.new_data, null, 2));
+        }
+        logChangesDetails.textContent = changesContent.join('\n') || 'Sem mudanças registradas';
+
+        auditLogModal.show();
+    }
+
+    function loadAuditLogs(page = 1) {
+        const userId = userFilter.value;
+        const action = actionFilter.value;
+        const days = periodFilter.value;
+
+        const params = new URLSearchParams({
+            ...(userId && { user_id: userId }),
+            ...(action && { action }),
+            days
+        });
+
+        fetch(`/audit-logs?${params}`)
+            .then(response => response.json())
+            .then(logs => {
+                currentLogs = logs;
+                auditLogsContainer.innerHTML = '';
+
+                // Calcular início e fim da página
+                const startIndex = (page - 1) * logsPerPage;
+                const endIndex = startIndex + logsPerPage;
+                const pageLogs = logs.slice(startIndex, endIndex);
+
+                pageLogs.forEach(log => {
+                    const card = createAuditLogCard(log);
+                    auditLogsContainer.appendChild(card);
+                });
+
+                // Atualizar controles de paginação
+                currentPage = page;
+                pageInfo.textContent = `Página ${page}`;
+                prevPageBtn.disabled = page === 1;
+                nextPageBtn.disabled = endIndex >= logs.length;
+            });
+    }
+
+    function exportAuditLogs() {
+        const userId = userFilter.value;
+        const action = actionFilter.value;
+        const days = periodFilter.value;
+
+        const params = new URLSearchParams({
+            ...(userId && { user_id: userId }),
+            ...(action && { action }),
+            days
+        });
+
+        window.location.href = `/audit-logs/export?${params}`;
+    }
+
+    function loadUserOptions() {
+        // Carregar usuários para filtro
+        fetch('/users')
+            .then(response => response.json())
+            .then(users => {
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.username;
+                    userFilter.appendChild(option);
+                });
+            });
+    }
+
+    // Event Listeners
+    userFilter.addEventListener('change', () => loadAuditLogs());
+    actionFilter.addEventListener('change', () => loadAuditLogs());
+    periodFilter.addEventListener('change', () => loadAuditLogs());
+    exportLogsBtn.addEventListener('click', exportAuditLogs);
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) loadAuditLogs(currentPage - 1);
+    });
+    nextPageBtn.addEventListener('click', () => {
+        loadAuditLogs(currentPage + 1);
+    });
+
+    // Inicializar
+    loadUserOptions();
+    loadAuditLogs();
+});
+</script>
+{% endblock %}

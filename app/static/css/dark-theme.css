@@ -1,0 +1,192 @@
+/* 
+ * TechCare - Tema escuro
+ * Arquivo CSS para o tema escuro do TechCare
+ */
+
+/* Tema escuro - variáveis principais */
+:root {
+  /* Cores base do tema escuro */
+  --dark-bg: #121212;
+  --dark-surface: #1e1e1e;
+  --dark-card: #2d2d2d;
+  --dark-border: #444444;
+  
+  /* Cores de texto */
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #bbbbbb;
+  --dark-text-disabled: #777777;
+  
+  /* Cores de interação */
+  --dark-primary: #0d6efd;
+  --dark-primary-hover: #0b5ed7;
+  --dark-secondary: #6c757d;
+  --dark-success: #198754;
+  --dark-danger: #dc3545;
+  --dark-warning: #ffc107;
+  --dark-info: #0dcaf0;
+}
+
+/* Aplicação do tema escuro */
+body.dark-theme {
+  background-color: var(--dark-bg);
+  color: var(--dark-text-primary);
+}
+
+/* Navbar no tema escuro */
+body.dark-theme .navbar {
+  background-color: var(--dark-primary) !important;
+}
+
+/* Cards no tema escuro */
+body.dark-theme .card {
+  background-color: var(--dark-card);
+  border-color: var(--dark-border);
+}
+
+body.dark-theme .card-header,
+body.dark-theme .card-footer {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: var(--dark-border);
+}
+
+/* Textos no tema escuro */
+body.dark-theme .text-muted {
+  color: var(--dark-text-secondary) !important;
+}
+
+/* Links no tema escuro */
+body.dark-theme a:not(.btn):not(.nav-link) {
+  color: var(--dark-primary);
+}
+
+body.dark-theme a:hover:not(.btn):not(.nav-link) {
+  color: var(--dark-primary-hover);
+}
+
+/* Tabelas no tema escuro */
+body.dark-theme .table {
+  color: var(--dark-text-primary);
+}
+
+body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme .table thead th {
+  border-bottom-color: var(--dark-border);
+}
+
+body.dark-theme .table td, 
+body.dark-theme .table th {
+  border-color: var(--dark-border);
+}
+
+/* Formulários no tema escuro */
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+  background-color: var(--dark-surface);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus {
+  background-color: var(--dark-surface);
+  border-color: var(--dark-primary);
+  color: var(--dark-text-primary);
+}
+
+body.dark-theme .form-control::placeholder {
+  color: var(--dark-text-disabled);
+}
+
+/* ListGroups no tema escuro */
+body.dark-theme .list-group-item {
+  background-color: var(--dark-card);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+/* Modais no tema escuro */
+body.dark-theme .modal-content {
+  background-color: var(--dark-surface);
+  border-color: var(--dark-border);
+}
+
+body.dark-theme .modal-header,
+body.dark-theme .modal-footer {
+  border-color: var(--dark-border);
+}
+
+/* Dropdowns no tema escuro */
+body.dark-theme .dropdown-menu {
+  background-color: var(--dark-card);
+  border-color: var(--dark-border);
+}
+
+body.dark-theme .dropdown-item {
+  color: var(--dark-text-primary);
+}
+
+body.dark-theme .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .dropdown-divider {
+  border-color: var(--dark-border);
+}
+
+/* Footer no tema escuro */
+body.dark-theme footer {
+  background-color: var(--dark-surface) !important;
+}
+
+/* Alertas no tema escuro */
+body.dark-theme .alert {
+  border-color: transparent;
+}
+
+/* Ajuste fino nas cores dos alertas para tema escuro */
+body.dark-theme .alert-info {
+  background-color: rgba(13, 202, 240, 0.2);
+  color: #0dcaf0;
+}
+
+body.dark-theme .alert-success {
+  background-color: rgba(25, 135, 84, 0.2);
+  color: #75b798;
+}
+
+body.dark-theme .alert-warning {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffda6a;
+}
+
+body.dark-theme .alert-danger {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #ea868f;
+}
+
+/* Ajustes específicos para páginas particulares */
+body.dark-theme .diagnostic-card {
+  background-color: var(--dark-card);
+}
+
+body.dark-theme .progress {
+  background-color: var(--dark-surface);
+}
+
+/* Cores dos gauges no tema escuro */
+body.dark-theme .gauge-bg {
+  fill: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajustes de foco para acessibilidade no tema escuro */
+body.dark-theme a:focus,
+body.dark-theme button:focus,
+body.dark-theme input:focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus {
+  outline: 2px solid var(--dark-primary);
+  outline-offset: 2px;
+} 

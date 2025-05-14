@@ -1,0 +1,173 @@
+{% extends "base/base.html" %}
+
+{% block title %}Logs de Serviços{% endblock %}
+
+{% block extra_css %}
+<style>
+    .log-table {
+        font-size: 0.9rem;
+    }
+    .log-level-INFO { color: green; }
+    .log-level-WARNING { color: orange; }
+    .log-level-ERROR { color: red; font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Logs de Serviços</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <select id="serviceFilter" class="form-control">
+                <option value="">Todos os Serviços</option>
+                <!-- Serviços serão populados via JavaScript -->
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select id="logLevelFilter" class="form-control">
+                <option value="">Todos os Níveis</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="ERROR">ERROR</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button id="exportLogsBtn" class="btn btn-primary">
+                Exportar Logs
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="logsTable" class="table table-striped log-table">
+            <thead>
+                <tr>
+                    <th>Serviço</th>
+                    <th>Timestamp</th>
+                    <th>Nível</th>
+                    <th>Mensagem</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="logsTableBody">
+                <!-- Logs serão carregados via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="logsPagination" class="d-flex justify-content-between align-items-center">
+        <button id="prevLogsBtn" class="btn btn-secondary">Anterior</button>
+        <span id="pageInfo">Página 1</span>
+        <button id="nextLogsBtn" class="btn btn-secondary">Próximo</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceFilter = document.getElementById('serviceFilter');
+    const logLevelFilter = document.getElementById('logLevelFilter');
+    const logsTableBody = document.getElementById('logsTableBody');
+    const exportLogsBtn = document.getElementById('exportLogsBtn');
+    const prevLogsBtn = document.getElementById('prevLogsBtn');
+    const nextLogsBtn = document.getElementById('nextLogsBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    let currentPage = 1;
+    const logsPerPage = 50;
+
+    // Carregar serviços para filtro
+    function loadServiceOptions() {
+        fetch('/services')
+            .then(response => response.json())
+            .then(services => {
+                services.forEach(service => {
+                    const option = document.createElement('option');
+                    option.value = service.id;
+                    option.textContent = service.name;
+                    serviceFilter.appendChild(option);
+                });
+            });
+    }
+
+    // Carregar logs
+    function loadLogs(page = 1) {
+        const serviceId = serviceFilter.value;
+        const logLevel = logLevelFilter.value;
+        
+        const params = new URLSearchParams({
+            limit: logsPerPage,
+            page: page,
+            ...(serviceId && { service_id: serviceId }),
+            ...(logLevel && { log_level: logLevel })
+        });
+
+        fetch(`/services/logs?${params}`)
+            .then(response => response.json())
+            .then(logs => {
+                logsTableBody.innerHTML = ''; // Limpar tabela
+                logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.service_id}</td>
+                        <td>${new Date(log.timestamp).toLocaleString()}</td>
+                        <td class="log-level-${log.log_level}">${log.log_level}</td>
+                        <td>${log.message}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="showLogDetails(${log.id})">
+                                Detalhes
+                            </button>
+                        </td>
+                    `;
+                    logsTableBody.appendChild(row);
+                });
+
+                // Atualizar informações de paginação
+                pageInfo.textContent = `Página ${page}`;
+                prevLogsBtn.disabled = page === 1;
+                nextLogsBtn.disabled = logs.length < logsPerPage;
+            });
+    }
+
+    // Exportar logs
+    function exportLogs() {
+        const serviceId = serviceFilter.value;
+        const logLevel = logLevelFilter.value;
+
+        const params = new URLSearchParams({
+            ...(serviceId && { service_id: serviceId }),
+            ...(logLevel && { log_level: logLevel })
+        });
+
+        window.location.href = `/services/logs/export?${params}`;
+    }
+
+    // Mostrar detalhes do log
+    function showLogDetails(logId) {
+        // Implementar modal ou navegação para detalhes do log
+        alert(`Detalhes do log ${logId}`);
+    }
+
+    // Event Listeners
+    serviceFilter.addEventListener('change', () => loadLogs());
+    logLevelFilter.addEventListener('change', () => loadLogs());
+    exportLogsBtn.addEventListener('click', exportLogs);
+    prevLogsBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadLogs(currentPage);
+        }
+    });
+    nextLogsBtn.addEventListener('click', () => {
+        currentPage++;
+        loadLogs(currentPage);
+    });
+
+    // Inicializar
+    loadServiceOptions();
+    loadLogs();
+});
+</script>
+{% endblock %}

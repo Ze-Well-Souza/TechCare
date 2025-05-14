@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Plano de Reparo - Diagnóstico #{{ diagnostic.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diagnostic.history') }}">Histórico</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diagnostic.view_results', diagnostic_id=diagnostic.id) }}">Diagnóstico #{{ diagnostic.id }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Plano de Reparo</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2">Plano de Reparo</h1>
+                <span class="badge bg-primary">{{ plan.problems_count }} problema(s)</span>
+            </div>
+            <p class="text-muted">Para o diagnóstico <strong>{{ diagnostic.name }}</strong> realizado em {{ diagnostic.date.strftime('%d/%m/%Y %H:%M') }}</p>
+        </div>
+    </div>
+
+    {% if plan.repair_steps %}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> 
+                Siga os passos abaixo para resolver os problemas encontrados no seu sistema. Você pode resolver os problemas em qualquer ordem.
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="list-group">
+                {% for step in plan.repair_steps %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">
+                            <span class="badge 
+                                {% if step.problem.impact == 'critical' %}bg-danger
+                                {% elif step.problem.impact == 'high' %}bg-warning text-dark
+                                {% elif step.problem.impact == 'medium' %}bg-info text-dark
+                                {% else %}bg-secondary{% endif %} me-2">
+                                {% if step.problem.impact == 'critical' %}Crítico
+                                {% elif step.problem.impact == 'high' %}Alto
+                                {% elif step.problem.impact == 'medium' %}Médio
+                                {% else %}Baixo{% endif %}
+                            </span>
+                            {{ step.problem.title }}
+                        </h5>
+                        <a href="{{ url_for('repair.repair_step', diagnostic_id=diagnostic.id, step_index=loop.index0) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-tools me-1"></i> Iniciar Reparo
+                        </a>
+                    </div>
+                    <p class="mb-2">{{ step.problem.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-wrench me-1"></i> {{ step.guide.steps|length }} passo(s) para resolução
+                        </small>
+                        <span class="badge bg-light text-dark">
+                            <i class="fas fa-laptop me-1"></i> {{ step.problem.category|capitalize }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i> 
+                Não foram encontrados problemas que necessitem de reparo no seu sistema.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col d-flex justify-content-between">
+            <a href="{{ url_for('diagnostic.view_results', diagnostic_id=diagnostic.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar para Diagnóstico
+            </a>
+            {% if plan.repair_steps %}
+            <button id="finishRepair" class="btn btn-success">
+                <i class="fas fa-check-circle me-1"></i> Marcar Todos como Resolvidos
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const finishBtn = document.getElementById('finishRepair');
+        if (finishBtn) {
+            finishBtn.addEventListener('click', function() {
+                if (confirm('Você tem certeza que todos os problemas foram resolvidos?')) {
+                    fetch('{{ url_for("repair.finish_repair", diagnostic_id=diagnostic.id) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Todos os problemas foram marcados como resolvidos!');
+                            window.location.href = '{{ url_for("diagnostic.view_results", diagnostic_id=diagnostic.id) }}';
+                        } else {
+                            alert('Erro: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Ocorreu um erro ao processar sua solicitação.');
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

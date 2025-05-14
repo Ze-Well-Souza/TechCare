@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}TechCare - Gerenciamento de Usuários{% endblock %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0"><i class="fas fa-users-cog"></i> Gerenciamento de Usuários</h4>
+    </div>
+    <div class="card-body">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Usuário</th>
+                        <th>Email</th>
+                        <th>Função</th>
+                        <th>Cadastrado em</th>
+                        <th>Último acesso</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-danger">Administrador</span>
+                            {% elif user.role == 'tech' %}
+                                <span class="badge bg-info">Técnico</span>
+                            {% else %}
+                                <span class="badge bg-success">Usuário</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ user.last_login.strftime('%d/%m/%Y %H:%M') if user.last_login else 'Nunca' }}</td>
+                        <td>
+                            {% if user.active %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('auth.admin_edit_user', id=user.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

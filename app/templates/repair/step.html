@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Reparo - Passo {{ current_index + 1 }}/{{ total_steps }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diagnostic.history') }}">Histórico</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diagnostic.view_results', diagnostic_id=diagnostic.id) }}">Diagnóstico #{{ diagnostic.id }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=diagnostic.id) }}">Plano de Reparo</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Passo {{ current_index + 1 }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Progresso do Reparo -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ (current_index + 1) / total_steps * 100 }}%;" 
+                     aria-valuenow="{{ current_index + 1 }}" aria-valuemin="0" aria-valuemax="{{ total_steps }}">
+                    Passo {{ current_index + 1 }} de {{ total_steps }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Problema -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-{% if step.problem.impact == 'critical' %}danger{% elif step.problem.impact == 'high' %}warning{% elif step.problem.impact == 'medium' %}info{% else %}secondary{% endif %}">
+                <div class="card-header bg-{% if step.problem.impact == 'critical' %}danger{% elif step.problem.impact == 'high' %}warning{% elif step.problem.impact == 'medium' %}info{% else %}secondary{% endif %} {% if step.problem.impact != 'critical' and step.problem.impact != 'high' %}text-dark{% else %}text-white{% endif %}">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ step.problem.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Categoria: {{ step.problem.category|capitalize }}</h6>
+                    <p class="card-text">{{ step.problem.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guia de Reparo -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>
+                        {{ step.guide.title }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="repairSteps">
+                        {% for repair_step in step.guide.steps %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ loop.index }}">
+                                <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" 
+                                        aria-expanded="{% if loop.first %}true{% else %}false{% endif %}" 
+                                        aria-controls="collapse{{ loop.index }}">
+                                    <span class="badge bg-primary me-2">{{ loop.index }}</span>
+                                    {{ repair_step.title }}
+                                    {% if repair_step.is_automated %}
+                                    <span class="badge bg-success ms-2">Automatizado</span>
+                                    {% endif %}
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" 
+                                 aria-labelledby="heading{{ loop.index }}" data-bs-parent="#repairSteps">
+                                <div class="accordion-body">
+                                    <p>{{ repair_step.description }}</p>
+                                    
+                                    {% if repair_step.is_automated %}
+                                    <button class="btn btn-success btn-sm automated-step" 
+                                            data-step="{{ loop.index }}" 
+                                            data-diagnostic="{{ diagnostic.id }}" 
+                                            data-problem="{{ current_index }}">
+                                        <i class="fas fa-play me-1"></i> Executar Automaticamente
+                                    </button>
+                                    <div id="automatedResult{{ loop.index }}" class="mt-2 d-none">
+                                        <div class="alert alert-info">
+                                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                                <span class="visually-hidden">Executando...</span>
+                                            </div>
+                                            Executando reparo automático...
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input step-completed" type="checkbox" 
+                                               value="" id="stepCompleted{{ loop.index }}">
+                                        <label class="form-check-label" for="stepCompleted{{ loop.index }}">
+                                            Marcar como concluído
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegação -->
+    <div class="row">
+        <div class="col d-flex justify-content-between">
+            {% if has_previous %}
+            <a href="{{ url_for('repair.repair_step', diagnostic_id=diagnostic.id, step_index=current_index - 1) }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i> Problema Anterior
+            </a>
+            {% else %}
+            <a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=diagnostic.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Voltar ao Plano
+            </a>
+            {% endif %}
+
+            {% if has_next %}
+            <a href="{{ url_for('repair.repair_step', diagnostic_id=diagnostic.id, step_index=current_index + 1) }}" class="btn btn-primary">
+                Próximo Problema <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+            {% else %}
+            <a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=diagnostic.id) }}" class="btn btn-success">
+                <i class="fas fa-check-circle me-1"></i> Concluir
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar se os passos estão marcados como concluídos
+        const checkboxes = document.querySelectorAll('.step-completed');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const stepId = this.id.replace('stepCompleted', '');
+                const accordionItem = this.closest('.accordion-item');
+                
+                if (this.checked) {
+                    accordionItem.classList.add('bg-light');
+                    
+                    // Verificar se todos os passos estão concluídos
+                    const allCompleted = Array.from(checkboxes).every(cb => cb.checked);
+                    if (allCompleted) {
+                        setTimeout(() => {
+                            alert('Todos os passos deste problema foram concluídos! Você pode continuar para o próximo problema ou voltar ao plano de reparo.');
+                        }, 500);
+                    }
+                } else {
+                    accordionItem.classList.remove('bg-light');
+                }
+            });
+        });
+        
+        // Botões de execução automatizada
+        const automatedButtons = document.querySelectorAll('.automated-step');
+        automatedButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const stepId = this.getAttribute('data-step');
+                const resultDiv = document.getElementById(`automatedResult${stepId}`);
+                
+                // Mostrar indicador de carregamento
+                resultDiv.classList.remove('d-none');
+                
+                // Simular execução (em produção, aqui seria uma chamada AJAX)
+                setTimeout(() => {
+                    resultDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i> Reparo automático concluído com sucesso!</div>';
+                    
+                    // Marcar o passo como concluído automaticamente
+                    const checkbox = document.getElementById(`stepCompleted${stepId}`);
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                    
+                    // Desabilitar o botão
+                    this.disabled = true;
+                }, 2000);
+            });
+        });
+    });
+</script>
+{% endblock %} 

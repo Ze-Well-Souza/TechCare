@@ -1,0 +1,698 @@
+{% extends "base.html" %}
+
+{% block title %}Limpeza e Otimização{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .card-metric {
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .card-metric:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px);
+    }
+    
+    .card-header-custom {
+        padding: 15px;
+        border-radius: 10px 10px 0 0;
+        color: white;
+    }
+    
+    .bg-cleanup {
+        background-color: #28a745;
+    }
+    
+    .bg-registry {
+        background-color: #fd7e14;
+    }
+    
+    .bg-startup {
+        background-color: #17a2b8;
+    }
+    
+    .bg-repair {
+        background-color: #dc3545;
+    }
+    
+    .progress-container {
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .cleanup-icon {
+        font-size: 3rem;
+        color: #28a745;
+    }
+    
+    .registry-icon {
+        font-size: 3rem;
+        color: #fd7e14;
+    }
+    
+    .startup-icon {
+        font-size: 3rem;
+        color: #17a2b8;
+    }
+    
+    .repair-icon {
+        font-size: 3rem;
+        color: #dc3545;
+    }
+    
+    /* Spinner para indicar progresso */
+    .spinner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        display: none;
+    }
+    
+    .spinner-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+    }
+    
+    .file-item {
+        padding: 8px;
+        margin-bottom: 4px;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    
+    .file-item:hover {
+        background-color: #e9ecef;
+    }
+    
+    .analysis-section {
+        margin-bottom: 30px;
+    }
+    
+    .large-file-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Limpeza e Otimização do Sistema</h1>
+    
+    {% if analysis_result.error %}
+    <div class="alert alert-danger">
+        <h4>Erro ao analisar sistema</h4>
+        <p>{{ analysis_result.error }}</p>
+    </div>
+    {% else %}
+    
+    <!-- Cards de Métricas -->
+    <div class="row">
+        <!-- Card de Limpeza -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-metric">
+                <div class="card-header-custom bg-cleanup">
+                    <h5 class="mb-0">Limpeza</h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-broom cleanup-icon mb-3"></i>
+                    <h2>{{ analysis_result.total_cleanup_formatted }}</h2>
+                    <p>Arquivos temporários a limpar</p>
+                    <button class="btn btn-success btn-block clean-temp-btn" data-action="clean-temp">
+                        <i class="fas fa-trash-alt"></i> Limpar Agora
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card de Registro -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-metric">
+                <div class="card-header-custom bg-registry">
+                    <h5 class="mb-0">Registro</h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-database registry-icon mb-3"></i>
+                    <h2>{{ analysis_result.registry_issues.total_issues if analysis_result.registry_issues else 0 }}</h2>
+                    <p>Problemas no registro</p>
+                    <button class="btn btn-warning btn-block clean-registry-btn" data-action="clean-registry">
+                        <i class="fas fa-wrench"></i> Corrigir Problemas
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card de Inicialização -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-metric">
+                <div class="card-header-custom bg-startup">
+                    <h5 class="mb-0">Inicialização</h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-rocket startup-icon mb-3"></i>
+                    <h2>{{ analysis_result.startup_items.total_items if analysis_result.startup_items else 0 }}</h2>
+                    <p>Itens de inicialização</p>
+                    <button class="btn btn-info btn-block optimize-startup-btn" data-action="optimize-startup">
+                        <i class="fas fa-tachometer-alt"></i> Otimizar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card de Reparo -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-metric">
+                <div class="card-header-custom bg-repair">
+                    <h5 class="mb-0">Reparo</h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-tools repair-icon mb-3"></i>
+                    <h2>{{ analysis_result.corrupted_files.system_files if analysis_result.corrupted_files else 0 }}</h2>
+                    <p>Arquivos corrompidos</p>
+                    <button class="btn btn-danger btn-block repair-system-btn" data-action="repair-system">
+                        <i class="fas fa-medkit"></i> Reparar Sistema
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botão de Limpeza Completa -->
+    <div class="text-center mt-4 mb-5">
+        <button class="btn btn-primary btn-lg clean-all-btn">
+            <i class="fas fa-magic"></i> Executar Limpeza Completa
+        </button>
+    </div>
+    
+    <!-- Seção de Análise Detalhada -->
+    <h2 class="mt-5 mb-4">Análise Detalhada</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Arquivos Temporários -->
+            <div class="card analysis-section">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Arquivos Temporários</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total:</strong> {{ analysis_result.temp_files.formatted_total_size }}</p>
+                    <p><strong>Número de arquivos:</strong> {{ analysis_result.temp_files.total_files }}</p>
+                    
+                    <h6 class="mt-3">Diretórios Analisados:</h6>
+                    <ul class="list-group">
+                        {% for path, info in analysis_result.temp_files.paths.items() %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ path }}
+                            <span class="badge bg-primary rounded-pill">{{ info.formatted_size }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Dados de Navegadores -->
+            <div class="card analysis-section">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Dados de Navegadores</h5>
+                </div>
+                <div class="card-body">
+                    {% for browser, data in analysis_result.browser_data.items() %}
+                    <div class="mb-3">
+                        <h6>{{ browser|capitalize }}</h6>
+                        <p><strong>Cache:</strong> {{ data.formatted_cache_size }}</p>
+                        <p><strong>Cookies:</strong> {{ data.formatted_cookies_size }}</p>
+                        <p><strong>Histórico:</strong> {{ data.formatted_history_size }}</p>
+                        <button class="btn btn-sm btn-outline-secondary clean-browser-btn" data-browser="{{ browser }}">
+                            Limpar {{ browser|capitalize }}
+                        </button>
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <!-- Espaço em Disco -->
+            <div class="card analysis-section">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Espaço em Disco</h5>
+                </div>
+                <div class="card-body">
+                    {% for device, info in analysis_result.disk_space.items() %}
+                    <div class="mb-3">
+                        <h6>{{ device }} ({{ info.mountpoint }})</h6>
+                        <p><strong>Total:</strong> {{ info.formatted_total }}</p>
+                        <p><strong>Usado:</strong> {{ info.formatted_used }} ({{ info.percent }}%)</p>
+                        <p><strong>Livre:</strong> {{ info.formatted_free }}</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-{{ 'danger' if info.percent > 90 else 'warning' if info.percent > 70 else 'success' }}" 
+                                 role="progressbar" 
+                                 style="width: {{ info.percent }}%" 
+                                 aria-valuenow="{{ info.percent }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ info.percent }}%
+                            </div>
+                        </div>
+                    </div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Arquivos Grandes -->
+            <div class="card analysis-section">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Arquivos Grandes</h5>
+                </div>
+                <div class="card-body">
+                    <div class="large-file-list">
+                        {% if analysis_result.large_files %}
+                            {% for file in analysis_result.large_files %}
+                            <div class="file-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ file.name }}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-secondary">{{ file.formatted_size }}</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ file.path }}</small><br>
+                                <small>Modificado: {{ file.last_modified }}</small>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Nenhum arquivo grande encontrado.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% endif %}
+</div>
+
+<!-- Spinner de Progresso -->
+<div class="spinner-overlay" id="progressSpinner">
+    <div class="spinner-content">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="sr-only">Processando...</span>
+        </div>
+        <h5 id="spinnerMessage">Processando...</h5>
+        <div class="progress mt-3">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Sucesso -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Operação Concluída</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                </div>
+                <p id="successMessage" class="text-center">Operação concluída com sucesso!</p>
+                <div id="successDetails"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success" id="refreshButton">Atualizar Página</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Erro -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Erro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <p id="errorMessage" class="text-center">Ocorreu um erro ao processar a solicitação.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        // Função para mostrar spinner de progresso
+        function showSpinner(message) {
+            $('#spinnerMessage').text(message);
+            $('#progressBar').css('width', '0%');
+            $('#progressSpinner').fadeIn();
+        }
+        
+        // Função para atualizar progresso
+        function updateProgress(percent, message) {
+            $('#progressBar').css('width', percent + '%');
+            if (message) {
+                $('#spinnerMessage').text(message);
+            }
+        }
+        
+        // Função para esconder spinner
+        function hideSpinner() {
+            $('#progressSpinner').fadeOut();
+        }
+        
+        // Função para mostrar modal de sucesso
+        function showSuccess(message, details) {
+            $('#successMessage').text(message);
+            
+            if (details) {
+                let detailsHtml = '<ul class="list-group mt-3">';
+                
+                if (typeof details === 'object') {
+                    for (const [key, value] of Object.entries(details)) {
+                        if (typeof value === 'object') {
+                            continue;
+                        }
+                        detailsHtml += `<li class="list-group-item d-flex justify-content-between">
+                            <span>${key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1)}</span>
+                            <span>${value}</span>
+                        </li>`;
+                    }
+                } else {
+                    detailsHtml += `<li class="list-group-item">${details}</li>`;
+                }
+                
+                detailsHtml += '</ul>';
+                $('#successDetails').html(detailsHtml);
+            } else {
+                $('#successDetails').empty();
+            }
+            
+            $('#successModal').modal('show');
+        }
+        
+        // Função para mostrar modal de erro
+        function showError(message) {
+            $('#errorMessage').text(message);
+            $('#errorModal').modal('show');
+        }
+        
+        // Evento de clique no botão de limpar arquivos temporários
+        $('.clean-temp-btn').on('click', function() {
+            showSpinner('Limpando arquivos temporários...');
+            
+            $.ajax({
+                url: '/cleaner/clean-temp',
+                method: 'POST',
+                success: function(response) {
+                    hideSpinner();
+                    
+                    if (response.success) {
+                        showSuccess(
+                            'Limpeza concluída com sucesso!', 
+                            {
+                                'Arquivos removidos': response.cleaned_files,
+                                'Espaço liberado': response.formatted_cleaned_size
+                            }
+                        );
+                    } else {
+                        showError('Erro ao limpar arquivos temporários: ' + (response.error || 'Erro desconhecido'));
+                    }
+                },
+                error: function(xhr) {
+                    hideSpinner();
+                    
+                    let errorMsg = 'Erro ao comunicar com o servidor.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    
+                    showError(errorMsg);
+                }
+            });
+        });
+        
+        // Evento de clique no botão de limpar registro
+        $('.clean-registry-btn').on('click', function() {
+            showSpinner('Limpando e reparando registro...');
+            
+            $.ajax({
+                url: '/cleaner/clean-registry',
+                method: 'POST',
+                success: function(response) {
+                    hideSpinner();
+                    
+                    if (response.success) {
+                        showSuccess(
+                            'Registro limpo com sucesso!', 
+                            {
+                                'Entradas limpas': response.cleaned_entries
+                            }
+                        );
+                    } else {
+                        showError('Erro ao limpar registro: ' + (response.error || 'Erro desconhecido'));
+                    }
+                },
+                error: function(xhr) {
+                    hideSpinner();
+                    
+                    let errorMsg = 'Erro ao comunicar com o servidor.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    
+                    showError(errorMsg);
+                }
+            });
+        });
+        
+        // Evento de clique no botão de otimizar inicialização
+        $('.optimize-startup-btn').on('click', function() {
+            showSpinner('Otimizando itens de inicialização...');
+            
+            $.ajax({
+                url: '/cleaner/optimize-startup',
+                method: 'POST',
+                data: JSON.stringify({}),
+                contentType: 'application/json',
+                success: function(response) {
+                    hideSpinner();
+                    
+                    if (response.success) {
+                        showSuccess(
+                            'Inicialização otimizada com sucesso!', 
+                            {
+                                'Itens desativados': response.disabled_items
+                            }
+                        );
+                    } else {
+                        showError('Erro ao otimizar inicialização: ' + (response.error || 'Erro desconhecido'));
+                    }
+                },
+                error: function(xhr) {
+                    hideSpinner();
+                    
+                    let errorMsg = 'Erro ao comunicar com o servidor.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    
+                    showError(errorMsg);
+                }
+            });
+        });
+        
+        // Evento de clique no botão de reparar sistema
+        $('.repair-system-btn').on('click', function() {
+            showSpinner('Reparando arquivos do sistema...');
+            
+            $.ajax({
+                url: '/cleaner/repair-system',
+                method: 'POST',
+                success: function(response) {
+                    hideSpinner();
+                    
+                    if (response.success) {
+                        showSuccess(
+                            'Sistema reparado com sucesso!', 
+                            {
+                                'Arquivos reparados': response.repaired_files
+                            }
+                        );
+                    } else {
+                        showError('Erro ao reparar sistema: ' + (response.error || 'Erro desconhecido'));
+                    }
+                },
+                error: function(xhr) {
+                    hideSpinner();
+                    
+                    let errorMsg = 'Erro ao comunicar com o servidor.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    
+                    showError(errorMsg);
+                }
+            });
+        });
+        
+        // Evento de clique no botão de limpar navegador
+        $('.clean-browser-btn').on('click', function() {
+            const browser = $(this).data('browser');
+            
+            showSpinner(`Limpando dados do ${browser}...`);
+            
+            $.ajax({
+                url: '/cleaner/clean-browser',
+                method: 'POST',
+                data: JSON.stringify({
+                    browsers: [browser]
+                }),
+                contentType: 'application/json',
+                success: function(response) {
+                    hideSpinner();
+                    
+                    if (response.success) {
+                        const browserDetails = response.cleaned_browsers[browser];
+                        
+                        showSuccess(
+                            `Dados do ${browser} limpos com sucesso!`, 
+                            {
+                                'Espaço liberado': browserDetails.formatted_cleaned_size
+                            }
+                        );
+                    } else {
+                        showError(`Erro ao limpar dados do ${browser}: ` + (response.error || 'Erro desconhecido'));
+                    }
+                },
+                error: function(xhr) {
+                    hideSpinner();
+                    
+                    let errorMsg = 'Erro ao comunicar com o servidor.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    
+                    showError(errorMsg);
+                }
+            });
+        });
+        
+        // Evento de clique no botão de limpeza completa
+        $('.clean-all-btn').on('click', function() {
+            if (!confirm('Deseja realmente executar uma limpeza completa do sistema? Isso irá limpar arquivos temporários, cookies, histórico de navegação e outros dados.')) {
+                return;
+            }
+            
+            // Executa limpeza de temporários
+            showSpinner('Limpando arquivos temporários... 1/4');
+            
+            $.ajax({
+                url: '/cleaner/clean-temp',
+                method: 'POST',
+                success: function(tempResponse) {
+                    updateProgress(25, 'Limpando dados de navegadores... 2/4');
+                    
+                    // Após limpar temporários, limpa navegadores
+                    $.ajax({
+                        url: '/cleaner/clean-browser',
+                        method: 'POST',
+                        data: JSON.stringify({}),
+                        contentType: 'application/json',
+                        success: function(browserResponse) {
+                            updateProgress(50, 'Limpando registro... 3/4');
+                            
+                            // Após limpar navegadores, limpa registro
+                            $.ajax({
+                                url: '/cleaner/clean-registry',
+                                method: 'POST',
+                                success: function(registryResponse) {
+                                    updateProgress(75, 'Otimizando inicialização... 4/4');
+                                    
+                                    // Por fim, otimiza inicialização
+                                    $.ajax({
+                                        url: '/cleaner/optimize-startup',
+                                        method: 'POST',
+                                        data: JSON.stringify({}),
+                                        contentType: 'application/json',
+                                        success: function(startupResponse) {
+                                            updateProgress(100, 'Limpeza completa concluída!');
+                                            
+                                            setTimeout(function() {
+                                                hideSpinner();
+                                                
+                                                // Compila resultados
+                                                const results = {
+                                                    'Arquivos temporários removidos': tempResponse.cleaned_files,
+                                                    'Espaço liberado em temporários': tempResponse.formatted_cleaned_size,
+                                                    'Navegadores limpos': Object.keys(browserResponse.cleaned_browsers).length,
+                                                    'Espaço liberado em navegadores': browserResponse.formatted_total_cleaned_size,
+                                                    'Problemas de registro corrigidos': registryResponse.cleaned_entries,
+                                                    'Itens de inicialização otimizados': startupResponse.disabled_items
+                                                };
+                                                
+                                                showSuccess('Limpeza completa concluída com sucesso!', results);
+                                            }, 1000);
+                                        },
+                                        error: function() {
+                                            hideSpinner();
+                                            showError('Erro ao otimizar inicialização. Os passos anteriores foram concluídos.');
+                                        }
+                                    });
+                                },
+                                error: function() {
+                                    hideSpinner();
+                                    showError('Erro ao limpar registro. Os passos anteriores foram concluídos.');
+                                }
+                            });
+                        },
+                        error: function() {
+                            hideSpinner();
+                            showError('Erro ao limpar dados de navegadores. A limpeza de temporários foi concluída.');
+                        }
+                    });
+                },
+                error: function() {
+                    hideSpinner();
+                    showError('Erro ao limpar arquivos temporários.');
+                }
+            });
+        });
+        
+        // Botão de atualizar página
+        $('#refreshButton').on('click', function() {
+            location.reload();
+        });
+    });
+</script>
+{% endblock %} 

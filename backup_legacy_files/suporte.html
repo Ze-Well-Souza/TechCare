@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechCare - Suporte técnico especializado para seu computador. Tire suas dúvidas e obtenha ajuda com nosso assistente virtual.">
+    <meta name="theme-color" content="#3498db">
+    <title>Suporte - TechCare</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <a href="index.html" class="logo">TechCare</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="diagnostico.html">Diagnóstico</a></li>
+                <li><a href="historico.html">Histórico</a></li>
+                <li><a href="suporte.html">Suporte</a></li>
+                <li><a href="#" class="btn btn-primary">Entrar</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="section-title">Suporte Técnico</h1>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <h2 class="card-title">Assistente Virtual</h2>
+                    <div class="chat-container">
+                        <div id="chat-messages" class="chat-messages">
+                            <div class="message message-agent">
+                                <p>Olá! Sou o assistente virtual da TechCare. Como posso ajudar você hoje?</p>
+                            </div>
+                        </div>
+                        <div class="agent-typing" style="display: none;">
+                            <p><i>Assistente está digitando...</i></p>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" class="form-input" placeholder="Digite sua mensagem...">
+                            <button class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-responses">
+                        <h3>Perguntas Frequentes</h3>
+                        <div class="quick-response-buttons">
+                            <button class="btn btn-outline" onclick="quickResponse('Como funciona o diagnóstico?')">Como funciona o diagnóstico?</button>
+                            <button class="btn btn-outline" onclick="quickResponse('Quanto custa o serviço?')">Quanto custa o serviço?</button>
+                            <button class="btn btn-outline" onclick="quickResponse('Meu computador está muito lento')">Meu computador está muito lento</button>
+                            <button class="btn btn-outline" onclick="quickResponse('Quero falar com um técnico humano')">Quero falar com um técnico humano</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="card">
+                        <h2 class="card-title">Perguntas Frequentes</h2>
+                        
+                        <div class="faq-list">
+                            <div class="faq-item">
+                                <h3><i id="faq-icon-1" class="fas fa-plus"></i> Como funciona o diagnóstico gratuito?</h3>
+                                <div id="faq-answer-1" style="display: none;">
+                                    <p>Nosso diagnóstico gratuito é um processo automatizado que analisa o desempenho do seu computador, identificando problemas como drivers desatualizados, programas que causam lentidão, arquivos temporários acumulados e questões de segurança.</p>
+                                    <p>O processo é rápido, seguro e não faz alterações no seu sistema sem sua autorização. Após o diagnóstico, você receberá um relatório detalhado com os problemas encontrados e recomendações de serviços para resolvê-los.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <h3><i id="faq-icon-2" class="fas fa-plus"></i> Quais são os serviços oferecidos pela TechCare?</h3>
+                                <div id="faq-answer-2" style="display: none;">
+                                    <p>A TechCare oferece dois tipos principais de serviços:</p>
+                                    <ul>
+                                        <li><strong>Atualização e Manutenção:</strong> Inclui atualização de drivers, otimização de inicialização, limpeza de arquivos temporários e verificação de segurança.</li>
+                                        <li><strong>Backup e Formatação:</strong> Inclui backup de arquivos importantes, formatação completa do sistema, instalação do sistema operacional e restauração de dados.</li>
+                                    </ul>
+                                    <p>Cada tipo de serviço está disponível em diferentes pacotes (Básico, Premium e Empresarial) para atender às suas necessidades específicas.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <h3><i id="faq-icon-3" class="fas fa-plus"></i> Quanto custam os serviços da TechCare?</h3>
+                                <div id="faq-answer-3" style="display: none;">
+                                    <p>Nossos preços variam de acordo com o serviço e o pacote escolhido:</p>
+                                    <ul>
+                                        <li><strong>Pacote Básico:</strong> R$ 49,90 - Inclui atualização de drivers críticos, limpeza de arquivos temporários e otimização de inicialização.</li>
+                                        <li><strong>Pacote Premium:</strong> R$ 89,90 - Inclui todos os serviços do pacote básico, além de desfragmentação de disco e suporte técnico prioritário por 30 dias.</li>
+                                        <li><strong>Pacote Empresarial:</strong> R$ 129,90 - Inclui todos os serviços do pacote premium, além de configuração de backup automático, verificação de segurança avançada e suporte técnico prioritário por 60 dias.</li>
+                                    </ul>
+                                    <p>Também oferecemos serviços individuais como backup de dados (R$ 39,90), formatação completa (R$ 99,90) e remoção de malware (R$ 69,90).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <h3><i id="faq-icon-4" class="fas fa-plus"></i> Como funciona o suporte remoto?</h3>
+                                <div id="faq-answer-4" style="display: none;">
+                                    <p>Nosso suporte remoto permite que nossos técnicos acessem seu computador pela internet para resolver problemas complexos que não podem ser solucionados automaticamente.</p>
+                                    <p>O processo é seguro e você mantém o controle total, podendo observar todas as ações realizadas e interromper o acesso a qualquer momento. Para utilizar o suporte remoto, basta solicitar através do chat ou da página de suporte.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <h3><i id="faq-icon-5" class="fas fa-plus"></i> É possível agendar atendimento presencial?</h3>
+                                <div id="faq-answer-5" style="display: none;">
+                                    <p>Sim, oferecemos atendimento presencial para casos em que o suporte remoto não é suficiente. Você pode agendar uma visita técnica através do chat de suporte ou pelo telefone (11) 9999-9999.</p>
+                                    <p>O atendimento presencial está disponível em dias úteis, das 8h às 18h, e o valor é calculado de acordo com a sua localização e o tipo de serviço necessário.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 30px;">
+                        <h2 class="card-title">Contato Direto</h2>
+                        
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <h3>Telefone</h3>
+                                    <p><a href="tel:+551199999999">(11) 9999-9999</a></p>
+                                    <p class="text-muted">Segunda a Sexta, 8h às 20h</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <h3>E-mail</h3>
+                                    <p><a href="mailto:suporte@techcare.com">suporte@techcare.com</a></p>
+                                    <p class="text-muted">Resposta em até 24 horas</p>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <h3>Endereço</h3>
+                                    <p>Av. Paulista, 1000 - Bela Vista</p>
+                                    <p>São Paulo - SP, 01310-100</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechCare</h3>
+                    <p>Soluções inteligentes para manutenção de computadores e notebooks.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="diagnostico.html">Diagnóstico</a></li>
+                        <li><a href="historico.html">Histórico</a></li>
+                        <li><a href="suporte.html">Suporte</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul>
+                        <li><a href="mailto:contato@techcare.com">contato@techcare.com</a></li>
+                        <li><a href="tel:+551199999999">(11) 9999-9999</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TechCare. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script src="interactive.js"></script>
+</body>
+</html>

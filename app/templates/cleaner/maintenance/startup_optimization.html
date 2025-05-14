@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-rocket me-2" aria-hidden="true"></i> Otimização de Inicialização
+            </h1>
+            <p class="lead">Gerencie os programas que iniciam com o sistema para melhorar o tempo de inicialização e o desempenho geral.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Programas de Inicialização</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                        Desative programas não essenciais para melhorar o tempo de inicialização do sistema.
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Fabricante</th>
+                                    <th>Impacto</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-music me-2 text-primary" aria-hidden="true"></i>
+                                        Spotify
+                                    </td>
+                                    <td>Spotify AB</td>
+                                    <td><span class="badge bg-warning">Médio</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="spotify" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-shield-alt me-2 text-primary" aria-hidden="true"></i>
+                                        Antivírus XYZ
+                                    </td>
+                                    <td>Segurança Inc.</td>
+                                    <td><span class="badge bg-danger">Alto</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="antivirus" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-sync me-2 text-primary" aria-hidden="true"></i>
+                                        Atualizador de Software
+                                    </td>
+                                    <td>Microsoft</td>
+                                    <td><span class="badge bg-warning">Médio</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="updater" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fab fa-dropbox me-2 text-primary" aria-hidden="true"></i>
+                                        Dropbox
+                                    </td>
+                                    <td>Dropbox Inc.</td>
+                                    <td><span class="badge bg-warning">Médio</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="dropbox" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-print me-2 text-primary" aria-hidden="true"></i>
+                                        Serviço de Impressão
+                                    </td>
+                                    <td>HP</td>
+                                    <td><span class="badge bg-success">Baixo</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="printer" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-gamepad me-2 text-primary" aria-hidden="true"></i>
+                                        Launcher de Jogos
+                                    </td>
+                                    <td>Game Co.</td>
+                                    <td><span class="badge bg-danger">Alto</span></td>
+                                    <td><span class="badge bg-success">Ativo</span></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="gamelauncher" checked>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button id="saveChangesBtn" class="btn btn-primary">
+                            <i class="fas fa-save me-2" aria-hidden="true"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h2 class="h5 mb-0">Impacto na Inicialização</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h3 class="h6">Tempo de Inicialização</h3>
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 75%" 
+                                 aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75s</div>
+                        </div>
+                        <small class="text-muted">Tempo estimado atual</small>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="h6">Após Otimização</h3>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 40%" 
+                                 aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">40s</div>
+                        </div>
+                        <small class="text-muted">Tempo estimado após otimização</small>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-bolt me-2" aria-hidden="true"></i>
+                        Melhoria estimada: <strong>35 segundos</strong> (47%)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="h5 mb-0">Dicas</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle me-2 text-success" aria-hidden="true"></i>
+                            Mantenha antivírus e firewalls ativos para segurança.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle me-2 text-success" aria-hidden="true"></i>
+                            Desative serviços de sincronização se não os usar constantemente.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle me-2 text-success" aria-hidden="true"></i>
+                            Programas de jogos podem ser iniciados manualmente quando necessário.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveBtn = document.getElementById('saveChangesBtn');
+        
+        saveBtn.addEventListener('click', function() {
+            // Simulação de salvamento
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Salvando...';
+            
+            setTimeout(function() {
+                saveBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Alterações Salvas!';
+                saveBtn.classList.remove('btn-primary');
+                saveBtn.classList.add('btn-success');
+                
+                setTimeout(function() {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save me-2"></i> Salvar Alterações';
+                    saveBtn.classList.remove('btn-success');
+                    saveBtn.classList.add('btn-primary');
+                }, 2000);
+            }, 1500);
+        });
+        
+        // Atualização da estimativa quando os switches são alterados
+        const switches = document.querySelectorAll('.form-check-input');
+        switches.forEach(function(switchEl) {
+            switchEl.addEventListener('change', function() {
+                // Aqui você implementaria a lógica para recalcular os tempos
+                // Esta é apenas uma simulação
+                const row = this.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(4) .badge');
+                
+                if (this.checked) {
+                    statusCell.textContent = 'Ativo';
+                    statusCell.classList.remove('bg-danger');
+                    statusCell.classList.add('bg-success');
+                } else {
+                    statusCell.textContent = 'Inativo';
+                    statusCell.classList.remove('bg-success');
+                    statusCell.classList.add('bg-danger');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,137 @@
+✅ Diagnósticos e Ações já identificadas
+1. Drivers
+✅ Listar todos os drivers instalados.
+
+🔧 Verificação de Atualização (com acesso à internet): O agente verifica se a versão do driver é a mais recente, comparando com as versões disponíveis no 
+	site do fabricante (por exemplo, usando APIs públicas ou scraping de sites).
+ - Caso não haja acesso à internet, listar os drivers e direcionar o usuário para o site do fabricante para verificação manual.
+ - Ação Automatizada para Atualização de Drivers (com acesso à internet): O agente pode oferecer a opção de baixar e instalar automaticamente o driver mais 
+	recente, se o usuário optar por fazer isso.
+
+⚙️ Pode orientar com comando: devmgmt.msc para abrir o Gerenciador de Dispositivos.
+
+2. Uso de Recursos (CPU, RAM, Disco)
+✅ Identifica consumo excessivo.
+
+🔧 Sugere encerramento de processos pesados.
+
+⚙️ Usa psutil para monitoramento.
+
+📊 Pode gerar relatório com os 5 processos mais pesados.
+
+3. Programas iniciando com o Windows (Startup)
+✅ Lista apps em execução na inicialização.
+
+🔧 Sugere desativar os não essenciais.
+
+⚙️ Comando para abrir: taskmgr > guia "Inicializar".
+
+4. Espaço em Disco
+✅ Verifica se há pouco espaço livre.
+
+🔧 Sugere limpar cache, arquivos temporários, lixeira.
+
+⚙️ Pode executar cleanmgr ou usar os.system('start cleanmgr').
+
+5. Antivírus / Segurança
+✅ Verifica status do Windows Defender.
+
+🔧 Pode rodar escaneamento rápido via linha de comando:
+
+bash
+Copiar
+Editar
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+6. Atualizações do Sistema
+✅ Verifica se há atualizações pendentes.
+
+⚙️ Pode sugerir execução do comando:
+
+powershell
+Copiar
+Editar
+Uso do `Get-WindowsUpdateLog` ou orientação para abrir `ms-settings:windowsupdate`
+🚀 Novas Ações e Otimizações sugeridas
+7. Otimização Gráfica (Placa de Vídeo)
+✅ Sugerir configurações em “Configurações de Desempenho Gráfico”:
+
+Atalho: ms-settings:display > "Configurações de Gráficos Avançadas"
+
+Sugerir alto desempenho para apps específicos (ex: jogos, editores).
+
+8. Modos de Energia
+✅ Orientar para usar o plano “Desempenho Máximo”
+
+Comando: powercfg.cpl
+
+Ou: powercfg /setactive SCHEME_MAX
+
+9. Desfragmentação do Disco (em HDD)
+✅ Sugere otimização se for HDD.
+
+⚙️ Comando: dfrgui
+
+10. Configurações de Eficiência do Sistema
+✅ Sugestão para desativar animações e efeitos visuais:
+
+Atalho: sysdm.cpl > Avançado > Desempenho
+
+✅ Sugerir desabilitar transparência: ms-settings:colors
+
+11. Verificação de Erros no Disco
+✅ Orientar uso do comando:
+
+bash
+Copiar
+Editar
+chkdsk C: /f /r
+🧠 Desenho Técnico do Agente
+🧩 Fase 1 – Coleta de Informações
+Dados sobre drivers
+
+Uso de CPU, RAM, disco
+
+Programas em segundo plano e inicialização
+
+Espaço livre e tipo de disco
+
+Status do antivírus
+
+Atualizações pendentes
+
+⚙️ Fase 2 – Análise e Diagnóstico
+Comparar dados com limiares:
+
+CPU constantemente > 80%
+
+RAM usada > 90%
+
+Disco quase cheio (< 10%)
+
+Classificar como “precisa de manutenção”, “estado regular”, “ótimo”
+
+💡 Fase 3 – Recomendações e Ações Automáticas
+Aplicar o que for possível (ex: rodar limpeza, desfragmentar, antivírus)
+
+Gerar recomendações claras com instruções passo a passo
+
+Menu interativo com opções de ação
+
+🖥️ Fase 4 – Interface e Empacotamento
+CLI interativa com cores e emojis
+
+Geração de relatório .txt ou .html
+
+Empacotamento com pyinstaller (opcional: com ícone, sem console, etc.)
+
+Pronto para rodar em qualquer Windows com um duplo clique
+
+⚙️ Possíveis comandos adicionais para executar com o agente
+
+Ação	Comando
+Limpeza de disco	cleanmgr
+Configurações de energia	powercfg.cpl
+Verificação de disco	chkdsk C: /f /r
+Gerenciador de dispositivos	devmgmt.msc
+Desempenho gráfico	ms-settings:display
+Antivírus (quick scan)	MpCmdRun.exe -Scan -ScanType 1

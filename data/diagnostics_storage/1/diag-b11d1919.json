@@ -1,0 +1,205 @@
+{
+  "timestamp": "2025-05-08T20:29:10.925975+00:00",
+  "system": {
+    "os": "Windows",
+    "os_version": "10.0.19045",
+    "hostname": "LAPTOP-3V69KPOV",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "python_version": "3.12.7"
+  },
+  "score": 74,
+  "results": {
+    "cpu": {
+      "model": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+      "architecture": "AMD64",
+      "cores_physical": 4,
+      "cores_logical": 8,
+      "usage_percent": 46.4,
+      "per_core_usage": [
+        40.0,
+        9.4,
+        75.0,
+        23.1,
+        31.8,
+        14.1,
+        16.9,
+        46.9
+      ],
+      "frequency_current": 1609.0,
+      "frequency_min": 0.0,
+      "frequency_max": 2112.0,
+      "top_processes": []
+    },
+    "memory": {
+      "total": 8025,
+      "available": 1071,
+      "used": 6954,
+      "percent": 86.6,
+      "swap_total": 13548,
+      "swap_used": 10473,
+      "swap_percent": 77.3,
+      "top_processes": [
+        {
+          "pid": 12396,
+          "name": "Cursor.exe",
+          "memory_percent": 8.37299626935591,
+          "memory_mb": 672
+        },
+        {
+          "pid": 17368,
+          "name": "java.exe",
+          "memory_percent": 7.74197473480304,
+          "memory_mb": 621
+        },
+        {
+          "pid": 18744,
+          "name": "Cursor.exe",
+          "memory_percent": 6.788506793276566,
+          "memory_mb": 544
+        },
+        {
+          "pid": 4912,
+          "name": "MsMpEng.exe",
+          "memory_percent": 3.301023797761614,
+          "memory_mb": 264
+        },
+        {
+          "pid": 18052,
+          "name": "Cursor.exe",
+          "memory_percent": 2.8900932295988766,
+          "memory_mb": 231
+        }
+      ]
+    },
+    "disk": {
+      "partitions": []
+    },
+    "startup": {
+      "items": [
+        {
+          "name": "SecurityHealth",
+          "command": "%windir%\\system32\\SecurityHealthSystray.exe",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "RtkAudUService",
+          "command": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_c51a65fb5ec70f9d\\RtkAudUService64.exe\" -background",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Logitech Download Assistant",
+          "command": "C:\\Windows\\system32\\rundll32.exe C:\\Windows\\System32\\LogiLDA.dll,LogiFetch",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "OneDrive",
+          "command": "\"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Steam",
+          "command": "\"C:\\Program Files (x86)\\Steam\\steam.exe\" -silent",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Docker Desktop",
+          "command": "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "MicrosoftEdgeAutoLaunch_7EC3701BB65E83A4FB8C8757AA7BB720",
+          "command": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --no-startup-window --win-session-start",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "msedge_cleanup_{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+          "command": "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\136.0.3240.50\\Installer\\setup.exe\" --msedgewebview --delete-old-versions --system-level --verbose-logging --on-logon",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+        },
+        {
+          "name": "Wondershare Helper Compact.exe",
+          "command": "C:\\Program Files (x86)\\Common Files\\Wondershare\\Wondershare Helper Compact\\WSHelper.exe",
+          "location": "HKLM\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Ollama.lnk",
+          "command": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Ollama.lnk",
+          "location": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        }
+      ]
+    },
+    "drivers": {
+      "error": "No module named 'wmi'"
+    },
+    "security": {
+      "error": "No module named 'wmi'"
+    },
+    "network": {
+      "interfaces": [],
+      "bytes_sent": 2068341552,
+      "bytes_recv": 1858272079,
+      "packets_sent": 1103391,
+      "packets_recv": 1635528,
+      "errin": 0,
+      "errout": 0,
+      "internet_connected": true
+    },
+    "temperature": {
+      "components": {},
+      "cpu": null
+    }
+  },
+  "problems": [
+    {
+      "category": "memory",
+      "title": "Uso alto de memória RAM",
+      "description": "Seu sistema está usando 86.6% da memória RAM disponível.",
+      "solution": "Feche programas não utilizados para liberar memória.",
+      "impact": "medium"
+    },
+    {
+      "category": "memory",
+      "title": "Memória RAM limitada",
+      "description": "Seu sistema tem 7.8GB de RAM, o que pode ser insuficiente para multitarefa e aplicações exigentes.",
+      "solution": "Considere atualizar sua memória RAM para 16GB ou mais para melhor desempenho.",
+      "impact": "medium"
+    },
+    {
+      "category": "startup",
+      "title": "Muitos programas na inicialização",
+      "description": "Existem 10 programas configurados para iniciar com o Windows.",
+      "solution": "Considere desativar programas não essenciais na inicialização para melhorar o tempo de boot.",
+      "impact": "medium"
+    }
+  ],
+  "recommendations": [
+    {
+      "title": "Resolver: Uso alto de memória RAM",
+      "description": "Feche programas não utilizados para liberar memória.",
+      "category": "memory",
+      "impact": "medium"
+    },
+    {
+      "title": "Resolver: Memória RAM limitada",
+      "description": "Considere atualizar sua memória RAM para 16GB ou mais para melhor desempenho.",
+      "category": "memory",
+      "impact": "medium"
+    },
+    {
+      "title": "Resolver: Muitos programas na inicialização",
+      "description": "Considere desativar programas não essenciais na inicialização para melhorar o tempo de boot.",
+      "category": "startup",
+      "impact": "medium"
+    },
+    {
+      "title": "Atualização de memória RAM",
+      "description": "Seu sistema tem 7.8GB de RAM. Para melhor desempenho, recomendamos atualizar para pelo menos 8GB de RAM.",
+      "category": "hardware",
+      "impact": "medium"
+    }
+  ],
+  "system_status": "Adequado",
+  "id": "diag-b11d1919",
+  "user_id": "1"
+}

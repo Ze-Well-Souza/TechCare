@@ -1,0 +1,143 @@
+{
+  "timestamp": "2025-05-08T17:02:39.698090+00:00",
+  "system": {
+    "os": "Windows",
+    "os_version": "10.0.19045",
+    "hostname": "LAPTOP-3V69KPOV",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 142 Stepping 12, GenuineIntel",
+    "python_version": "3.12.7"
+  },
+  "score": 69.0,
+  "results": {
+    "cpu": {
+      "model": "Intel(R) Core(TM) i5-10210U CPU @ 1.60GHz",
+      "architecture": "AMD64",
+      "cores_physical": 4,
+      "cores_logical": 8,
+      "usage_percent": 30.0,
+      "per_core_usage": 30.0,
+      "frequency_current": 1609.0,
+      "frequency_min": 0.0,
+      "frequency_max": 2112.0,
+      "top_processes": []
+    },
+    "memory": {
+      "total": 8192,
+      "available": 4096,
+      "used": 4096,
+      "percent": 50.0,
+      "swap_total": 11724,
+      "swap_used": 8828,
+      "swap_percent": 75.3,
+      "top_processes": [
+        {
+          "pid": 12396,
+          "name": "Cursor.exe",
+          "memory_percent": 8.53740743354562,
+          "memory_mb": 685
+        },
+        {
+          "pid": 17368,
+          "name": "java.exe",
+          "memory_percent": 7.17184081611794,
+          "memory_mb": 575
+        },
+        {
+          "pid": 18744,
+          "name": "Cursor.exe",
+          "memory_percent": 5.331389731846267,
+          "memory_mb": 427
+        },
+        {
+          "pid": 4912,
+          "name": "MsMpEng.exe",
+          "memory_percent": 4.169511901314364,
+          "memory_mb": 334
+        },
+        {
+          "pid": 16548,
+          "name": "Cursor.exe",
+          "memory_percent": 3.5871615225310944,
+          "memory_mb": 287
+        }
+      ]
+    },
+    "disk": {
+      "partitions": [
+        {
+          "device": "C:\\",
+          "mountpoint": "C:\\",
+          "fstype": "NTFS",
+          "total_gb": 100.0,
+          "used_gb": 50.0,
+          "free_gb": 50.0,
+          "percent": 50.0,
+          "type": "Unknown",
+          "score": 100
+        }
+      ]
+    },
+    "startup": {
+      "items": [
+        {
+          "name": "SecurityHealth",
+          "command": "%windir%\\system32\\SecurityHealthSystray.exe",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "RtkAudUService",
+          "command": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_c51a65fb5ec70f9d\\RtkAudUService64.exe\" -background",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Logitech Download Assistant",
+          "command": "C:\\Windows\\system32\\rundll32.exe C:\\Windows\\System32\\LogiLDA.dll,LogiFetch",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "OneDrive",
+          "command": "\"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Steam",
+          "command": "\"C:\\Program Files (x86)\\Steam\\steam.exe\" -silent",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Docker Desktop",
+          "command": "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "MicrosoftEdgeAutoLaunch_7EC3701BB65E83A4FB8C8757AA7BB720",
+          "command": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --no-startup-window --win-session-start",
+          "location": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "msedge_cleanup_{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+          "command": "\"C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\136.0.3240.50\\Installer\\setup.exe\" --msedgewebview --delete-old-versions --system-level --verbose-logging --on-logon",
+          "location": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"
+        },
+        {
+          "name": "Wondershare Helper Compact.exe",
+          "command": "C:\\Program Files (x86)\\Common Files\\Wondershare\\Wondershare Helper Compact\\WSHelper.exe",
+          "location": "HKLM\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"
+        },
+        {
+          "name": "Ollama.lnk",
+          "command": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Ollama.lnk",
+          "location": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup"
+        }
+      ]
+    },
+    "drivers": {
+      "count": 0,
+      "outdated": [],
+      "problematic": []
+    },
+    "security": {
+      "antivirus": {
+        "product_name": "Windows Defender",
+        "real_time_protection": 

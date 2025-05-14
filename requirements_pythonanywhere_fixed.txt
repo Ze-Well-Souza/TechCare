@@ -1,0 +1,12 @@
+flask==3.1.0
+flask-login==0.6.3
+flask-wtf==1.2.1
+sqlalchemy==2.0.32
+requests==2.31.0
+psutil==7.0.0
+py-cpuinfo==9.0.0
+pathlib==1.0.1
+plotly==5.18.0
+pandas==1.5.3
+pytest==8.3.5
+pytest-cov==4.1.0 

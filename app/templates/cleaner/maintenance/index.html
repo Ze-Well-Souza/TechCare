@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-cogs me-2" aria-hidden="true"></i> Manutenção do Sistema
+            </h1>
+            <p class="lead">Ferramentas para manter seu computador funcionando de forma otimizada e segura.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="display-1 text-primary mb-3">
+                        <i class="fas fa-broom" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="card-title">Limpeza de Sistema</h5>
+                    <p class="card-text">Remova arquivos temporários e libere espaço em disco.</p>
+                    <a href="{{ url_for('cleaner_maintenance.disk_cleanup') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-2" aria-hidden="true"></i> Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="display-1 text-primary mb-3">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="card-title">Otimização</h5>
+                    <p class="card-text">Melhore o desempenho do seu computador.</p>
+                    <a href="{{ url_for('cleaner_maintenance.analyze') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-2" aria-hidden="true"></i> Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="display-1 text-primary mb-3">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    </div>
+                    <h5 class="card-title">Manutenção Programada</h5>
+                    <p class="card-text">Configure tarefas automáticas de manutenção.</p>
+                    <a href="{{ url_for('cleaner_maintenance.maintenance_plans') }}" class="btn btn-primary">
+                        <i class="fas fa-arrow-right me-2" aria-hidden="true"></i> Acessar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/cleaner.js') }}"></script>
+{% endblock %} 

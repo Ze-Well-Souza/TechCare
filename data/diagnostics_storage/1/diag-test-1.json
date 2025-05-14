@@ -1,0 +1,26 @@
+{
+  "id": "diag-test-1",
+  "user_id": "1",
+  "timestamp": "2024-06-01T12:00:00",
+  "score": 90,
+  "cpu": {
+    "usage": 35,
+    "status": "good"
+  },
+  "memory": {
+    "usage": 60,
+    "status": "good"
+  },
+  "disk": {
+    "usage": 75,
+    "status": "warning"
+  },
+  "network": {
+    "status": "ok",
+    "adapters": []
+  },
+  "problems": [],
+  "recommendations": [
+    "Tudo ok no ambiente de teste."
+  ]
+}

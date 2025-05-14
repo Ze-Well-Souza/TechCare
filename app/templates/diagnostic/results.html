@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Resultados do Diagnóstico{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Início</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diagnostic.history') }}">Histórico</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Diagnóstico #{{ results.id }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                        <div>
+                            <h2 class="h4 m-0">Saúde computacional</h2>
+                            <div class="small text-muted mt-1">
+                                <strong>Ótimo:</strong> 85–100 &nbsp;|&nbsp;
+                                <strong>Bom:</strong> 70–84 &nbsp;|&nbsp;
+                                <strong>Regular:</strong> 50–69 &nbsp;|&nbsp;
+                                <strong>Ruim:</strong> abaixo de 50
+                            </div>
+                        </div>
+                        <span class="badge fs-5 p-3 mt-3 mt-md-0 d-flex align-items-center"
+                            style="background-color: {% if results.status == 'Ótimo' %}#198754{% elif results.status == 'Bom' %}#20c997{% elif results.status == 'Regular' %}#ffc107; color: #212529;{% else %}#dc3545{% endif %}; min-width: 160px; justify-content: center; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07);">
+                            {% if results.status == 'Ótimo' %}
+                                <i class="fas fa-check-circle me-2"></i>
+                            {% elif results.status == 'Bom' %}
+                                <i class="fas fa-smile-beam me-2"></i>
+                            {% elif results.status == 'Regular' %}
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                            {% else %}
+                                <i class="fas fa-times-circle me-2"></i>
+                            {% endif %}
+                            <span>{{ results.status }}</span>
+                            <span class="ms-2">{{ results.score }}/100</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <i class="fas fa-calendar-alt me-2"></i> Data: {{ results.date }}
+                    </p>
+                    
+                    {% if results.problems and results.problems|length > 0 %}
+                    <div class="alert alert-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Foram encontrados {{ results.problems|length }} problema(s) no seu sistema.
+                            </div>
+                            <a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=results.id) }}" class="btn btn-primary">
+                                <i class="fas fa-tools me-1"></i> Iniciar Reparo Guiado
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Não foram encontrados problemas no seu sistema.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-microchip me-2"></i> CPU</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Modelo:</strong> {{ results.cpu.model }}</p>
+                    <p><strong>Núcleos:</strong> {{ results.cpu.cores_physical }} físicos / {{ results.cpu.cores_logical }} lógicos</p>
+                    <p><strong>Uso:</strong> {{ results.cpu.usage_percent }}%</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-memory me-2"></i> Memória</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total:</strong> {{ results.memory.total }} MB</p>
+                    <p><strong>Disponível:</strong> {{ results.memory.available }} MB</p>
+                    <p><strong>Uso:</strong> {{ results.memory.percent }}%</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-hdd me-2"></i> Disco</h3>
+                </div>
+                <div class="card-body">
+                    {% for drive in results.disk.drives %}
+                    <p>
+                        <strong>{{ drive.device }}:</strong> 
+                        {{ drive.used }} GB de {{ drive.total }} GB ({{ drive.percent }}% usado)
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-thermometer-half me-2"></i> Temperatura</h3>
+                </div>
+                <div class="card-body">
+                    {% if results.temperature and results.temperature.cpu %}
+                    <p>
+                        <strong>CPU:</strong> 
+                        <span class="{% if results.temperature.cpu > 80 %}text-danger{% elif results.temperature.cpu > 70 %}text-warning{% else %}text-success{% endif %}">
+                            {{ results.temperature.cpu }}°C
+                        </span>
+                    </p>
+                    {% else %}
+                    <p class="text-muted">Informações de temperatura não disponíveis.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if results.problems and results.problems|length > 0 %}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-exclamation-circle me-2"></i> Problemas Detectados</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for problem in results.problems %}
+                        <div class="list-group-item">
+                            <h5 class="mb-1">
+                                <span class="badge 
+                                    {% if problem.impact == 'critical' %}bg-danger
+                                    {% elif problem.impact == 'high' %}bg-warning text-dark
+                                    {% elif problem.impact == 'medium' %}bg-info text-dark
+                                    {% else %}bg-secondary{% endif %} me-2">
+                                    {% if problem.impact == 'critical' %}Crítico
+                                    {% elif problem.impact == 'high' %}Alto
+                                    {% elif problem.impact == 'medium' %}Médio
+                                    {% else %}Baixo{% endif %}
+                                </span>
+                                {{ problem.title }}
+                            </h5>
+                            <p class="mb-1">{{ problem.description }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-laptop me-1"></i> {{ problem.category|capitalize }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if results.recommendations and results.recommendations|length > 0 %}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="h5 m-0"><i class="fas fa-lightbulb me-2"></i> Recomendações</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for recommendation in results.recommendations %}
+                        <li class="list-group-item">{{ recommendation }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('diagnostic.history') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar ao Histórico
+                </a>
+                {% if results.problems and results.problems|length > 0 %}
+                <a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=results.id) }}" class="btn btn-primary">
+                    <i class="fas fa-tools me-1"></i> Iniciar Reparo Guiado
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

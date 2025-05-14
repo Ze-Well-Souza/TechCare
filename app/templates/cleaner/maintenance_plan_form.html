@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">{{ title }}</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="name" class="form-label">Nome do Plano</label>
+            <input type="text" class="form-control" id="name" name="name" required value="{{ plan.name if plan else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tipos de Limpeza</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="cleaning_types" id="temp" value="temp" {% if plan and 'temp' in plan.cleaning_types %}checked{% endif %}>
+                <label class="form-check-label" for="temp">Arquivos Temporários</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="cleaning_types" id="browser" value="browser" {% if plan and 'browser' in plan.cleaning_types %}checked{% endif %}>
+                <label class="form-check-label" for="browser">Navegadores</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="cleaning_types" id="registry" value="registry" {% if plan and 'registry' in plan.cleaning_types %}checked{% endif %}>
+                <label class="form-check-label" for="registry">Registro</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="cleaning_types" id="disk" value="disk" {% if plan and 'disk' in plan.cleaning_types %}checked{% endif %}>
+                <label class="form-check-label" for="disk">Disco</label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="frequency" class="form-label">Frequência</label>
+            <select class="form-select" id="frequency" name="frequency" required>
+                <option value="daily" {% if plan and plan.frequency == 'daily' %}selected{% endif %}>Diária</option>
+                <option value="weekly" {% if plan and plan.frequency == 'weekly' %}selected{% endif %}>Semanal</option>
+                <option value="monthly" {% if plan and plan.frequency == 'monthly' %}selected{% endif %}>Mensal</option>
+            </select>
+        </div>
+        <div class="mb-3" id="dayOfWeekGroup" style="display: none;">
+            <label for="day_of_week" class="form-label">Dia da Semana</label>
+            <select class="form-select" id="day_of_week" name="day_of_week">
+                <option value="">Selecione...</option>
+                <option value="monday" {% if plan and plan.day_of_week == 'monday' %}selected{% endif %}>Segunda-feira</option>
+                <option value="tuesday" {% if plan and plan.day_of_week == 'tuesday' %}selected{% endif %}>Terça-feira</option>
+                <option value="wednesday" {% if plan and plan.day_of_week == 'wednesday' %}selected{% endif %}>Quarta-feira</option>
+                <option value="thursday" {% if plan and plan.day_of_week == 'thursday' %}selected{% endif %}>Quinta-feira</option>
+                <option value="friday" {% if plan and plan.day_of_week == 'friday' %}selected{% endif %}>Sexta-feira</option>
+                <option value="saturday" {% if plan and plan.day_of_week == 'saturday' %}selected{% endif %}>Sábado</option>
+                <option value="sunday" {% if plan and plan.day_of_week == 'sunday' %}selected{% endif %}>Domingo</option>
+            </select>
+        </div>
+        <div class="mb-3" id="dayOfMonthGroup" style="display: none;">
+            <label for="day_of_month" class="form-label">Dia do Mês</label>
+            <input type="number" class="form-control" id="day_of_month" name="day_of_month" min="1" max="31" value="{{ plan.day_of_month if plan and plan.day_of_month else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="time" class="form-label">Horário de Execução</label>
+            <input type="time" class="form-control" id="time" name="time" required value="{{ plan.time if plan else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="notify_email" class="form-label">E-mail para Notificação</label>
+            <input type="email" class="form-control" id="notify_email" name="notify_email" value="{{ plan.notify_email if plan else '' }}">
+        </div>
+        <div class="mb-3">
+            <label for="notify_sms" class="form-label">Telefone (SMS/WhatsApp)</label>
+            <input type="text" class="form-control" id="notify_sms" name="notify_sms" value="{{ plan.notify_sms if plan else '' }}">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="enabled" name="enabled" value="1" {% if plan is none or plan.enabled %}checked{% endif %}>
+            <label class="form-check-label" for="enabled">Plano Ativo</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar Plano</button>
+        <a href="{{ url_for('cleaner.maintenance_plans_list') }}" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+<script>
+    function updateFrequencyFields() {
+        var freq = document.getElementById('frequency').value;
+        document.getElementById('dayOfWeekGroup').style.display = (freq === 'weekly') ? '' : 'none';
+        document.getElementById('dayOfMonthGroup').style.display = (freq === 'monthly') ? '' : 'none';
+    }
+    document.getElementById('frequency').addEventListener('change', updateFrequencyFields);
+    window.onload = updateFrequencyFields;
+</script>
+{% endblock %} 

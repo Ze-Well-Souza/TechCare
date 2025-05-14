@@ -1,0 +1,545 @@
+{% extends 'base.html' %}
+
+{% block title %}Visão Geral do Diagnóstico - TechCare{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-primary mb-4">Visão Geral do Diagnóstico</h1>
+            
+            {% if error %}
+            <div class="alert alert-danger">
+                <strong>Erro ao carregar informações: </strong> {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Resumo do Sistema</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title"><i class="fas fa-microchip text-primary"></i></h3>
+                                    <h5 class="card-subtitle">CPU</h5>
+                                    <p class="card-text">
+                                        {% if system_info and system_info.cpu %}
+                                            <span class="badge bg-{{ 'success' if system_info.cpu.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.cpu.status }}
+                                            </span>
+                                            {{ system_info.cpu.usage_percent|default(0)|round|int }}% utilização
+                                        {% else %}
+                                            <span class="badge bg-secondary">Carregando...</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title"><i class="fas fa-memory text-primary"></i></h3>
+                                    <h5 class="card-subtitle">Memória</h5>
+                                    <p class="card-text">
+                                        {% if system_info and system_info.memory %}
+                                            <span class="badge bg-{{ 'success' if system_info.memory.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.memory.status }}
+                                            </span>
+                                            {{ system_info.memory.percent_used|default(0)|round|int }}% utilização
+                                        {% else %}
+                                            <span class="badge bg-secondary">Carregando...</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h3 class="card-title"><i class="fas fa-hdd text-primary"></i></h3>
+                                    <h5 class="card-subtitle">Disco</h5>
+                                    <p class="card-text">
+                                        {% if system_info and system_info.disk and system_info.disk.primary_disk %}
+                                            <span class="badge bg-{{ 'success' if system_info.disk.primary_disk.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.disk.primary_disk.status }}
+                                            </span>
+                                            {{ system_info.disk.primary_disk.percent_used|default(0)|round|int }}% utilização
+                                        {% else %}
+                                            <span class="badge bg-secondary">Carregando...</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RG do Computador Integrado -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> RG do Computador</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Sistema Operacional -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-desktop me-2"></i> Sistema Operacional</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.os %}
+                                                <tr>
+                                                    <th>Sistema:</th>
+                                                    <td>{{ system_info.os.name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Versão:</th>
+                                                    <td>{{ system_info.os.version }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Hostname:</th>
+                                                    <td>{{ system_info.os.hostname }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Tempo ligado:</th>
+                                                    <td>{{ system_info.os.uptime_hours|round(1) }} horas</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Processador (CPU) -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-microchip me-2"></i> Processador</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.cpu %}
+                                                <tr>
+                                                    <th>Modelo:</th>
+                                                    <td>{{ system_info.cpu.brand }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Núcleos Físicos:</th>
+                                                    <td>{{ system_info.cpu.cores_physical }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Núcleos Lógicos:</th>
+                                                    <td>{{ system_info.cpu.cores_logical }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Frequência:</th>
+                                                    <td>{{ (system_info.cpu.frequency_mhz / 1000)|round(2) }} GHz</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Memória RAM -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-memory me-2"></i> Memória RAM</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.memory %}
+                                                <tr>
+                                                    <th>Total:</th>
+                                                    <td>{{ system_info.memory.total_gb }} GB</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Em uso:</th>
+                                                    <td>{{ system_info.memory.used_gb }} GB ({{ system_info.memory.percent_used }}%)</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Disponível:</th>
+                                                    <td>{{ system_info.memory.available_gb }} GB</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Armazenamento -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-hdd me-2"></i> Armazenamento</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.disk and system_info.disk.all_disks %}
+                                                {% for disk in system_info.disk.all_disks %}
+                                                    <tr>
+                                                        <th>{{ disk.device }}:</th>
+                                                        <td>
+                                                            <div>{{ disk.type }} ({{ disk.fstype }})</div>
+                                                            <div>Total: {{ disk.total_gb }} GB</div>
+                                                            <div>Livre: {{ disk.free_gb }} GB ({{ (100 - disk.percent_used)|round|int }}%)</div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rede -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-network-wired me-2"></i> Rede</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.network %}
+                                                <tr>
+                                                    <th>Status:</th>
+                                                    <td>
+                                                        <span class="badge bg-{{ 'success' if system_info.network.status_code == 'Bom' else 'danger' }}">
+                                                            {{ system_info.network.status }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Dados enviados:</th>
+                                                    <td>{{ system_info.network.bytes_sent_mb }} MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Dados recebidos:</th>
+                                                    <td>{{ system_info.network.bytes_recv_mb }} MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Conexões ativas:</th>
+                                                    <td>{{ system_info.network.connections }}</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Segurança -->
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i> Segurança</h6>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            {% if system_info and system_info.security %}
+                                                <tr>
+                                                    <th>Status geral:</th>
+                                                    <td>
+                                                        <span class="badge bg-{{ 'success' if system_info.security.status == 'Bom' else 'warning' }}">
+                                                            {{ system_info.security.status }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Antivírus:</th>
+                                                    <td>{{ system_info.security.antivirus }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Firewall:</th>
+                                                    <td>{{ system_info.security.firewall }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Atualizações:</th>
+                                                    <td>{{ system_info.security.updates }}</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Informações não disponíveis</td>
+                                                </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Diagnóstico Rápido</h5>
+                            <p class="card-text">
+                                Realize uma análise rápida dos componentes críticos do seu sistema.
+                            </p>
+                            <a href="{{ url_for('diagnostic_analysis.run_diagnostic') }}" class="btn btn-primary">
+                                <i class="fas fa-bolt"></i> Iniciar Diagnóstico
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Histórico de Diagnósticos</h5>
+                            <p class="card-text">
+                                Veja os resultados de diagnósticos anteriores.
+                            </p>
+                            <a href="{{ url_for('diagnostic_overview.history') }}" class="btn btn-secondary">
+                                <i class="fas fa-history"></i> Ver Histórico
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Limpeza e Manutenção</h5>
+                            <p class="card-text">
+                                Acesse ferramentas para limpeza de disco, reparo de registros e manutenção do sistema.
+                            </p>
+                            <a href="{{ url_for('cleaner_maintenance.index') }}" class="btn btn-info">
+                                <i class="fas fa-broom"></i> Limpeza e Manutenção
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Visualizações</h5>
+                            <p class="card-text">
+                                Veja gráficos e visualizações do desempenho do seu sistema.
+                            </p>
+                            <a href="{{ url_for('visualization.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-chart-line"></i> Ver Visualizações
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Status do Sistema</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Componente</th>
+                                    <th>Status</th>
+                                    <th>Detalhes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- CPU -->
+                                <tr>
+                                    <td>CPU</td>
+                                    <td>
+                                        {% if system_info and system_info.cpu %}
+                                            <span class="badge bg-{{ 'success' if system_info.cpu.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.cpu.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.cpu %}
+                                            {{ system_info.cpu.brand }} - {{ system_info.cpu.cores_physical }} núcleo(s)
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Memória RAM -->
+                                <tr>
+                                    <td>Memória RAM</td>
+                                    <td>
+                                        {% if system_info and system_info.memory %}
+                                            <span class="badge bg-{{ 'success' if system_info.memory.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.memory.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.memory %}
+                                            {{ system_info.memory.total_gb }} GB - {{ 100 - system_info.memory.percent_used|round|int }}% livre
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Disco Principal -->
+                                <tr>
+                                    <td>Disco Principal</td>
+                                    <td>
+                                        {% if system_info and system_info.disk and system_info.disk.primary_disk %}
+                                            <span class="badge bg-{{ 'success' if system_info.disk.primary_disk.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.disk.primary_disk.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.disk and system_info.disk.primary_disk %}
+                                            {{ system_info.disk.primary_disk.type|default('Disco') }} {{ system_info.disk.primary_disk.total_gb }} GB - 
+                                            Espaço livre: {{ system_info.disk.primary_disk.free_gb }} GB ({{ (100 - system_info.disk.primary_disk.percent_used)|round|int }}%)
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Drivers -->
+                                <tr>
+                                    <td>Drivers</td>
+                                    <td>
+                                        {% if system_info and system_info.drivers %}
+                                            <span class="badge bg-{{ 'success' if system_info.drivers.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.drivers.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.drivers %}
+                                            {% if system_info.drivers.outdated_count > 0 %}
+                                                {{ system_info.drivers.outdated_count }} drivers desatualizados
+                                            {% else %}
+                                                Todos os drivers atualizados
+                                            {% endif %}
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Rede -->
+                                <tr>
+                                    <td>Rede</td>
+                                    <td>
+                                        {% if system_info and system_info.network %}
+                                            <span class="badge bg-{{ 'success' if system_info.network.status_code == 'Bom' else 'danger' }}">
+                                                {{ system_info.network.status_code }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.network %}
+                                            {{ system_info.network.status }}
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                
+                                <!-- Segurança -->
+                                <tr>
+                                    <td>Segurança</td>
+                                    <td>
+                                        {% if system_info and system_info.security %}
+                                            <span class="badge bg-{{ 'success' if system_info.security.status == 'Bom' else 'warning' }}">
+                                                {{ system_info.security.status }}
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Desconhecido</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if system_info and system_info.security %}
+                                            Antivírus: {{ system_info.security.antivirus }}, Firewall: {{ system_info.security.firewall }}
+                                        {% else %}
+                                            Informação não disponível
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Script para atualizar automáticamente as informações do sistema a cada 60 segundos
+        function refreshSystemInfo() {
+            $.ajax({
+                url: "{{ url_for('diagnostic_api.system_status') }}",
+                method: "GET",
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        console.log("Informações do sistema atualizadas");
+                        // Aqui você pode atualizar elementos específicos da página com os novos dados
+                        // sem precisar recarregar a página inteira
+                    }
+                }
+            });
+        }
+        
+        // Atualizar a cada 60 segundos
+        setInterval(refreshSystemInfo, 60000);
+    });
+</script>
+{% endblock %} 

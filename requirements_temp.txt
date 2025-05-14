@@ -1,0 +1,15 @@
+flask==3.1.0
+pytest==8.3.5
+psutil==7.0.0
+py-cpuinfo==9.0.0
+wmi==1.5.1; sys_platform == 'win32'
+pywin32==310; sys_platform == 'win32'
+sqlalchemy==2.0.32
+flask-login==0.6.3
+flask-wtf==1.2.1
+pytest-cov==4.1.0
+requests==2.31.0
+sensors-core==0.0.2; sys_platform == 'linux'
+pathlib==1.0.1
+plotly==5.18.0
+pandas==2.1.4

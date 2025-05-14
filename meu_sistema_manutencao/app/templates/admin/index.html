@@ -1,0 +1,99 @@
+{% extends "base/base.html" %}
+
+{% block title %}Painel Admin - TechCare{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4>Usuários por Plano</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="userPlanChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card text-center mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Usuários</h5>
+                        <p class="card-text display-4">{{ total_users }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Total de Logs</h5>
+                        <p class="card-text display-4">{{ total_logs }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Máquinas Registradas</h5>
+                        <p class="card-text display-4">{{ total_machines }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h4>Ações Rápidas</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary w-100 mb-2">
+                            Gerenciar Usuários
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin.system_logs') }}" class="btn btn-outline-secondary w-100 mb-2">
+                            Visualizar Logs
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="#" class="btn btn-outline-success w-100 mb-2">
+                            Relatórios
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('userPlanChart').getContext('2d');
+    var userPlanChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ users_by_plan|tojson }}),
+            datasets: [{
+                data: Object.values({{ users_by_plan|tojson }}),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Distribuição de Usuários por Plano'
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

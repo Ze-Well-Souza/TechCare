@@ -1,0 +1,31 @@
+# Instruções para deploy no PythonAnywhere
+
+## Configuração do aplicativo web
+- Source code: /home/SEU_USERNAME/TechCare
+- Working directory: /home/SEU_USERNAME/TechCare
+- WSGI configuration file: /var/www/SEU_USERNAME_pythonanywhere_com_wsgi.py
+
+## Conteúdo do arquivo WSGI:
+```python
+import sys
+import os
+
+# Adiciona o diretório da aplicação ao PATH
+path = '/home/SEU_USERNAME/TechCare'
+if path not in sys.path:
+    sys.path.append(path)
+
+# Importa e cria a aplicação
+from app import create_app
+
+# Cria a aplicação usando as configurações de produção
+application = create_app('production')
+```
+
+## Comandos para instalar dependências
+```bash
+pip install -r requirements_pythonanywhere.txt
+```
+
+## Reiniciar aplicação web
+Após fazer upload dos arquivos ou fazer alterações, use o botão 'Reload' no dashboard.

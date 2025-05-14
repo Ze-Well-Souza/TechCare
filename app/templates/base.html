@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-br" {% if session.get('high_contrast') or request.cookies.get('high_contrast') == 'true' %}class="high-contrast"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechCare - Manutenção guiada passo a passo para seu computador. Diagnóstico completo e otimização de desempenho.">
+    <title>{% block title %}TechCare - Diagnóstico e Manutenção de Computadores{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gauges.css') }}">
+    <!-- CSS para tema escuro -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}" id="dark-theme-css" {% if not (session.get('theme') == 'dark' or request.cookies.get('theme') == 'dark') %}disabled{% endif %}>
+    <!-- CSS para tema claro (principal) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" id="light-theme-css">
+    <!-- Script para verificar preferência de tema antes do carregamento da página -->
+    <script>
+        // Aplica o tema escuro imediatamente se for a preferência do usuário
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+        // Aplica alto contraste se for a preferência do usuário
+        if (localStorage.getItem('high-contrast') === 'true') {
+            document.documentElement.classList.add('high-contrast');
+        }
+    </script>
+    {% block styles %}{% endblock %}
+</head>
+<body class="{% if session.get('theme') == 'dark' or request.cookies.get('theme') == 'dark' %}dark-theme{% endif %} {% if session.get('high_contrast') or request.cookies.get('high_contrast') == 'true' %}high-contrast{% endif %}">
+    <!-- Link de acessibilidade para pular para o conteúdo principal -->
+    <a href="#main-content" class="skip-to-content">Pular para o conteúdo principal</a>
+
+    <header role="banner">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" aria-label="Navegação principal">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}" aria-label="TechCare início">
+                    <i class="fas fa-laptop-medical me-2" aria-hidden="true"></i> TechCare
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar navegação">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}" aria-current="{% if request.endpoint == 'main.index' %}page{% endif %}" aria-label="Página inicial">
+                                <i class="fas fa-home" aria-hidden="true"></i> Início
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'diagnostic_overview.index' %}active{% endif %}" href="{{ url_for('diagnostic_overview.index') }}" aria-current="{% if request.endpoint == 'diagnostic_overview.index' %}page{% endif %}" aria-label="Diagnósticos">
+                                <i class="fas fa-heartbeat" aria-hidden="true"></i> Diagnóstico
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'drivers.' in request.endpoint %}active{% endif %}" href="{{ url_for('drivers.index') }}" aria-current="{% if request.endpoint and 'drivers.' in request.endpoint %}page{% endif %}" aria-label="Drivers">
+                                <i class="fas fa-microchip" aria-hidden="true"></i> Drivers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'repair.' in request.endpoint %}active{% endif %}" href="{{ url_for('repair.index') }}" aria-current="{% if request.endpoint and 'repair.' in request.endpoint %}page{% endif %}" aria-label="Reparos">
+                                <i class="fas fa-tools" aria-hidden="true"></i> Reparos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'cleaner_maintenance.' in request.endpoint %}active{% endif %}" href="{{ url_for('cleaner_maintenance.index') }}" aria-current="{% if request.endpoint and 'cleaner_maintenance.' in request.endpoint %}page{% endif %}" aria-label="Manutenção">
+                                <i class="fas fa-broom" aria-hidden="true"></i> Manutenção
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'visualization.' in request.endpoint %}active{% endif %}" href="{{ url_for('visualization.index') }}" aria-current="{% if request.endpoint and 'visualization.' in request.endpoint %}page{% endif %}" aria-label="Visualizações">
+                                <i class="fas fa-chart-line" aria-hidden="true"></i> Visualizações
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Botão de ajuda de acessibilidade -->
+                        <li class="nav-item d-flex align-items-center me-3">
+                            <button class="btn btn-sm btn-outline-light accessibility accessibility-btn" id="accessibility-help" title="Ajuda de acessibilidade (Alt+0)" aria-label="Ajuda de acessibilidade">
+                                <i class="fas fa-universal-access" aria-hidden="true"></i> <span class="acessibilidade">Ajuda de Acessibilidade</span>
+                            </button>
+                        </li>
+                        
+                        <!-- Toggle para acessibilidade de alto contraste -->
+                        <li class="nav-item contrast-switch-wrapper d-flex align-items-center me-3">
+                            <span class="me-2 d-none d-sm-inline" title="Alto contraste"><i class="fas fa-universal-access text-white" aria-hidden="true"></i></span>
+                            <label class="contrast-switch" title="Alternar alto contraste" for="contrast-toggle" aria-label="Alternar alto contraste">
+                                <input type="checkbox" id="contrast-toggle" {% if session.get('high_contrast') or request.cookies.get('high_contrast') == 'true' %}checked{% endif %} aria-label="Alternar alto contraste">
+                                <span class="slider"></span>
+                            </label>
+                        </li>
+                        
+                        <!-- Toggle para tema escuro/claro -->
+                        <li class="nav-item theme-switch-wrapper d-flex align-items-center me-3">
+                            <span class="me-2"><i class="fas fa-sun text-white" aria-hidden="true"></i></span>
+                            <label class="theme-switch" for="theme-toggle" title="Alternar entre tema claro e escuro" aria-label="Alternar tema claro/escuro">
+                                <input type="checkbox" id="theme-toggle" {% if session.get('theme') == 'dark' or request.cookies.get('theme') == 'dark' %}checked{% endif %} aria-label="Alternar tema claro/escuro" role="button">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="ms-2"><i class="fas fa-moon text-white" aria-hidden="true"></i></span>
+                        </li>
+                        
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.is_admin() %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'auth.admin_users' %}active{% endif %}" href="{{ url_for('auth.admin_users') }}" aria-label="Gerenciar usuários">
+                                    <i class="fas fa-users-cog" aria-hidden="true"></i> Gerenciar Usuários
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-label="Menu do usuário {{ current_user.username }}">
+                                    <i class="fas fa-user-circle" aria-hidden="true"></i> {{ current_user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('auth.profile') }}" aria-label="Perfil do usuário">
+                                            <i class="fas fa-id-card" aria-hidden="true"></i> Perfil
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('auth.logout') }}" aria-label="Sair da conta">
+                                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sair
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'auth.login' %}active{% endif %}" href="{{ url_for('auth.login') }}" aria-label="Fazer login">
+                                    <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if request.endpoint == 'auth.register' %}active{% endif %}" href="{{ url_for('auth.register') }}" aria-label="Criar nova conta">
+                                    <i class="fas fa-user-plus" aria-hidden="true"></i> Cadastre-se
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Mensagens flash -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main id="main-content" class="container py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 class="h5">TechCare</h3>
+                    <p>Diagnóstico profissional e manutenção de computadores com facilidade.</p>
+                    <div class="social-links mt-3">
+                        <a href="https://www.instagram.com/ulytech_informatica/" target="_blank" class="text-white me-2" aria-label="Instagram da TechCare">
+                            <i class="fab fa-instagram fa-lg" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://www.facebook.com/ulytechinformatica/" target="_blank" class="text-white me-2" aria-label="Facebook da TechCare">
+                            <i class="fab fa-facebook fa-lg" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://api.whatsapp.com/send?phone=55XXXXXXXX" target="_blank" class="text-white" aria-label="WhatsApp da TechCare">
+                            <i class="fab fa-whatsapp fa-lg" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="h5">Links Rápidos</h3>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.index') }}" class="text-white-50">Início</a></li>
+                        <li><a href="{{ url_for('diagnostic_overview.index') }}" class="text-white-50">Diagnóstico</a></li>
+                        <li><a href="{{ url_for('drivers.index') }}" class="text-white-50">Drivers</a></li>
+                        <li><a href="{{ url_for('repair.index') }}" class="text-white-50">Reparos</a></li>
+                        <li><a href="{{ url_for('diagnostic_overview.history') }}" class="text-white-50">Histórico</a></li>
+                        <li><a href="{{ url_for('main.about') }}" class="text-white-50">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="h5">Contato</h3>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> contato@ulytech.com.br</li>
+                        <li><i class="fas fa-phone me-2"></i> (xx) xxxx-xxxx</li>
+                        <li><i class="fab fa-instagram me-2"></i> @ulytech_informatica</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Sua Cidade, UF</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; {{ now.year if now else 2024 }} TechCare. Todos os direitos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p><a href="#" class="text-white-50">Política de Privacidade</a> | <a href="#" class="text-white-50">Termos de Uso</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery (necessário para scripts que usam $) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- JS Personalizado -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    
+    <!-- Atalhos de acessibilidade -->
+    <div class="accessibility-info d-none">
+        <p>Atalhos de teclado disponíveis:</p>
+        <ul>
+            <li>Alt+1: Ir para o conteúdo principal</li>
+            <li>Alt+H: Ir para a página inicial</li>
+            <li>Alt+D: Ir para a página de diagnóstico</li>
+            <li>Alt+R: Ir para a página de drivers</li>
+            <li>Alt+C: Ir para a página de limpeza</li>
+            <li>Alt+2: Alternar tema claro/escuro</li>
+            <li>Alt+3: Alternar alto contraste</li>
+            <li>Alt+F: Aumentar tamanho da fonte</li>
+            <li>Alt+G: Diminuir tamanho da fonte</li>
+            <li>Alt+0: Mostrar esta ajuda</li>
+        </ul>
+    </div>
+    
+    {% block scripts %}{% endblock %}
+    
+    <!-- Script para garantir controles de tamanho de fonte -->
+    <script>
+        // Verifica e adiciona controles de tamanho de fonte se necessário
+        document.addEventListener('DOMContentLoaded', function() {
+            // Função para ajustar o tamanho da fonte
+            function adjustFontSize(increase) {
+                const html = document.documentElement;
+                const currentSize = parseFloat(getComputedStyle(html).fontSize);
+                const newSize = increase ? (currentSize + 1) : (currentSize - 1);
+                if (newSize >= 10) { // Não permitir tamanho menor que 10px
+                    html.style.fontSize = newSize + 'px';
+                    localStorage.setItem('fontSize', newSize + 'px');
+                }
+            }
+            
+            // Aplica o tamanho de fonte salvo
+            const savedSize = localStorage.getItem('fontSize');
+            if (savedSize) {
+                document.documentElement.style.fontSize = savedSize;
+            }
+            
+            // Verifica se já existem controles de tamanho de fonte
+            if (!document.querySelector('.font-size-controls')) {
+                const navbarRight = document.querySelector('.navbar-nav.ms-auto');
+                if (navbarRight) {
+                    const fontControls = document.createElement('li');
+                    fontControls.className = 'nav-item font-size-controls d-flex align-items-center me-3';
+                    fontControls.innerHTML = `
+                        <span class="me-2 d-none d-sm-inline text-white" title="Tamanho da fonte"><i class="fas fa-font"></i></span>
+                        <button class="btn btn-sm btn-outline-light me-1" id="font-decrease" title="Diminuir fonte (Alt+G)" aria-label="Diminuir tamanho da fonte">A-</button>
+                        <button class="btn btn-sm btn-outline-light" id="font-increase" title="Aumentar fonte (Alt+F)" aria-label="Aumentar tamanho da fonte">A+</button>
+                    `;
+                    navbarRight.insertBefore(fontControls, navbarRight.firstChild);
+                    
+                    // Adiciona event listeners
+                    document.getElementById('font-increase').addEventListener('click', function() {
+                        adjustFontSize(true);
+                    });
+                    document.getElementById('font-decrease').addEventListener('click', function() {
+                        adjustFontSize(false);
+                    });
+                }
+            }
+            
+            // Adiciona atalhos de teclado
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey && e.key === 'f') { // Alt+F: Aumentar fonte
+                    e.preventDefault();
+                    adjustFontSize(true);
+                } else if (e.altKey && e.key === 'g') { // Alt+G: Diminuir fonte
+                    e.preventDefault();
+                    adjustFontSize(false);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,297 @@
+/* 
+ * UlyTech Informática - Estilos principais (Arquivo style.css)
+ * Este arquivo é um link para o arquivo styles.css
+ */
+
+/* Incorpora os estilos do arquivo principal */
+@import 'styles.css';
+
+/* Adiciona alguns estilos específicos para testes */
+.responsive-test {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .responsive-test {
+        padding: 0 15px;
+    }
+}
+
+/* Classes para definir acessibilidade */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Garantir contraste mínimo para acessibilidade */
+.high-contrast-text {
+    color: #000000;
+    background-color: #ffffff;
+}
+
+.high-contrast-text-inverted {
+    color: #ffffff;
+    background-color: #000000;
+}
+
+:root {
+    /* Variáveis de cores padrão (tema claro) */
+    --primary-color: #0d6efd;
+    --primary-color-dark: #0a58ca;
+    --secondary-color: #6c757d;
+    --secondary-color-dark: #5a6268;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    
+    /* Cores de fundo e texto */
+    --bg-color: #ffffff;
+    --text-color: #212529;
+    --link-color: #0d6efd;
+    --link-hover-color: #0a58ca;
+    --border-color: #dee2e6;
+    
+    /* Cores de acessibilidade */
+    --focus-outline-color: #0d6efd;
+    
+    /* Dimensões e espaçamentos */
+    --border-radius: 0.25rem;
+    --transition-speed: 0.3s;
+    --content-width: 1140px;
+    --spacing-small: 0.5rem;
+    --spacing-medium: 1rem;
+    --spacing-large: 2rem;
+}
+
+/* Tema escuro */
+[data-theme="dark"], .dark-theme, .theme-dark {
+    --primary-color: #3d8bfd;
+    --primary-color-dark: #6ea8fe;
+    --secondary-color: #adb5bd;
+    --secondary-color-dark: #ced4da;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    
+    /* Cores invertidas para tema escuro */
+    --bg-color: #121212;
+    --text-color: #f8f9fa;
+    --link-color: #6ea8fe;
+    --link-hover-color: #9ec5fe;
+    --border-color: #495057;
+    
+    /* Cores de acessibilidade para tema escuro */
+    --focus-outline-color: #9ec5fe;
+}
+
+/* Alto contraste (para acessibilidade) */
+.high-contrast, [data-contrast="high"] {
+    --primary-color: #0000ff;
+    --primary-color-dark: #0000cc;
+    --secondary-color: #808080;
+    --secondary-color-dark: #666666;
+    --success-color: #00aa00;
+    --danger-color: #ff0000;
+    --warning-color: #ffaa00;
+    --info-color: #00aaff;
+    
+    /* Cores de alto contraste */
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --link-color: #0000ff;
+    --link-hover-color: #0000cc;
+    --border-color: #000000;
+    
+    /* Aumenta o contraste para foco */
+    --focus-outline-color: #ff0000;
+}
+
+/* Alto contraste no tema escuro */
+.high-contrast.dark-theme, 
+.high-contrast[data-theme="dark"],
+[data-contrast="high"][data-theme="dark"] {
+    --primary-color: #00ffff;
+    --primary-color-dark: #00cccc;
+    --secondary-color: #aaaaaa;
+    --secondary-color-dark: #cccccc;
+    --success-color: #00ff00;
+    --danger-color: #ff0000;
+    --warning-color: #ffff00;
+    --info-color: #00ffff;
+    
+    /* Cores de alto contraste para tema escuro */
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --link-color: #00ffff;
+    --link-hover-color: #00cccc;
+    --border-color: #ffffff;
+}
+
+/* Configurações gerais */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: color var(--transition-speed), background-color var(--transition-speed);
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+
+a:hover {
+    color: var(--link-hover-color);
+    text-decoration: underline;
+}
+
+/* Elementos focáveis */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 3px solid var(--focus-outline-color);
+    outline-offset: 2px;
+}
+
+/* Botões acessíveis */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color-dark);
+    border-color: var(--primary-color-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-color-dark);
+    border-color: var(--secondary-color-dark);
+}
+
+/* Cards com temas */
+.card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-medium);
+    margin-bottom: var(--spacing-medium);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .card, [data-theme="dark"] .card {
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
+/* Navegação acessível */
+.skip-to-content {
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    text-decoration: none;
+}
+
+.skip-to-content:focus {
+    left: 0;
+    top: 0;
+}
+
+/* Acessibilidade - tamanho de fonte */
+.font-size-controls button {
+    margin-right: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+}
+
+/* Estilos para usuários que preferem movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Classes responsivas para layout */
+.container {
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-medium);
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 calc(var(--spacing-small) * -1);
+}
+
+.col {
+    flex: 1 0 0%;
+    padding: 0 var(--spacing-small);
+}
+
+/* Grid responsivo */
+@media (min-width: 576px) {
+    .col-sm {
+        flex: 1 0 0%;
+    }
+}
+
+@media (min-width: 768px) {
+    .col-md {
+        flex: 1 0 0%;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-lg {
+        flex: 1 0 0%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-xl {
+        flex: 1 0 0%;
+    }
+} 

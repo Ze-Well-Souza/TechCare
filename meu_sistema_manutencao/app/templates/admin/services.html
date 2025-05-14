@@ -1,0 +1,119 @@
+{% extends "base/base.html" %}
+
+{% block title %}Monitoramento de Serviços{% endblock %}
+
+{% block extra_css %}
+<style>
+    .service-card {
+        transition: all 0.3s ease;
+    }
+    .service-card.running {
+        border-left: 5px solid green;
+    }
+    .service-card.stopped {
+        border-left: 5px solid red;
+    }
+    .service-card.error {
+        border-left: 5px solid orange;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Monitoramento de Serviços</h1>
+    
+    <div id="servicesContainer" class="row">
+        <!-- Serviços serão carregados via JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const servicesContainer = document.getElementById('servicesContainer');
+
+    // Função para carregar serviços
+    function loadServices() {
+        fetch('/services')
+            .then(response => response.json())
+            .then(services => {
+                servicesContainer.innerHTML = ''; // Limpar container
+                services.forEach(service => {
+                    const serviceCard = createServiceCard(service);
+                    servicesContainer.appendChild(serviceCard);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar serviços:', error);
+                servicesContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        Erro ao carregar serviços. Tente novamente mais tarde.
+                    </div>
+                `;
+            });
+    }
+
+    // Função para criar cartão de serviço
+    function createServiceCard(service) {
+        const card = document.createElement('div');
+        card.className = `col-md-4 mb-3`;
+        card.innerHTML = `
+            <div class="card service-card ${service.status}">
+                <div class="card-header">
+                    <h5 class="card-title">${service.name}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">${service.description || 'Sem descrição'}</p>
+                    <p>Status: <span class="badge ${getStatusClass(service.status)}">${service.status}</span></p>
+                    <p>Última atualização: ${new Date(service.last_updated).toLocaleString()}</p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="toggleService(${service.id}, '${service.status}')" 
+                            class="btn ${service.status === 'running' ? 'btn-danger' : 'btn-success'}">
+                        ${service.status === 'running' ? 'Parar' : 'Iniciar'}
+                    </button>
+                </div>
+            </div>
+        `;
+        return card;
+    }
+
+    // Função para obter classe de status
+    function getStatusClass(status) {
+        const statusClasses = {
+            'running': 'bg-success',
+            'stopped': 'bg-danger',
+            'error': 'bg-warning'
+        };
+        return statusClasses[status] || 'bg-secondary';
+    }
+
+    // Função para alternar status do serviço
+    function toggleService(serviceId, currentStatus) {
+        const endpoint = currentStatus === 'running' ? `/services/${serviceId}/stop` : `/services/${serviceId}/start`;
+        
+        fetch(endpoint, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    loadServices(); // Recarregar lista de serviços
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao alterar status do serviço:', error);
+                alert('Erro ao alterar status do serviço');
+            });
+    }
+
+    // Carregar serviços inicialmente
+    loadServices();
+
+    // Atualizar serviços a cada 30 segundos
+    setInterval(loadServices, 30000);
+});
+</script>
+{% endblock %}

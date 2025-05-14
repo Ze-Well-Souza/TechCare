@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechCare - Histórico de serviços de manutenção do seu computador. Acompanhe todos os atendimentos realizados.">
+    <meta name="theme-color" content="#3498db">
+    <title>Histórico - TechCare</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <a href="index.html" class="logo">TechCare</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="diagnostico.html">Diagnóstico</a></li>
+                <li><a href="historico.html">Histórico</a></li>
+                <li><a href="suporte.html">Suporte</a></li>
+                <li><a href="#" class="btn btn-primary">Entrar</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="section-title">Histórico de Atendimentos</h1>
+            
+            <div class="card">
+                <div class="history-filter">
+                    <div>
+                        <label for="filter-date">Filtrar por data:</label>
+                        <select id="filter-date" class="form-select">
+                            <option value="all">Todos</option>
+                            <option value="month">Último mês</option>
+                            <option value="quarter">Últimos 3 meses</option>
+                            <option value="year">Último ano</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-service">Filtrar por serviço:</label>
+                        <select id="filter-service" class="form-select">
+                            <option value="all">Todos</option>
+                            <option value="maintenance">Atualização e Manutenção</option>
+                            <option value="backup">Backup e Formatação</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-date">
+                            <span class="date">15/04/2025</span>
+                            <span class="badge badge-success">Concluído</span>
+                        </div>
+                        <div class="history-details">
+                            <h3>Atualização e Manutenção</h3>
+                            <p>Pacote de Otimização Premium</p>
+                            <ul class="history-actions">
+                                <li><i class="fas fa-check"></i> Atualização de drivers</li>
+                                <li><i class="fas fa-check"></i> Limpeza de arquivos temporários</li>
+                                <li><i class="fas fa-check"></i> Otimização de inicialização</li>
+                                <li><i class="fas fa-check"></i> Desfragmentação de disco</li>
+                            </ul>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-outline">Ver Detalhes</button>
+                            <button class="btn btn-primary">Repetir Serviço</button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-item">
+                        <div class="history-date">
+                            <span class="date">28/03/2025</span>
+                            <span class="badge badge-success">Concluído</span>
+                        </div>
+                        <div class="history-details">
+                            <h3>Backup e Formatação</h3>
+                            <p>Formatação Completa com Backup</p>
+                            <ul class="history-actions">
+                                <li><i class="fas fa-check"></i> Backup de 45GB de dados</li>
+                                <li><i class="fas fa-check"></i> Formatação do disco C:</li>
+                                <li><i class="fas fa-check"></i> Instalação do Windows 11</li>
+                                <li><i class="fas fa-check"></i> Restauração de dados</li>
+                            </ul>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-outline">Ver Detalhes</button>
+                            <button class="btn btn-primary">Repetir Serviço</button>
+                        </div>
+                    </div>
+                    
+                    <div class="history-item">
+                        <div class="history-date">
+                            <span class="date">10/02/2025</span>
+                            <span class="badge badge-success">Concluído</span>
+                        </div>
+                        <div class="history-details">
+                            <h3>Atualização e Manutenção</h3>
+                            <p>Pacote de Otimização Básica</p>
+                            <ul class="history-actions">
+                                <li><i class="fas fa-check"></i> Atualização de drivers críticos</li>
+                                <li><i class="fas fa-check"></i> Limpeza de arquivos temporários</li>
+                                <li><i class="fas fa-check"></i> Otimização de inicialização</li>
+                            </ul>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-outline">Ver Detalhes</button>
+                            <button class="btn btn-primary">Repetir Serviço</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="service-details" class="card" style="margin-top: 30px;">
+                <h2 class="card-title">Detalhes do Serviço</h2>
+                <div class="service-details">
+                    <div class="service-header">
+                        <div>
+                            <h3>Atualização e Manutenção - Pacote Premium</h3>
+                            <p>Realizado em: 15/04/2025 às 14:32</p>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">Concluído</span>
+                        </div>
+                    </div>
+                    
+                    <div class="service-info">
+                        <div>
+                            <h4>Informações do Dispositivo</h4>
+                            <ul>
+                                <li><strong>Nome:</strong> Notebook-Carlos</li>
+                                <li><strong>Sistema:</strong> Windows 11 Pro</li>
+                                <li><strong>Processador:</strong> Intel Core i7-11700K</li>
+                                <li><strong>Memória:</strong> 16GB DDR4</li>
+                                <li><strong>Armazenamento:</strong> SSD 512GB</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Problemas Identificados</h4>
+                            <ul>
+                                <li><span class="severity-indicator severity-high"></span> Driver de vídeo desatualizado</li>
+                                <li><span class="severity-indicator severity-medium"></span> Programas de inicialização excessivos</li>
+                                <li><span class="severity-indicator severity-high"></span> Disco rígido com pouco espaço</li>
+                                <li><span class="severity-indicator severity-low"></span> Arquivos temporários acumulados</li>
+                                <li><span class="severity-indicator severity-medium"></span> Antivírus desatualizado</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="service-actions">
+                        <h4>Ações Realizadas</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-date">14:32</div>
+                                <div class="timeline-content">
+                                    <p><strong>Início do serviço</strong></p>
+                                    <p>Diagnóstico inicial do sistema</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">14:35</div>
+                                <div class="timeline-content">
+                                    <p><strong>Atualização de drivers</strong></p>
+                                    <p>Driver de vídeo NVIDIA atualizado para a versão 546.33</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">14:41</div>
+                                <div class="timeline-content">
+                                    <p><strong>Otimização de inicialização</strong></p>
+                                    <p>Desativados 8 programas desnecessários na inicialização</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">14:47</div>
+                                <div class="timeline-content">
+                                    <p><strong>Limpeza de arquivos</strong></p>
+                                    <p>Removidos 4.2GB de arquivos temporários e cache</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">14:53</div>
+                                <div class="timeline-content">
+                                    <p><strong>Desfragmentação de disco</strong></p>
+                                    <p>Disco C: desfragmentado com sucesso</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">15:02</div>
+                                <div class="timeline-content">
+                                    <p><strong>Atualização de segurança</strong></p>
+                                    <p>Antivírus atualizado para a versão mais recente</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">15:05</div>
+                                <div class="timeline-content">
+                                    <p><strong>Conclusão do serviço</strong></p>
+                                    <p>Todas as otimizações concluídas com sucesso</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="service-results">
+                        <h4>Resultados</h4>
+                        <div class="grid grid-2">
+                            <div class="result-item">
+                                <h5>Tempo de Inicialização</h5>
+                                <div class="result-comparison">
+                                    <div>
+                                        <span>Antes</span>
+                                        <span class="result-value">45s</span>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
+                                    <div>
+                                        <span>Depois</span>
+                                        <span class="result-value result-improved">22s</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-item">
+                                <h5>Espaço em Disco</h5>
+                                <div class="result-comparison">
+                                    <div>
+                                        <span>Antes</span>
+                                        <span class="result-value">8% livre</span>
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
+                                    <div>
+                                        <span>Depois</span>
+                                        <span class="result-value result-improved">18% livre</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-outline">Baixar Relatório</button>
+                        <button class="btn btn-primary">Repetir Serviço</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TechCare</h3>
+                    <p>Soluções inteligentes para manutenção de computadores e notebooks.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="diagnostico.html">Diagnóstico</a></li>
+                        <li><a href="historico.html">Histórico</a></li>
+                        <li><a href="suporte.html">Suporte</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul>
+                        <li><a href="mailto:contato@techcare.com">contato@techcare.com</a></li>
+                        <li><a href="tel:+551199999999">(11) 9999-9999</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 TechCare. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script src="interactive.js"></script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+// Agente interativo (chatbot) para o TechCare
+// Este script implementa um assistente virtual que responde perguntas técnicas
+
+class AgenteInterativo {
+  constructor() {
+    this.historico = [];
+    this.contexto = {};
+    this.ultimoDiagnostico = null;
+    this.db = null;
+    
+    // Inicializa a conexão com o banco de dados se disponível
+    if (typeof DiagnosticoDatabase !== 'undefined') {
+      this.db = new DiagnosticoDatabase();
+    }
+    
+    // Base de conhecimento para respostas
+    this.baseConhecimento = {
+      saudacoes: [
+        "Olá! Sou o assistente virtual da TechCare. Como posso ajudar você hoje?",
+        "Bem-vindo à TechCare! Estou aqui para ajudar com suas dúvidas técnicas.",
+        "Olá! Sou especialista em manutenção de computadores. Como posso ajudar?"
+      ],
+      diagnostico: {
+        processo: "Nosso diagnóstico gratuito analisa o desempenho do seu computador, identificando problemas como drivers desatualizados, programas que causam lentidão, arquivos temporários acumulados e questões de segurança. O processo é rápido, seguro e não faz alterações no seu sistema sem sua autorização.",
+        tempo: "O diagnóstico completo leva aproximadamente 5 minutos para ser concluído. Durante esse tempo, analisamos CPU, memória, disco, programas de inicialização, drivers e segurança do seu computador.",
+        comparacao: "Nosso sistema mede o desempenho atual do seu computador e estima a melhoria após a otimização. Isso permite que você veja claramente o benefício dos nossos serviços antes de contratar."
+      },
+      servicos: {
+        tipos: "Oferecemos dois tipos principais de serviços: Atualização e Manutenção (otimização do sistema atual) e Backup e Formatação (reinstalação completa do sistema com preservação dos seus dados).",
+        pacotes: "Temos pacotes Básico (R$ 49,90), Premium (R$ 89,90) e Empresarial (R$ 129,90). Cada pacote inclui diferentes níveis de serviço, desde otimizações simples até análises detalhadas de desempenho.",
+        remoto: "Nosso suporte remoto permite que nossos técnicos acessem seu computador pela internet para resolver problemas complexos. O processo é seguro e você mantém o controle total, podendo observar todas as ações realizadas."
+      },
+      problemas_comuns: {
+        lentidao: "A lentidão do computador pode ser causada por diversos fatores, como drivers desatualizados, programas de inicialização excessivos, pouco espaço em disco ou malware. Nosso diagnóstico gratuito pode identificar a causa específica no seu caso.",
+        travamentos: "Travamentos frequentes podem ser causados por problemas de hardware (como superaquecimento ou memória defeituosa) ou software (como drivers incompatíveis ou conflitos entre programas). Recomendamos realizar um diagnóstico completo para identificar a causa.",
+        virus: "Se você suspeita de vírus ou malware, recomendamos executar imediatamente uma verificação com seu antivírus. Nosso serviço Premium inclui uma verificação completa de malware e remoção de ameaças detectadas.",
+        atualizacoes: "Manter seu sistema e drivers atualizados é essencial para a segurança e desempenho. Nosso serviço Básico inclui a atualização de drivers críticos e verificação de atualizações do sistema operacional."
+      },
+      hardware: {
+        upgrade: "Recomendamos upgrades de hardware quando as otimizações de software não são suficientes para melhorar o desempenho. Os upgrades mais comuns são adição de memória RAM, substituição do HD por SSD e atualização da placa de vídeo.",
+        memoria: "Adicionar mais memória RAM pode melhorar significativamente o desempenho do seu computador, especialmente se você usa aplicativos que consomem muita memória, como editores de vídeo ou jogos modernos.",
+        ssd: "Substituir um disco rígido tradicional (HDD) por um SSD pode ser o upgrade com melhor custo-benefício, reduzindo drasticamente o tempo de inicialização do sistema e de carregamento de aplicativos.",
+        compatibilidade: "Nem todos os upgrades são compatíveis com todos os computadores. Nosso relatório de melhorias analisa seu hardware atual e recomenda apenas upgrades compatíveis e com melhor custo-benefício."
+      },
+      suporte: {
+        horarios: "Nossa equipe de suporte técnico está disponível de segunda a sexta, das 8h às 20h, e aos sábados, das 9h às 15h.",
+        contato: "Você pode entrar em contato conosco pelo telefone (11) 9999-9999, pelo e-mail suporte@techcare.com ou através deste chat.",
+        presencial: "Para problemas que não podem ser resolvidos remotamente, oferecemos atendimento presencial. Você pode agendar uma visita técnica através do chat de suporte ou pelo telefone."
+      }
+    };
+  }
+  
+  // Processa a mensagem do usuário e retorna uma resposta
+  async processarMensagem(mensagem) {
+    try {
+      // Adiciona a mensagem ao histórico
+      this.historico.push({ tipo: 'usuario', texto: mensagem });
+      
+      // Analisa a mensagem e gera uma resposta
+      const resposta = await this.gerarResposta(mensagem);
+      
+      // Adiciona a resposta ao histórico
+      this.historico.push({ tipo: 'agente', texto: resposta });
+      
+      return resposta;
+    } catch (error) {
+      console.error('Erro ao processar mensagem:', error);
+      return "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.";
+    }
+  }
+  
+  // Gera uma resposta com base na mensagem do usuário
+  async gerarResposta(mensagem) {
+    // Converte a mensagem para minúsculas para facilitar a comparação
+    const mensagemLower = mensagem.toLowerCase();
+    
+    // Verifica se é uma saudação
+    if (this.ehSaudacao(mensagemLower)) {
+      return this.obterRespostaAleatoria(this.baseConhecimento.saudacoes);
+    }
+    
+    // Verifica se é uma pergunta sobre diagnóstico
+    if (this.contemPalavrasChave(mensagemLower, ['diagnóstico', 'diagnostico', 'análise', 'analise', 'verificação', 'verificacao'])) {
+      if (this.contemPalavrasChave(mensagemLower, ['como', 'funciona', 'o que', 'processo'])) {
+        return this.baseConhecimento.diagnostico.processo;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['tempo', 'duração', 'duracao', 'quanto tempo', 'demora'])) {
+        return this.baseConhecimento.diagnostico.tempo;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['comparação', 'comparacao', 'antes', 'depois', 'melhoria'])) {
+        return this.baseConhecimento.diagnostico.comparacao;
+      }
+      
+      // Resposta genérica sobre diagnóstico
+      return "Nosso diagnóstico gratuito é rápido, seguro e identifica problemas que afetam o desempenho do seu computador. Você pode iniciar um diagnóstico agora mesmo clicando no botão 'Iniciar Diagnóstico' na página inicial ou de diagnóstico.";
+    }
+    
+    // Verifica se é uma pergunta sobre serviços
+    if (this.contemPalavrasChave(mensagemLower, ['serviço', 'servico', 'pacote', 'plano'])) {
+      if (this.contemPalavrasChave(mensagemLower, ['tipo', 'tipos', 'quais', 'oferece', 'disponível', 'disponivel'])) {
+        return this.baseConhecimento.servicos.tipos;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['preço', 'preco', 'valor', 'custo', 'quanto custa', 'pacote'])) {
+        return this.baseConhecimento.servicos.pacotes;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['remoto', 'distância', 'distancia', 'online', 'acesso'])) {
+        return this.baseConhecimento.servicos.remoto;
+      }
+      
+      // Resposta genérica sobre serviços
+      return "Oferecemos serviços de Atualização e Manutenção (a partir de R$ 49,90) e Backup e Formatação. Todos os serviços incluem diagnóstico gratuito e suporte técnico. Você pode ver mais detalhes na página de diagnóstico após realizar a análise do seu computador.";
+    }
+    
+    // Verifica se é uma pergunta sobre problemas comuns
+    if (this.contemPalavrasChave(mensagemLower, ['problema', 'lento', 'devagar', 'travando', 'trava', 'vírus', 'virus', 'malware', 'atualização', 'atualizacao'])) {
+      if (this.contemPalavrasChave(mensagemLower, ['lento', 'devagar', 'lentidão', 'lentidao'])) {
+        return this.baseConhecimento.problemas_comuns.lentidao;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['trava', 'travando', 'travamento', 'congela', 'congelando'])) {
+        return this.baseConhecimento.problemas_comuns.travamentos;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['vírus', 'virus', 'malware', 'trojan', 'ransomware', 'infectado'])) {
+        return this.baseConhecimento.problemas_comuns.virus;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['atualização', 'atualizacao', 'update', 'windows', 'driver'])) {
+        return this.baseConhecimento.problemas_comuns.atualizacoes;
+      }
+      
+      // Resposta genérica sobre problemas
+      return "Existem diversos problemas que podem afetar o desempenho do seu computador. Recomendo realizar um diagnóstico gratuito para identificar exatamente o que está causando o problema no seu caso específico. Posso ajudar você a iniciar o diagnóstico agora mesmo.";
+    }
+    
+    // Verifica se é uma pergunta sobre hardware
+    if (this.contemPalavrasChave(mensagemLower, ['hardware', 'peça', 'peca', 'componente', 'memória', 'memoria', 'ram', 'ssd', 'hd', 'placa', 'processador', 'upgrade'])) {
+      if (this.contemPalavrasChave(mensagemLower, ['upgrade', 'melhorar', 'atualizar', 'trocar'])) {
+        return this.baseConhecimento.hardware.upgrade;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['memória', 'memoria', 'ram'])) {
+        return this.baseConhecimento.hardware.memoria;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['ssd', 'disco', 'armazenamento', 'hd'])) {
+        return this.baseConhecimento.hardware.ssd;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['compatível', 'compativel', 'compatibilidade'])) {
+        return this.baseConhecimento.hardware.compatibilidade;
+      }
+      
+      // Resposta genérica sobre hardware
+      return "Upgrades de hardware podem melhorar significativamente o desempenho do seu computador. Após o diagnóstico, podemos recomendar os melhores upgrades para o seu caso específico, considerando a compatibilidade e o custo-benefício.";
+    }
+    
+    // Verifica se é uma pergunta sobre suporte
+    if (this.contemPalavrasChave(mensagemLower, ['suporte', 'ajuda', 'atendimento', 'contato', 'falar', 'técnico', 'tecnico', 'humano'])) {
+      if (this.contemPalavrasChave(mensagemLower, ['horário', 'horario', 'hora', 'quando', 'disponível', 'disponivel'])) {
+        return this.baseConhecimento.suporte.horarios;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['contato', 'telefone', 'email', 'e-mail', 'falar'])) {
+        return this.baseConhecimento.suporte.contato;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['presencial', 'visita', 'técnico', 'tecnico', 'casa', 'escritório', 'escritorio'])) {
+        return this.baseConhecimento.suporte.presencial;
+      }
+      if (this.contemPalavrasChave(mensagemLower, ['humano', 'pessoa', 'atendente', 'real'])) {
+        return "Entendo que você prefere falar com um técnico humano. Nosso suporte técnico está disponível de segunda a sexta, das 8h às 20h. Você pode entrar em contato pelo telefone (11) 9999-9999 ou pelo e-mail suporte@techcare.com. Deseja que eu agende um contato para você?";
+      }
+      
+      // Resposta genérica sobre suporte
+      return "Nossa equipe de suporte técnico está disponível para ajudar com qualquer problema ou dúvida. Você pode entrar em contato pelo telefone (11) 9999-9999, pelo e-mail suporte@techcare.com ou continuar conversando comigo.";
+    }
+    
+    // Verifica se é uma pergunta sobre o último diagnóstico
+    if (this.contemPalavrasChave(mensagemLower, ['meu diagnóstico', 'meu diagnostico', 'resultado', 'análise', 'analise', 'meu computador', 'meu pc'])) {
+      // Verifica se há um diagnóstico recente
+      if (this.ultimoDiagnostico) {
+        return this.gerarResumoDiagnostico(this.ultimoDiagnostico);
+      } else {
+        return "Não encontrei um diagnóstico recente para o seu computador. Você pode iniciar um diagnóstico gratuito clicando no botão 'Iniciar Diagnóstico' na página inicial ou de diagnóstico.";
+      }
+    }
+    
+    // Resposta padrão para mensagens não reconhecidas
+    return "Obrigado pela sua mensagem. Para que eu possa ajudar melhor, poderia fornecer mais detalhes sobre o problema que está enfrentando com seu computador? Ou, se preferir, pode iniciar um diagnóstico gratuito clicando no botão 'Iniciar Diagnóstico'.";
+  }
+  
+  // Verifica se a mensagem é uma saudação
+  ehSaudacao(mensagem) {
+    const saudacoes = ['olá', 'ola', 'oi', 'bom dia', 'boa tarde', 'boa noite', 'e aí', 'e ai', 'hello', 'hi'];
+    return saudacoes.some(saudacao => mensagem.includes(saudacao));
+  }
+  
+  // Verifica se a mensagem contém palavras-chave
+  contemPalavrasChave(mensagem, palavrasChave) {
+    return palavrasChave.some(palavra => mensagem.includes(palavra));
+  }
+  
+  // Obtém uma resposta aleatória de uma lista
+  obterRespostaAleatoria(respostas) {
+    const indice = Math.floor(Math.random() * respostas.length);
+    return respostas[indice];
+  }
+  
+  // Gera um resumo do diagnóstico
+  gerarResumoDiagnostico(diagnostico) {
+    let resumo = `Seu computador recebeu uma pontuação geral de ${diagnostico.score_geral}/100. `;
+    
+    // Adiciona informações sobre os principais problemas
+    if (diagnostico.score_geral < 50) {
+      resumo += "Foram encontrados problemas graves que estão afetando significativamente o desempenho. ";
+    } else if (diagnostico.score_geral < 80) {
+      resumo += "Foram encontrados alguns problemas que estão afetando o desempenho. ";
+    } else {
+      resumo += "Seu computador está em bom estado, mas ainda há espaço para melhorias. ";
+    }
+    
+    // Adiciona detalhes sobre as categorias com pior desempenho
+    const categorias = [
+      { nome: 'CPU', score: diagnostico.scores.cpu },
+      { nome: 'Memória', score: diagnostico.scores.memoria },
+      { nome: 'Disco', score: diagnostico.scores.disco },
+      { nome: 'Inicialização', score: diagnostico.scores.startup },
+      { nome: 'Drivers', score: diagnostico.scores.drivers },
+      { nome: 'Segurança', score: diagnostico.scores.seguranca }
+    ];
+    
+    // Ordena as categorias por score (do menor para o maior)
+    categorias.sort((a, b) => a.score - b.score);
+    
+    // Adiciona informações sobre as duas piores categorias
+    resumo += `As áreas que mais precisam de atenção são ${categorias[0].nome} (${categorias[0].score}/100) e ${categorias[1].nome} (${categorias[1].score}/100). `;
+    
+    // Adiciona recomendação
+    if (diagnostico.score_geral < 70) {
+      resumo += "Recomendamos o Pacote Premium para resolver todos os problemas identificados e melhorar significativamente o desempenho do seu computador.";
+    } else {
+      resumo += "Recomendamos o Pacote Básico para otimizar ainda mais o desempenho do seu computador.";
+    }
+    
+    return resumo;
+  }
+  
+  // Define o último diagnóstico
+  definirUltimoDiagnostico(diagnostico) {
+    this.ultimoDiagnostico = diagnostico;
+  }
+  
+  // Obtém o histórico de mensagens
+  obterHistorico() {
+    return this.historico;
+  }
+  
+  // Limpa o histórico de mensagens
+  limparHistorico() {
+    this.historico = [];
+  }
+}
+
+// Inicializa o agente interativo quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+  const agente = new AgenteInterativo();
+  
+  // Elementos do chat
+  const chatMessages = document.getElementById('chat-messages');
+  const chatInput = document.getElementById('chat-input');
+  const chatButton = document.querySelector('.chat-input .btn');
+  const typingIndicator = document.querySelector('.agent-typing');
+  
+  // Função para adicionar mensagem ao chat
+  function adicionarMensagem(texto, tipo) {
+    const mensagem = document.createElement('div');
+    mensagem.className = `message message-${tipo}`;
+    mensagem.innerHTML = `<p>$
+(Content truncated due to size limit. Use line ranges to read in chunks)

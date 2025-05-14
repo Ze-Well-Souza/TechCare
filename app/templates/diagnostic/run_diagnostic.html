@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Executando Diagnóstico{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .progress-container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .scan-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    
+    .scan-section.done {
+        background-color: #d4edda;
+        border-left: 5px solid #28a745;
+    }
+    
+    .scan-section.active {
+        background-color: #cce5ff;
+        border-left: 5px solid #007bff;
+    }
+    
+    .scan-section.waiting {
+        background-color: #f8f9fa;
+        border-left: 5px solid #6c757d;
+    }
+    
+    .result-summary {
+        margin-top: 30px;
+    }
+    
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 5px solid #3498db;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-laptop-medical me-2"></i> Diagnóstico do Sistema</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> O diagnóstico está sendo executado. Isso pode levar alguns minutos. Não feche esta janela.
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress" style="height: 25px;">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div id="scan-cpu" class="scan-section active">
+                        <h5><i class="fas fa-microchip me-2"></i> Verificando CPU</h5>
+                        <p>Analisando desempenho do processador e uso de recursos...</p>
+                        <div class="loader"></div>
+                    </div>
+                    
+                    <div id="scan-memory" class="scan-section waiting">
+                        <h5><i class="fas fa-memory me-2"></i> Verificando Memória</h5>
+                        <p>Analisando uso de memória RAM e possíveis problemas...</p>
+                    </div>
+                    
+                    <div id="scan-disk" class="scan-section waiting">
+                        <h5><i class="fas fa-hdd me-2"></i> Verificando Armazenamento</h5>
+                        <p>Analisando discos, performance e espaço disponível...</p>
+                    </div>
+                    
+                    <div id="scan-drivers" class="scan-section waiting">
+                        <h5><i class="fas fa-cogs me-2"></i> Verificando Drivers</h5>
+                        <p>Analisando drivers do sistema em busca de atualizações...</p>
+                    </div>
+                    
+                    <div id="scan-security" class="scan-section waiting">
+                        <h5><i class="fas fa-shield-alt me-2"></i> Verificando Segurança</h5>
+                        <p>Verificando configurações de segurança e vulnerabilidades...</p>
+                    </div>
+                    
+                    <div id="scan-network" class="scan-section waiting">
+                        <h5><i class="fas fa-network-wired me-2"></i> Verificando Rede</h5>
+                        <p>Analisando conectividade e desempenho de rede...</p>
+                    </div>
+                    
+                    <div id="result-summary" class="result-summary d-none">
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle me-2"></i> Diagnóstico Concluído!</h5>
+                            <p>O diagnóstico do sistema foi concluído com sucesso.</p>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a id="view-results-btn" href="#" class="btn btn-primary">
+                                <i class="fas fa-chart-bar me-2"></i> Ver Resultados Detalhados
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Iniciar o diagnóstico automaticamente
+        startDiagnostic();
+        
+        function startDiagnostic() {
+            // Simular progresso para feedback visual
+            simulateProgress();
+            
+            // Fazer a chamada AJAX para iniciar o diagnóstico
+            fetch("{{ url_for('diagnostic_analysis.run_diagnostic') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'name=Diagnóstico Automático'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Atualizar progresso para 100%
+                    updateProgress(100);
+                    
+                    // Marcar todas as seções como concluídas
+                    document.querySelectorAll('.scan-section').forEach(section => {
+                        section.classList.remove('active', 'waiting');
+                        section.classList.add('done');
+                        section.querySelector('.loader')?.remove();
+                    });
+                    
+                    // Mostrar resumo de resultados
+                    const resultSummary = document.getElementById('result-summary');
+                    resultSummary.classList.remove('d-none');
+                    
+                    // Configurar botão para visualizar resultados
+                    const viewResultsBtn = document.getElementById('view-results-btn');
+                    viewResultsBtn.href = "{{ url_for('diagnostic_overview.view_results', diagnostic_id=0) }}".replace('0', data.diagnostic_id);
+                } else {
+                    alert('Erro ao executar diagnóstico: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao executar o diagnóstico. Por favor, tente novamente.');
+            });
+        }
+        
+        function simulateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const scanSections = document.querySelectorAll('.scan-section');
+            const totalSections = scanSections.length;
+            let currentSection = 0;
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+                if (progress >= 95) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                // Incrementar progresso
+                progress += 1;
+                updateProgress(progress);
+                
+                // Atualizar seção ativa a cada ~16% de progresso
+                const newSection = Math.floor(progress / (95 / totalSections));
+                if (newSection > currentSection && newSection < totalSections) {
+                    // Marcar seção anterior como concluída
+                    scanSections[currentSection].classList.remove('active');
+                    scanSections[currentSection].classList.add('done');
+                    scanSections[currentSection].querySelector('.loader')?.remove();
+                    
+                    // Ativar nova seção
+                    currentSection = newSection;
+                    scanSections[currentSection].classList.remove('waiting');
+                    scanSections[currentSection].classList.add('active');
+                    
+                    // Adicionar loader à seção ativa
+                    const loader = document.createElement('div');
+                    loader.className = 'loader';
+                    scanSections[currentSection].appendChild(loader);
+                }
+            }, 300);
+        }
+        
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+        }
+    });
+</script>
+{% endblock %} 

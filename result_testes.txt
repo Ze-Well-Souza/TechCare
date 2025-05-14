@@ -1,0 +1,179 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-8.3.5, pluggy-1.5.0
+PyQt6 6.8.1 -- Qt runtime 6.8.2 -- Qt compiled 6.8.2
+rootdir: C:\Projetos_python\projet_tech_v2
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.2.0, langsmith-0.3.33, cov-6.1.1, qt-4.4.0
+collected 210 items
+
+tests\test_integration.py ....                                           [  1%]
+tests\test_models\test_repository.py ............                        [  7%]
+tests\test_models\test_user.py .........                                 [ 11%]
+tests\test_performance.py .F....                                         [ 14%]
+tests\test_routes\test_accessibility.py ...........                      [ 20%]
+tests\test_routes\test_accessibility_advanced.py ..........              [ 24%]
+tests\test_routes\test_api_routes.py ....                                [ 26%]
+tests\test_routes\test_auth_routes.py ............                       [ 32%]
+tests\test_routes\test_diagnostic_routes.py ..................           [ 40%]
+tests\test_routes\test_driver_routes.py .......                          [ 44%]
+tests\test_routes\test_repair_routes.py .......                          [ 47%]
+tests\test_routes\test_themes.py ........                                [ 51%]
+tests\test_routes\test_ui.py .......ss..                                 [ 56%]
+tests\test_routes\test_ui_ux.py ........                                 [ 60%]
+tests\test_services\test_cleaner_service.py ....................         [ 70%]
+tests\test_services\test_diagnostic_repository.py .............          [ 76%]
+tests\test_services\test_diagnostic_service.py .......                   [ 79%]
+tests\test_services\test_driver_service.py .F.....                       [ 82%]
+tests\test_services\test_repair_service.py .....                         [ 85%]
+tests\test_services\test_service_factory.py ......                       [ 88%]
+tests\test_utils\test_cache.py .........................                 [100%]
+
+================================== FAILURES ===================================
+__________________ TestPerformance.test_concurrent_requests ___________________
+
+self = <test_performance.TestPerformance object at 0x0000025ECD9219D0>
+client = <FlaskClient <Flask 'app'>>
+
+    def test_concurrent_requests(self, client):
+        """Testa a capacidade de lidar com m├║ltiplas requisi├º├Áes simult├óneas"""
+        # N├║mero de requisi├º├Áes concorrentes
+        num_concurrent = 10
+        # Endpoint a ser testado
+        endpoint = '/'
+    
+        # Fila para armazenar os resultados
+        results_queue = queue.Queue()
+    
+        def make_request():
+            """Fun├º├úo que faz a requisi├º├úo e armazena o resultado"""
+            start_time = time.time()
+            response = client.get(endpoint)
+            end_time = time.time()
+    
+            results_queue.put({
+                'status_code': response.status_code,
+                'response_time_ms': (end_time - start_time) * 1000
+            })
+    
+        # Cria e inicia as threads
+        threads = []
+        for _ in range(num_concurrent):
+            thread = threading.Thread(target=make_request)
+            threads.append(thread)
+            thread.start()
+    
+        # Espera todas as threads terminarem
+        for thread in threads:
+            thread.join()
+    
+        # Coleta os resultados
+        results = []
+        while not results_queue.empty():
+            results.append(results_queue.get())
+    
+        # Calcula estat├¡sticas
+        response_times = [r['response_time_ms'] for r in results]
+        avg_response_time = statistics.mean(response_times)
+        max_response_time = max(response_times)
+        min_response_time = min(response_times)
+    
+        # Verifica se todos os requests foram bem-sucedidos
+        for i, result in enumerate(results):
+            assert result['status_code'] in [200, 302], f"Request {i} falhou com status {result['status_code']}"
+    
+        # Verifica se o tempo m├®dio de resposta est├í dentro de limites aceit├íveis
+>       assert avg_response_time < 1000, f"Tempo m├®dio de resposta muito alto: {avg_response_time:.2f}ms"
+E       AssertionError: Tempo m├®dio de resposta muito alto: 1090.71ms
+E       assert 1090.706729888916 < 1000
+
+tests\test_performance.py:106: AssertionError
+______________________________ test_scan_drivers ______________________________
+
+mock_wmi = <MagicMock name='WMI' id='2606203672272'>
+driver_service_mock = <app.services.driver_update_service.DriverUpdateService object at 0x0000025ECDD81A00>
+
+    @pytest.mark.skipif(platform.system() != 'Windows', reason="Teste espec├¡fico para Windows")
+    @patch('wmi.WMI')
+    def test_scan_drivers(mock_wmi, driver_service_mock):
+        """Testa a fun├º├úo de escaneamento de drivers."""
+        # Configura├º├úo dos mocks para dispositivos
+        mock_device1 = MagicMock()
+        mock_device1.Caption = "Dispositivo de Teste 1"
+        mock_device1.DeviceName = "Dispositivo de Teste 1"
+        mock_device1.DeviceID = "TEST\\DEVICE1"
+        mock_device1.DriverVersion = "1.0.0"
+        mock_device1.Status = "OK"
+        mock_device1.DriverDate = "20180101000000.000000+000"
+        mock_device1.Manufacturer = "Intel"
+    
+        mock_device2 = MagicMock()
+        mock_device2.Caption = "Dispositivo de Teste 2"
+        mock_device2.DeviceName = "Dispositivo de Teste 2"
+        mock_device2.DeviceID = "TEST\\DEVICE2"
+        mock_device2.DriverVersion = "2.0.0"
+        mock_device2.Status = "Error"
+        mock_device2.DriverDate = "20180101000000.000000+000"
+        mock_device2.Manufacturer = "NVIDIA"
+    
+        # Configura o mock WMI para retornar os dispositivos simulados
+        mock_wmi_instance = MagicMock()
+        mock_wmi_instance.Win32_PnPSignedDriver.return_value = [mock_device1, mock_device2]
+        mock_wmi.return_value = mock_wmi_instance
+    
+        # Mock para o m├®todo _check_driver_update que ├® usado internamente
+        with patch.object(DriverUpdateService, '_check_driver_update', return_value=(False, {})):
+            # Executa o teste
+            result = driver_service_mock.scan_drivers()
+    
+            # Verifica que o resultado ├® um dicion├írio com as chaves esperadas
+            assert 'total_drivers' in result
+            assert 'problematic_drivers' in result
+            assert 'outdated_drivers' in result
+            assert 'up_to_date_drivers' in result
+    
+            # Verifica o total de drivers
+>           assert result['total_drivers'] == 2
+E           assert 0 == 2
+
+tests\test_services\test_driver_service.py:91: AssertionError
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.12.7-final-0 _______________
+
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+app\__init__.py                            53      2    96%   75, 79
+app\models\__init__.py                      0      0   100%
+app\models\diagnostic.py                   53     16    70%   36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 95
+app\models\repository.py                   48     30    38%   22, 26, 30, 34, 38-39, 43-46, 50-56, 60-66, 70-73, 77, 81
+app\models\user.py                         40      2    95%   31, 65
+app\models\user_repository.py              32     17    47%   19, 23, 27-30, 34-35, 39, 43, 49-65
+app\routes\__init__.py                     23     15    35%   11-28, 32-36
+app\routes\api.py                          49      6    88%   23, 67, 81-109, 119-146
+app\routes\auth.py                        155     90    42%   68, 87-108, 117-148, 156-161, 169-198, 202-214, 218-241
+app\routes\cleaner.py                       5      0   100%
+app\routes\cleaner_analysis.py             71     42    41%   11-14, 19-31, 36-41, 46-48, 53-55, 60-62, 67-72, 77-82
+app\routes\cleaner_cleaning.py             52     32    38%   10-15, 20-26, 31-36, 41-46, 51-57
+app\routes\cleaner_maintenance.py          19      6    68%   9-10, 15-16, 21-22
+app\routes\diagnostic.py                    5      0   100%
+app\routes\diagnostic_analysis.py          53     37    30%   15-47, 50-57, 61, 65
+app\routes\diagnostic_api.py               74     10    86%   36-37, 46-47, 58-59, 68-69, 80-81
+app\routes\diagnostic_overview.py          36     20    44%   17-45, 50-64
+app\routes\drivers.py                     157     71    55%   27-28, 35, 41-45, 57-77, 85-97, 105-110, 118-126, 136-169, 176-186, 193-204, 220-221, 238-239, 253, 265-266, 283-284, 302-303, 313
+app\routes\main.py                         97     31    68%   44-45, 52-69, 123-166, 175-176, 234-279, 287-300
+app\routes\repair.py                      145     57    61%   31-63, 70-105, 112-138, 155-156, 174-175, 199-200, 223-224, 242-243, 269-270, 290-291
+app\services\__init__.py                    4      0   100%
+app\services\cleaner_service.py           522    235    55%   19, 48, 66-69, 96-104, 115-161, 224-229, 253-255, 259-261, 265-267, 289-290, 318-319, 339-340, 357-358, 381, 389-390, 399-408, 421, 436-439, 458-459, 466-467, 476-478, 488, 501-507, 517, 525, 542, 551-552, 559-571, 574-582, 585-593, 600, 611-612, 615, 633-638, 641, 643, 647, 669, 671, 675-676, 702-709, 718-719, 740-747, 753-767, 781-791, 795-807, 811-817, 837, 839, 842, 877-932
+app\services\diagnostic_repository.py     125     33    74%   35-36, 50, 85-86, 109, 118-121, 143-150, 203, 246, 260-281
+app\services\diagnostic_service.py        645    386    40%   24, 30, 97-106, 118-123, 161, 171-210, 234-235, 247-255, 259-266, 273-279, 313-314, 320-327, 341-348, 350-357, 385, 402-409, 428-437, 444-456, 465-470, 481-584, 588-675, 680-681, 704-706, 722-724, 732-739, 749-751, 755-757, 761-785, 789-808, 812-854, 858-871, 877, 881, 895, 897, 899, 902-917, 934-943, 953-956, 960-963, 976-977, 981-985, 1011-1031, 1037-1052, 1056-1069, 1073-1101, 1116-1128, 1141-1142, 1154-1158, 1171-1172, 1184-1220, 1229-1280, 1284
+app\services\driver_update_service.py     237    155    35%   15-16, 45, 83, 98, 101, 118-223, 262-267, 287-322, 356-358, 377-378, 403-423, 445-448, 455-457, 465, 475-479, 485-489, 499-501, 508, 511, 516-520, 532-595, 609-627
+app\services\repair_service.py             94     32    66%   57-89, 105-118, 130, 142-149, 204-215, 251-254, 434-438, 448-452
+app\services\service_factory.py            27      0   100%
+app\utils\cache.py                         81      8    90%   208-219
+---------------------------------------------------------------------
+TOTAL                                    2902   1333    54%
+Coverage HTML written to dir tests/coverage_html
+=========================== short test summary info ===========================
+FAILED tests/test_performance.py::TestPerformance::test_concurrent_requests
+FAILED tests/test_services/test_driver_service.py::test_scan_drivers - assert...
+====== 2 failed, 206 passed, 2 skipped, 3 warnings in 282.82s (0:04:42) =======

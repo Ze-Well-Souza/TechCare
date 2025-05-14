@@ -1,0 +1,419 @@
+{% extends "base/base.html" %}
+
+{% block title %}Análise de Logs de Auditoria{% endblock %}
+
+{% block extra_css %}
+<style>
+    .anomaly-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .anomaly-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .badge-anomaly-high { background-color: #dc3545; color: white; }
+    .badge-anomaly-medium { background-color: #ffc107; color: black; }
+    .badge-anomaly-low { background-color: #28a745; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h1>Análise de Logs de Auditoria</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    Filtros de Busca
+                </div>
+                <div class="card-body">
+                    <form id="auditLogSearchForm">
+                        <div class="form-group mb-3">
+                            <label>Intervalo de Datas</label>
+                            <div class="input-group">
+                                <input type="date" id="startDate" class="form-control" placeholder="Data Inicial">
+                                <input type="date" id="endDate" class="form-control" placeholder="Data Final">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>Usuários</label>
+                            <select id="userFilter" class="form-control" multiple>
+                                <!-- Usuários serão carregados dinamicamente -->
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>Tipos de Ação</label>
+                            <select id="actionFilter" class="form-control" multiple>
+                                <option value="login">Login</option>
+                                <option value="logout">Logout</option>
+                                <option value="create">Criação</option>
+                                <option value="update">Atualização</option>
+                                <option value="delete">Exclusão</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>Tipos de Recurso</label>
+                            <select id="resourceTypeFilter" class="form-control" multiple>
+                                <option value="user">Usuário</option>
+                                <option value="service">Serviço</option>
+                                <option value="system_config">Configuração do Sistema</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label>Endereços IP</label>
+                            <input type="text" id="ipFilter" class="form-control" placeholder="IP ou lista de IPs">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button id="searchLogsBtn" class="btn btn-primary">
+                                Buscar Logs
+                            </button>
+                            <button id="exportLogsBtn" class="btn btn-secondary">
+                                Exportar Resultados
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            Relatório de Anomalias
+                        </div>
+                        <div class="card-body" id="anomalyReportContainer">
+                            <!-- Relatórios de anomalias serão carregados aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            Resultados da Busca
+                            <span id="searchResultsCount" class="badge bg-info float-end"></span>
+                        </div>
+                        <div class="card-body" id="auditLogsContainer">
+                            <!-- Logs de auditoria serão carregados aqui -->
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button id="prevPageBtn" class="btn btn-secondary">Anterior</button>
+                                <span id="pageInfo">Página 1</span>
+                                <button id="nextPageBtn" class="btn btn-secondary">Próximo</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalhes do log -->
+<div class="modal fade" id="auditLogDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Log</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Informações Básicas</h6>
+                        <p><strong>Usuário:</strong> <span id="logUsername"></span></p>
+                        <p><strong>Ação:</strong> <span id="logAction"></span></p>
+                        <p><strong>Recurso:</strong> <span id="logResourceType"></span></p>
+                        <p><strong>Timestamp:</strong> <span id="logTimestamp"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Detalhes de Conexão</h6>
+                        <p><strong>Endereço IP:</strong> <span id="logIpAddress"></span></p>
+                        <p><strong>User Agent:</strong> <span id="logUserAgent"></span></p>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6>Mudanças</h6>
+                        <pre id="logChangesDetails" class="border p-2"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos do DOM
+    const searchLogsBtn = document.getElementById('searchLogsBtn');
+    const exportLogsBtn = document.getElementById('exportLogsBtn');
+    const auditLogsContainer = document.getElementById('auditLogsContainer');
+    const anomalyReportContainer = document.getElementById('anomalyReportContainer');
+    const searchResultsCount = document.getElementById('searchResultsCount');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    // Filtros
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const userFilter = document.getElementById('userFilter');
+    const actionFilter = document.getElementById('actionFilter');
+    const resourceTypeFilter = document.getElementById('resourceTypeFilter');
+    const ipFilter = document.getElementById('ipFilter');
+
+    // Modal de detalhes
+    const auditLogModal = new bootstrap.Modal(document.getElementById('auditLogDetailModal'));
+    const logUsername = document.getElementById('logUsername');
+    const logAction = document.getElementById('logAction');
+    const logResourceType = document.getElementById('logResourceType');
+    const logTimestamp = document.getElementById('logTimestamp');
+    const logIpAddress = document.getElementById('logIpAddress');
+    const logUserAgent = document.getElementById('logUserAgent');
+    const logChangesDetails = document.getElementById('logChangesDetails');
+
+    let currentPage = 1;
+    const logsPerPage = 10;
+
+    function loadUserOptions() {
+        // Carregar usuários para filtro
+        fetch('/users')
+            .then(response => response.json())
+            .then(users => {
+                userFilter.innerHTML = '';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.username;
+                    userFilter.appendChild(option);
+                });
+            });
+    }
+
+    function createAuditLogCard(log) {
+        const card = document.createElement('div');
+        card.classList.add('card', 'mb-2', 'audit-log-card');
+        
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="card-title">${log.username}</h6>
+                    <span class="badge bg-secondary">${log.action}</span>
+                </div>
+                <p class="card-text">
+                    <strong>${log.resource_type}</strong>
+                    <small class="text-muted d-block">${new Date(log.timestamp).toLocaleString()}</small>
+                </p>
+            </div>
+        `;
+
+        card.addEventListener('click', () => showAuditLogDetails(log));
+        return card;
+    }
+
+    function showAuditLogDetails(log) {
+        // Preencher informações do log
+        logUsername.textContent = log.username;
+        logAction.textContent = log.action;
+        logResourceType.textContent = `${log.resource_type} (ID: ${log.resource_id || 'N/A'})`;
+        logTimestamp.textContent = new Date(log.timestamp).toLocaleString();
+        logIpAddress.textContent = log.ip_address;
+        logUserAgent.textContent = log.user_agent || 'N/A';
+
+        // Mostrar mudanças
+        const changesContent = [];
+        if (log.old_data) {
+            changesContent.push('Dados Anteriores:');
+            changesContent.push(JSON.stringify(log.old_data, null, 2));
+        }
+        if (log.new_data) {
+            changesContent.push('\nDados Novos:');
+            changesContent.push(JSON.stringify(log.new_data, null, 2));
+        }
+        logChangesDetails.textContent = changesContent.join('\n') || 'Sem mudanças registradas';
+
+        auditLogModal.show();
+    }
+
+    function createAnomalyCard(anomaly, type) {
+        const card = document.createElement('div');
+        card.classList.add('card', 'mb-2', 'anomaly-card');
+        
+        let badgeClass = 'badge-anomaly-low';
+        if (type === 'login_anomalies') {
+            badgeClass = anomaly.login_attempts > 10 ? 'badge-anomaly-high' : 'badge-anomaly-medium';
+        }
+
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="card-title">${
+                        type === 'login_anomalies' ? 
+                            `Usuário: ${anomaly.username}` : 
+                        type === 'resource_anomalies' ? 
+                            `Recurso: ${anomaly.resource_type}` :
+                            `IP: ${anomaly.ip_address}`
+                    }</h6>
+                    <span class="badge ${badgeClass}">
+                        ${
+                            type === 'login_anomalies' ? 
+                                `${anomaly.login_attempts} tentativas` : 
+                            type === 'resource_anomalies' ? 
+                                `${anomaly.action_count} ações` :
+                                `${anomaly.unique_users} usuários`
+                        }
+                    </span>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    function loadAnomalyReport() {
+        fetch('/audit-logs/query/anomaly-report')
+            .then(response => response.json())
+            .then(data => {
+                anomalyReportContainer.innerHTML = '';
+
+                // Login anomalies
+                if (data.anomalies.login_anomalies.length) {
+                    const loginHeader = document.createElement('h6');
+                    loginHeader.textContent = 'Anomalias de Login';
+                    anomalyReportContainer.appendChild(loginHeader);
+                    
+                    data.anomalies.login_anomalies.forEach(anomaly => {
+                        const card = createAnomalyCard(anomaly, 'login_anomalies');
+                        anomalyReportContainer.appendChild(card);
+                    });
+                }
+
+                // Resource anomalies
+                if (data.anomalies.resource_anomalies.length) {
+                    const resourceHeader = document.createElement('h6');
+                    resourceHeader.textContent = 'Anomalias em Recursos';
+                    anomalyReportContainer.appendChild(resourceHeader);
+                    
+                    data.anomalies.resource_anomalies.forEach(anomaly => {
+                        const card = createAnomalyCard(anomaly, 'resource_anomalies');
+                        anomalyReportContainer.appendChild(card);
+                    });
+                }
+
+                // IP anomalies
+                if (data.anomalies.ip_anomalies.length) {
+                    const ipHeader = document.createElement('h6');
+                    ipHeader.textContent = 'Anomalias de IP';
+                    anomalyReportContainer.appendChild(ipHeader);
+                    
+                    data.anomalies.ip_anomalies.forEach(anomaly => {
+                        const card = createAnomalyCard(anomaly, 'ip_anomalies');
+                        anomalyReportContainer.appendChild(card);
+                    });
+                }
+            });
+    }
+
+    function searchAuditLogs(page = 1) {
+        // Preparar payload de busca
+        const payload = {
+            page,
+            per_page: logsPerPage
+        };
+
+        // Adicionar filtros
+        if (startDateInput.value) payload.start_date = startDateInput.value;
+        if (endDateInput.value) payload.end_date = endDateInput.value;
+        
+        // Filtros de múltipla seleção
+        const selectedUsers = Array.from(userFilter.selectedOptions).map(opt => opt.value);
+        const selectedActions = Array.from(actionFilter.selectedOptions).map(opt => opt.value);
+        const selectedResourceTypes = Array.from(resourceTypeFilter.selectedOptions).map(opt => opt.value);
+        
+        if (selectedUsers.length) payload.user_ids = selectedUsers;
+        if (selectedActions.length) payload.actions = selectedActions;
+        if (selectedResourceTypes.length) payload.resource_types = selectedResourceTypes;
+        
+        // Filtro de IP
+        if (ipFilter.value) payload.ip_addresses = ipFilter.value.split(',').map(ip => ip.trim());
+
+        // Realizar busca
+        fetch('/audit-logs/query/advanced-search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Limpar container anterior
+            auditLogsContainer.innerHTML = '';
+
+            // Atualizar contador de resultados
+            searchResultsCount.textContent = `${data.total_logs} logs encontrados`;
+
+            // Criar cards de logs
+            data.logs.forEach(log => {
+                const card = createAuditLogCard(log);
+                auditLogsContainer.appendChild(card);
+            });
+
+            // Atualizar controles de paginação
+            currentPage = data.page;
+            pageInfo.textContent = `Página ${data.page}`;
+            prevPageBtn.disabled = data.page === 1;
+            nextPageBtn.disabled = (data.page * data.per_page) >= data.total_logs;
+        });
+    }
+
+    function exportAuditLogs() {
+        // Implementar exportação de logs
+        alert('Funcionalidade de exportação em desenvolvimento');
+    }
+
+    // Event Listeners
+    searchLogsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        searchAuditLogs();
+    });
+
+    exportLogsBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        exportAuditLogs();
+    });
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) searchAuditLogs(currentPage - 1);
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        searchAuditLogs(currentPage + 1);
+    });
+
+    // Inicialização
+    loadUserOptions();
+    loadAnomalyReport();
+});
+</script>
+{% endblock %}

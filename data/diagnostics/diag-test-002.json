@@ -1,0 +1,26 @@
+{
+  "score": 85,
+  "id": "diag-test-002",
+  "timestamp": "2023-11-01T15:30:00",
+  "cpu": {
+    "usage": 35,
+    "status": "good"
+  },
+  "memory": {
+    "usage": 60,
+    "status": "good"
+  },
+  "disk": {
+    "usage": 75,
+    "status": "warning"
+  },
+  "problems": [
+    {
+      "id": "prob-003",
+      "category": "disk",
+      "title": "Disco com espaço moderado",
+      "description": "Seu disco está com espaço moderado.",
+      "severity": "warning"
+    }
+  ]
+}

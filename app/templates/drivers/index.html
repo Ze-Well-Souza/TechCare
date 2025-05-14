@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}TechCare - Atualização de Drivers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Gerenciamento de Drivers</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Análise de Drivers do Sistema</h2>
+                </div>
+                <div class="card-body">
+                    <p>
+                        O módulo de atualização de drivers permite escanear, verificar e atualizar os drivers do seu 
+                        computador para garantir a melhor performance e compatibilidade.
+                    </p>
+                    
+                    {% if not is_windows %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        As funcionalidades completas de atualização de drivers estão disponíveis apenas para Windows.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-3">
+                        <a href="{{ url_for('drivers.scan_drivers_page') }}" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Escanear Drivers
+                        </a>
+                        <a href="{{ url_for('drivers.driver_dashboard') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard de Drivers
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% if drivers_info %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Informações de Drivers Instalados</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Dispositivo</th>
+                                    <th>Fabricante</th>
+                                    <th>Versão</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for driver in drivers_info %}
+                                <tr>
+                                    <td>{{ driver.name }}</td>
+                                    <td>{{ driver.provider }}</td>
+                                    <td>{{ driver.version }}</td>
+                                    <td>
+                                        {% if driver.status == 'Up to date' %}
+                                        <span class="badge bg-success">Atualizado</span>
+                                        {% elif driver.status == 'Update available' %}
+                                        <span class="badge bg-warning text-dark">Atualização disponível</span>
+                                        {% elif driver.status == 'Unknown' %}
+                                        <span class="badge bg-secondary">Desconhecido</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Problema detectado</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Sobre Atualizações de Drivers</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h3 class="h6 fw-bold">Por que atualizar drivers?</h3>
+                            <ul>
+                                <li>Melhor performance do sistema</li>
+                                <li>Correção de bugs e problemas</li>
+                                <li>Suporte a novos recursos de hardware</li>
+                                <li>Maior estabilidade do sistema</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h3 class="h6 fw-bold">Recomendações</h3>
+                            <ul>
+                                <li>Faça backup antes de atualizar drivers</li>
+                                <li>Priorize drivers críticos (gráficos, rede, etc.)</li>
+                                <li>Verifique a compatibilidade com seu sistema</li>
+                                <li>Reinicie o sistema após atualizações importantes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

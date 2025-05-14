@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Limpeza de Navegadores{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-globe me-2" aria-hidden="true"></i> Limpeza de Navegadores
+            </h1>
+            <p class="lead">Remova cache, cookies e outros dados temporários dos seus navegadores web para melhorar o desempenho.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-list-check me-2" aria-hidden="true"></i> Opções de Limpeza
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="browser-cleanup-form" method="post" action="{{ url_for('cleaner.clean_browser_cache') }}">
+                        <!-- Navegadores -->
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Navegadores</h3>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="chrome" name="browsers" value="chrome" checked>
+                                <label class="form-check-label" for="chrome">
+                                    Google Chrome
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="firefox" name="browsers" value="firefox" checked>
+                                <label class="form-check-label" for="firefox">
+                                    Mozilla Firefox
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="edge" name="browsers" value="edge" checked>
+                                <label class="form-check-label" for="edge">
+                                    Microsoft Edge
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Tipos de dados -->
+                        <div class="mb-4">
+                            <h3 class="h6 mb-3 border-bottom pb-2">Tipo de Dados</h3>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="cache" name="data_types" value="cache" checked>
+                                <label class="form-check-label" for="cache">
+                                    Cache
+                                    <small class="text-muted d-block">Arquivos temporários armazenados pelo navegador</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="cookies" name="data_types" value="cookies">
+                                <label class="form-check-label" for="cookies">
+                                    Cookies
+                                    <small class="text-muted d-block">Informações armazenadas por sites que você visita</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="history" name="data_types" value="history">
+                                <label class="form-check-label" for="history">
+                                    Histórico
+                                    <small class="text-muted d-block">Histórico de navegação e downloads</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="passwords" name="data_types" value="passwords">
+                                <label class="form-check-label" for="passwords">
+                                    Senhas Salvas
+                                    <small class="text-muted d-block">Senhas que você salvou nos navegadores</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+                            <strong>Atenção:</strong> Limpar cookies e senhas vai desconectar você de sites onde está logado.
+                            <div id="cache-warning" class="mt-2">
+                                <strong>Aviso de Cache:</strong> Limpar o cache do navegador pode temporariamente deixar os sites mais lentos na primeira visita, enquanto o navegador reconstrói o cache. Você também perderá configurações locais de alguns sites.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="start-browser-cleanup">
+                                <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                                Limpar Navegadores
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Dados Detectados</h3>
+                </div>
+                <div class="card-body">
+                    <h4 class="h6 mb-3">Espaço ocupado por navegador:</h4>
+
+                    {% if browser_data %}
+                        {% for browser, info in browser_data.items() %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span>{{ browser|capitalize }}</span>
+                                <span class="text-primary">{{ info.formatted_total_size }}</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ (info.total_size / 1024 / 1024 / 10)|float }}%" 
+                                     aria-valuenow="{{ (info.total_size / 1024 / 1024)|int }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="1000">
+                                </div>
+                            </div>
+                            <small class="text-muted">Cache: {{ info.formatted_cache_size }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            Nenhum dado de navegador detectado.
+                        </div>
+                    {% endif %}
+
+                    <div id="browser-cleanup-status">
+                        <div class="mt-3 text-center">
+                            <span class="badge bg-success p-2">
+                                <i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+                                Potencial de limpeza: 
+                                {% if browser_data %}
+                                    {{ browser_data|sum(attribute='total_size')|filesizeformat }}
+                                {% else %}
+                                    0 MB
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div id="browser-cleanup-progress" class="d-none mt-4">
+                        <div class="text-center mb-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Executando limpeza...</span>
+                            </div>
+                            <p class="mt-2 mb-0" id="progress-text">Executando limpeza...</p>
+                        </div>
+                        <div class="progress mt-3">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    <div id="browser-cleanup-results" class="d-none mt-4">
+                        <h4 class="h6">Resultados da Limpeza</h4>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            Limpeza concluída com sucesso!
+                        </div>
+                        <div class="text-center">
+                            <p class="mb-1"><strong>Espaço liberado:</strong></p>
+                            <h3 class="text-success" id="space-freed">0 MB</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">Dicas</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="small list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            A limpeza regular do cache pode resolver problemas de sites com funcionamento incorreto.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Limpar cookies fará com que você precise fazer login novamente em todos os sites.
+                        </li>
+                        <li>
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Recomendamos limpar apenas o cache para uso diário e outros dados quando necessário.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('browser-cleanup-form');
+        const statusDiv = document.getElementById('browser-cleanup-status');
+        const progressDiv = document.getElementById('browser-cleanup-progress');
+        const resultsDiv = document.getElementById('browser-cleanup-results');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mostra o progresso
+            statusDiv.classList.add('d-none');
+            progressDiv.classList.remove('d-none');
+            resultsDiv.classList.add('d-none');
+            
+            // Coleta os navegadores selecionados
+            const browsers = [];
+            document.querySelectorAll('input[name="browsers"]:checked').forEach(function(checkbox) {
+                browsers.push(checkbox.value);
+            });
+            
+            // Coleta os tipos de dados selecionados
+            const dataTypes = [];
+            document.querySelectorAll('input[name="data_types"]:checked').forEach(function(checkbox) {
+                dataTypes.push(checkbox.value);
+            });
+            
+            // Simula o progresso da limpeza
+            let progress = 0;
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            const interval = setInterval(function() {
+                progress += Math.floor(Math.random() * 5) + 1;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Mostra os resultados após a conclusão
+                    setTimeout(function() {
+                        progressDiv.classList.add('d-none');
+                        resultsDiv.classList.remove('d-none');
+                        
+                        // Simula os resultados
+                        const totalCleaned = Math.floor(Math.random() * 1000) + 200;
+                        document.getElementById('space-freed').textContent = totalCleaned + ' MB';
+                    }, 500);
+                }
+                
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                
+                if (progress < 30) {
+                    progressText.textContent = 'Analisando dados dos navegadores...';
+                } else if (progress < 60) {
+                    progressText.textContent = 'Limpando dados...';
+                } else {
+                    progressText.textContent = 'Finalizando limpeza...';
+                }
+            }, 100);
+            
+            // Em uma implementação real, aqui você faria a chamada AJAX para o servidor
+            /*
+            fetch('{{ url_for('cleaner.clean_browser_cache') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ 
+                    browsers: browsers,
+                    data_types: dataTypes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Atualiza a interface com os resultados
+                progressDiv.classList.add('d-none');
+                resultsDiv.classList.remove('d-none');
+                document.getElementById('space-freed').textContent = data.formatted_total_cleaned_size;
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro durante a limpeza. Por favor, tente novamente.');
+            });
+            */
+        });
+    });
+</script>
+{% endblock %} 

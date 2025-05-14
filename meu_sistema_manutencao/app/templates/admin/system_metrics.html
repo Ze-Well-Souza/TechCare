@@ -1,0 +1,208 @@
+{% extends "base/base.html" %}
+
+{% block title %}Métricas do Sistema{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" rel="stylesheet">
+<style>
+    .metric-card {
+        transition: transform 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: scale(1.02);
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Métricas do Sistema</h1>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card metric-card">
+                <div class="card-header">
+                    <h5>Resumo de Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div id="performanceSummary">
+                        <!-- Resumo será carregado via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card metric-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Uso de Recursos</h5>
+                    <div>
+                        <select id="timePeriodSelect" class="form-select form-select-sm">
+                            <option value="6">6 Horas</option>
+                            <option value="12">12 Horas</option>
+                            <option value="24" selected>24 Horas</option>
+                            <option value="48">48 Horas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 chart-container">
+                            <canvas id="cpuChart"></canvas>
+                        </div>
+                        <div class="col-md-4 chart-container">
+                            <canvas id="memoryChart"></canvas>
+                        </div>
+                        <div class="col-md-4 chart-container">
+                            <canvas id="diskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card metric-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Métricas Detalhadas</h5>
+                    <div>
+                        <button id="exportMetricsBtn" class="btn btn-sm btn-primary">
+                            Exportar Métricas
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="metricsTable" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>CPU (%)</th>
+                                    <th>Memória (%)</th>
+                                    <th>Disco (%)</th>
+                                    <th>Rede (Enviado)</th>
+                                    <th>Rede (Recebido)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="metricsTableBody">
+                                <!-- Métricas serão carregadas via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timePeriodSelect = document.getElementById('timePeriodSelect');
+    const performanceSummary = document.getElementById('performanceSummary');
+    const metricsTableBody = document.getElementById('metricsTableBody');
+    const exportMetricsBtn = document.getElementById('exportMetricsBtn');
+
+    // Charts
+    const cpuChart = new Chart(document.getElementById('cpuChart'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Uso de CPU (%)', data: [] }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const memoryChart = new Chart(document.getElementById('memoryChart'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Uso de Memória (%)', data: [] }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    const diskChart = new Chart(document.getElementById('diskChart'), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Uso de Disco (%)', data: [] }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    // Carregar métricas
+    function loadMetrics(hours = 24) {
+        fetch(`/metrics/recent?hours=${hours}`)
+            .then(response => response.json())
+            .then(metrics => {
+                // Limpar dados anteriores
+                cpuChart.data.labels = [];
+                cpuChart.data.datasets[0].data = [];
+                memoryChart.data.labels = [];
+                memoryChart.data.datasets[0].data = [];
+                diskChart.data.labels = [];
+                diskChart.data.datasets[0].data = [];
+                metricsTableBody.innerHTML = '';
+
+                // Reverter ordem para mostrar do mais antigo ao mais recente
+                metrics.reverse().forEach(metric => {
+                    const timestamp = new Date(metric.timestamp).toLocaleString();
+
+                    // Gráficos
+                    cpuChart.data.labels.push(timestamp);
+                    cpuChart.data.datasets[0].data.push(metric.cpu_usage);
+                    memoryChart.data.labels.push(timestamp);
+                    memoryChart.data.datasets[0].data.push(metric.memory.percent);
+                    diskChart.data.labels.push(timestamp);
+                    diskChart.data.datasets[0].data.push(metric.disk.percent);
+
+                    // Tabela
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${timestamp}</td>
+                        <td>${metric.cpu_usage.toFixed(2)}%</td>
+                        <td>${metric.memory.percent.toFixed(2)}%</td>
+                        <td>${metric.disk.percent.toFixed(2)}%</td>
+                        <td>${(metric.network.bytes_sent / 1024 / 1024).toFixed(2)} MB</td>
+                        <td>${(metric.network.bytes_recv / 1024 / 1024).toFixed(2)} MB</td>
+                    `;
+                    metricsTableBody.appendChild(row);
+                });
+
+                // Atualizar gráficos
+                cpuChart.update();
+                memoryChart.update();
+                diskChart.update();
+            });
+
+        // Carregar resumo de performance
+        fetch(`/metrics/summary?hours=${hours}`)
+            .then(response => response.json())
+            .then(summary => {
+                performanceSummary.innerHTML = `
+                    <p>Período: ${summary.period_hours} horas</p>
+                    <p>Uso médio de CPU: ${summary.avg_cpu_usage.toFixed(2)}%</p>
+                    <p>Uso médio de Memória: ${summary.avg_memory_usage.toFixed(2)}%</p>
+                    <p>Uso médio de Disco: ${summary.avg_disk_usage.toFixed(2)}%</p>
+                `;
+            });
+    }
+
+    // Exportar métricas
+    function exportMetrics() {
+        const hours = timePeriodSelect.value;
+        window.location.href = `/metrics/export?hours=${hours}`;
+    }
+
+    // Event Listeners
+    timePeriodSelect.addEventListener('change', () => {
+        loadMetrics(timePeriodSelect.value);
+    });
+    exportMetricsBtn.addEventListener('click', exportMetrics);
+
+    // Inicializar
+    loadMetrics();
+});
+</script>
+{% endblock %}

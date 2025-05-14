@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Arquivos Temporários{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Arquivos Temporários</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('cleaner_cleaning.index') }}">Limpeza</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Arquivos Temporários</li>
+                </ol>
+            </nav>
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Esta página permite visualizar e limpar arquivos temporários do sistema.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Detalhes dos Arquivos Temporários</h5>
+                    <form action="{{ url_for('cleaner_cleaning.execute_cleaning') }}" method="POST" id="cleanTempForm">
+                        <input type="hidden" name="cleaning_options" value="temp_files">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-broom me-2"></i>Limpar Arquivos Temporários
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="display-4">{{ temp_files.total_files }}</h3>
+                                    <p class="text-muted">Total de Arquivos</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3 class="display-4">{{ temp_files.formatted_total_size }}</h3>
+                                    <p class="text-muted">Tamanho Total</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Diretórios Temporários</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Diretório</th>
+                                    <th>Arquivos</th>
+                                    <th>Tamanho</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for path, info in temp_files.paths.items() %}
+                                <tr>
+                                    <td>{{ path }}</td>
+                                    <td>{{ info.files }}</td>
+                                    <td>{{ info.formatted_size }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cleanTempForm = document.getElementById('cleanTempForm');
+        
+        cleanTempForm.addEventListener('submit', function(e) {
+            const confirmMsg = 'Tem certeza que deseja limpar todos os arquivos temporários? Esta ação não pode ser desfeita.';
+            if (!confirm(confirmMsg)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %} 

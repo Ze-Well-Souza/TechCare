@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Diagnóstico de Sistema - TechCare{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-primary mb-4">Diagnóstico de Sistema</h1>
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Iniciar um novo diagnóstico</h5>
+                    <p class="card-text">
+                        O diagnóstico irá analisar o estado atual do seu sistema, incluindo CPU, memória, disco, 
+                        drivers e outros componentes para identificar problemas e recomendar soluções.
+                    </p>
+                    
+                    <form id="diagnostic-form" method="post" action="{{ url_for('diagnostic.run_diagnostic') }}">
+                        <div class="mb-3">
+                            <label for="diagnostic-name" class="form-label">Nome do diagnóstico (opcional)</label>
+                            <input type="text" class="form-control" id="diagnostic-name" name="name" 
+                                   placeholder="Ex.: Diagnóstico do meu PC">
+                        </div>
+                        
+                        <button type="button" id="start-diagnostic" class="btn btn-primary">
+                            <i class="fas fa-play-circle"></i> Iniciar Diagnóstico
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Histórico de Diagnósticos</h5>
+                    <p class="card-text">
+                        Visualize e compare seus diagnósticos anteriores para acompanhar o desempenho do seu sistema.
+                    </p>
+                    
+                    <a href="{{ url_for('diagnostic.history') }}" class="btn btn-secondary">
+                        <i class="fas fa-history"></i> Ver Histórico
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Carregamento -->
+    <div class="modal fade" id="loading-modal" tabindex="-1" aria-labelledby="loading-modal-label" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loading-modal-label">Diagnóstico em Andamento</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p id="loading-message">Analisando seu sistema, isso pode levar alguns minutos...</p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" aria-valuenow="0" aria-valuemin="0" 
+                             aria-valuemax="100" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        let progressBar = $('.progress-bar');
+        let loadingMessages = [
+            'Analisando CPU...',
+            'Verificando memória...',
+            'Analisando discos...',
+            'Verificando drivers...',
+            'Analisando programas de inicialização...',
+            'Verificando segurança...',
+            'Analisando rede...',
+            'Gerando relatório...'
+        ];
+        let currentMessageIndex = 0;
+        let progressInterval;
+        
+        $('#start-diagnostic').on('click', function() {
+            // Reinicia a barra de progresso
+            progressBar.css('width', '0%').attr('aria-valuenow', 0);
+            currentMessageIndex = 0;
+            $('#loading-message').text(loadingMessages[0]);
+            
+            // Mostra o modal de carregamento
+            $('#loading-modal').modal('show');
+            
+            // Simula o progresso
+            let progress = 0;
+            progressInterval = setInterval(function() {
+                progress += 1;
+                if (progress <= 100) {
+                    progressBar.css('width', progress + '%').attr('aria-valuenow', progress);
+                    
+                    // Atualiza a mensagem a cada ~12% de progresso
+                    if (progress % 12 === 0 && currentMessageIndex < loadingMessages.length - 1) {
+                        currentMessageIndex++;
+                        $('#loading-message').text(loadingMessages[currentMessageIndex]);
+                    }
+                } else {
+                    clearInterval(progressInterval);
+                }
+            }, 200);
+            
+            // Envia o formulário via AJAX
+            $.ajax({
+                url: $('#diagnostic-form').attr('action'),
+                method: 'POST',
+                data: $('#diagnostic-form').serialize(),
+                success: function(response) {
+                    clearInterval(progressInterval);
+                    
+                    if (response.success) {
+                        // Redireciona para a página de resultados
+                        window.location.href = "{{ url_for('diagnostic.view_results', diagnostic_id=0) }}".replace('0', response.diagnostic_id);
+                    } else {
+                        // Exibe mensagem de erro
+                        $('#loading-modal').modal('hide');
+                        alert('Erro ao realizar diagnóstico: ' + response.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    clearInterval(progressInterval);
+                    $('#loading-modal').modal('hide');
+                    
+                    // Exibe mensagem de erro
+                    alert('Erro ao realizar diagnóstico: ' + error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

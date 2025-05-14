@@ -1,0 +1,59 @@
+{% extends "base/base.html" %}
+
+{% block title %}Meu Painel - TechCare{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h4>Plano Atual: {{ plano_atual.nome }}</h4>
+            </div>
+            <div class="card-body">
+                <p>Máquinas permitidas: {{ plano_atual.max_machines }}</p>
+                <h5>Funcionalidades:</h5>
+                <ul class="list-unstyled">
+                    {% for feature, enabled in plano_atual.features.items() %}
+                        <li>
+                            {% if enabled %}
+                                <span class="text-success">✓</span>
+                            {% else %}
+                                <span class="text-danger">✗</span>
+                            {% endif %}
+                            {{ feature|replace('_', ' ')|capitalize }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h2>Minhas Máquinas</h2>
+        {% if machines %}
+            <div class="row">
+                {% for machine in machines %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                {{ machine.nome }}
+                            </div>
+                            <div class="card-body">
+                                <p>Último diagnóstico: {{ machine.last_diagnostic or 'Nunca realizado' }}</p>
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('client.machine_diagnostic', machine_id=machine.id) }}" class="btn btn-primary">
+                                        Realizar Diagnóstico
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Você ainda não possui máquinas cadastradas.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

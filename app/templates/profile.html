@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil - TechCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Perfil do Usuário</h1>
+    
+    <div class="row">
+        <!-- Informações do perfil -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Informações do Perfil</h2>
+                </div>
+                <div class="card-body">
+                    <form id="profile-form" method="post" action="#">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nome de Usuário</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ data.username }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ data.email }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Função</label>
+                            <input type="text" class="form-control" id="role" value="{{ data.role|title }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="created-at" class="form-label">Conta Criada em</label>
+                            <input type="text" class="form-control" id="created-at" value="{{ data.created_at }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="last-login" class="form-label">Último Login</label>
+                            <input type="text" class="form-control" id="last-login" value="{{ data.last_login }}" readonly>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Atualizar Perfil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preferências -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Preferências</h2>
+                </div>
+                <div class="card-body">
+                    <form id="preferences-form" method="post" action="#">
+                        <div class="mb-3">
+                            <label class="form-label">Tema</label>
+                            <div class="btn-group w-100" role="group" aria-label="Tema">
+                                <input type="radio" class="btn-check" name="theme" id="theme-light" autocomplete="off" 
+                                       value="light" {{ 'checked' if data.preferences.theme == 'light' }}>
+                                <label class="btn btn-outline-primary" for="theme-light">Claro</label>
+                                
+                                <input type="radio" class="btn-check" name="theme" id="theme-dark" autocomplete="off"
+                                       value="dark" {{ 'checked' if data.preferences.theme == 'dark' }}>
+                                <label class="btn btn-outline-primary" for="theme-dark">Escuro</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="notifications" name="notifications"
+                                   {{ 'checked' if data.preferences.notifications }}>
+                            <label class="form-check-label" for="notifications">Ativar Notificações</label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="auto-scan" name="auto_scan"
+                                   {{ 'checked' if data.preferences.auto_scan }}>
+                            <label class="form-check-label" for="auto-scan">Diagnóstico Automático Periódico</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Segurança -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="h5 mb-0">Segurança</h2>
+                </div>
+                <div class="card-body">
+                    <form id="security-form" method="post" action="#">
+                        <div class="mb-3">
+                            <label for="current-password" class="form-label">Senha Atual</label>
+                            <input type="password" class="form-control" id="current-password" name="current_password">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">Nova Senha</label>
+                            <input type="password" class="form-control" id="new-password" name="new_password">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm-password" class="form-label">Confirmar Nova Senha</label>
+                            <input type="password" class="form-control" id="confirm-password" name="confirm_password">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning">Alterar Senha</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-cogs me-2" aria-hidden="true"></i> Limpeza de Registro
+            </h1>
+            <p class="lead">Corrija problemas no registro do Windows para melhorar a estabilidade e o desempenho do sistema.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Análise de Registro</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                        Clique em "Iniciar Análise" para verificar problemas no registro do Windows.
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="startAnalysisBtn" class="btn btn-primary">
+                            <i class="fas fa-search me-2" aria-hidden="true"></i>
+                            Iniciar Análise
+                        </button>
+                    </div>
+                    
+                    <div id="analysisProgress" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Progresso da Análise</h3>
+                        <div class="progress mb-3">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="progressStatus" class="text-muted">Iniciando análise...</p>
+                    </div>
+                    
+                    <div id="analysisResults" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Problemas Encontrados</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Descrição</th>
+                                        <th>Impacto</th>
+                                        <th>Seleção</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTable">
+                                    <!-- Os resultados serão inseridos aqui -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button id="selectAllBtn" class="btn btn-outline-primary">
+                                <i class="fas fa-check-square me-2" aria-hidden="true"></i>
+                                Selecionar Todos
+                            </button>
+                            <button id="fixSelectedBtn" class="btn btn-success">
+                                <i class="fas fa-wrench me-2" aria-hidden="true"></i>
+                                Corrigir Selecionados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fixProgress" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Progresso da Correção</h3>
+                        <div class="progress mb-3">
+                            <div id="fixProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="fixStatus" class="text-muted">Iniciando correção...</p>
+                    </div>
+                    
+                    <div id="fixResults" class="mt-4" style="display: none;">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            <span id="fixResultMessage">Correção concluída com sucesso!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h2 class="h5 mb-0">O que é o Registro?</h2>
+                </div>
+                <div class="card-body">
+                    <p>O Registro do Windows é um banco de dados hierárquico que armazena configurações de baixo nível para o sistema operacional e para aplicativos.</p>
+                    <p>Com o tempo, o registro pode acumular entradas obsoletas, incorretas ou corrompidas que podem causar:</p>
+                    <ul>
+                        <li>Lentidão do sistema</li>
+                        <li>Travamentos e erros</li>
+                        <li>Problemas com programas</li>
+                        <li>Inicialização mais lenta</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="h5 mb-0">Importante</h2>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">A modificação incorreta do registro pode causar problemas graves no sistema. Esta ferramenta só corrige problemas conhecidos e comprovadamente seguros.</p>
+                    <hr>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="backupCheck" checked>
+                        <label class="form-check-label" for="backupCheck">
+                            Criar backup do registro antes da correção
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startBtn = document.getElementById('startAnalysisBtn');
+        const progressSection = document.getElementById('analysisProgress');
+        const resultsSection = document.getElementById('analysisResults');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const resultsTable = document.getElementById('resultsTable');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const fixSelectedBtn = document.getElementById('fixSelectedBtn');
+        const fixProgressSection = document.getElementById('fixProgress');
+        const fixProgressBar = document.getElementById('fixProgressBar');
+        const fixStatus = document.getElementById('fixStatus');
+        const fixResultsSection = document.getElementById('fixResults');
+        
+        // Dados simulados
+        const registryIssues = [
+            {
+                type: 'Entrada inválida',
+                description: 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\ProgramaDesinstalado',
+                impact: 'Baixo',
+                checked: true
+            },
+            {
+                type: 'Caminho inválido',
+                description: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs\\Arquivo inexistente',
+                impact: 'Baixo',
+                checked: true
+            },
+            {
+                type: 'Extensão de arquivo órfã',
+                description: 'HKCR\\.obsoleto - Sem aplicativo associado',
+                impact: 'Médio',
+                checked: true
+            },
+            {
+                type: 'Componente COM inválido',
+                description: 'HKCR\\CLSID\\{5C839B8A-2454-4799-B9A2-4C0E15C8778D} - Referência ausente',
+                impact: 'Alto',
+                checked: true
+            },
+            {
+                type: 'ActiveX problemático',
+                description: 'HKLM\\SOFTWARE\\Microsoft\\Active Setup\\Installed Components\\{F4781EA1-B0C2-4281-9B89-112E22A91AF2}',
+                impact: 'Alto',
+                checked: true
+            },
+            {
+                type: 'Associação de arquivo quebrada',
+                description: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.doc\\UserChoice',
+                impact: 'Médio',
+                checked: true
+            }
+        ];
+        
+        startBtn.addEventListener('click', function() {
+            // Mostrar progresso
+            progressSection.style.display = 'block';
+            startBtn.disabled = true;
+            
+            // Simular progresso de análise
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                
+                // Atualizar mensagem de status
+                if (progress < 25) {
+                    progressStatus.textContent = 'Verificando entradas de startup...';
+                } else if (progress < 50) {
+                    progressStatus.textContent = 'Analisando associações de arquivos...';
+                } else if (progress < 75) {
+                    progressStatus.textContent = 'Verificando componentes COM...';
+                } else {
+                    progressStatus.textContent = 'Finalizando análise...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    showResults();
+                }
+            }, 200);
+        });
+        
+        function showResults() {
+            progressStatus.textContent = 'Análise concluída!';
+            
+            // Exibir resultados
+            resultsSection.style.display = 'block';
+            
+            // Preencher tabela de resultados
+            resultsTable.innerHTML = '';
+            registryIssues.forEach(function(issue, index) {
+                const row = document.createElement('tr');
+                
+                const impactClass = issue.impact === 'Baixo' ? 'success' : 
+                                     issue.impact === 'Médio' ? 'warning' : 'danger';
+                
+                row.innerHTML = `
+                    <td>${issue.type}</td>
+                    <td><small class="text-monospace">${issue.description}</small></td>
+                    <td><span class="badge bg-${impactClass}">${issue.impact}</span></td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input issue-check" type="checkbox" value="" id="issue${index}" ${issue.checked ? 'checked' : ''}>
+                        </div>
+                    </td>
+                `;
+                
+                resultsTable.appendChild(row);
+            });
+            
+            // Configurar botões
+            selectAllBtn.addEventListener('click', function() {
+                document.querySelectorAll('.issue-check').forEach(function(check) {
+                    check.checked = true;
+                });
+            });
+            
+            fixSelectedBtn.addEventListener('click', function() {
+                const selectedCount = document.querySelectorAll('.issue-check:checked').length;
+                
+                if (selectedCount === 0) {
+                    alert('Selecione pelo menos um problema para corrigir.');
+                    return;
+                }
+                
+                // Esconder resultados e mostrar progresso de correção
+                resultsSection.style.display = 'none';
+                fixProgressSection.style.display = 'block';
+                
+                // Simular progresso de correção
+                let fixProgress = 0;
+                const fixInterval = setInterval(function() {
+                    fixProgress += 10;
+                    fixProgressBar.style.width = fixProgress + '%';
+                    fixProgressBar.setAttribute('aria-valuenow', fixProgress);
+                    
+                    // Atualizar mensagem de status
+                    if (fixProgress <= 10) {
+                        fixStatus.textContent = 'Criando backup do registro...';
+                    } else if (fixProgress < 90) {
+                        fixStatus.textContent = `Corrigindo problemas (${Math.floor(fixProgress / 10)} de ${selectedCount})...`;
+                    } else {
+                        fixStatus.textContent = 'Finalizando correções...';
+                    }
+                    
+                    if (fixProgress >= 100) {
+                        clearInterval(fixInterval);
+                        completeFixing();
+                    }
+                }, 500);
+            });
+        }
+        
+        function completeFixing() {
+            fixStatus.textContent = 'Correção concluída!';
+            fixResultsSection.style.display = 'block';
+            
+            // Re-abilitar análise
+            startBtn.disabled = false;
+            startBtn.textContent = 'Analisar Novamente';
+        }
+    });
+</script>
+{% endblock %} 

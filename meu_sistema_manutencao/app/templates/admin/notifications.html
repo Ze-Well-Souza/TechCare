@@ -1,0 +1,220 @@
+{% extends "base/base.html" %}
+
+{% block title %}Notificações{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notification-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .notification-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .notification-level-info { background-color: #e6f2ff; }
+    .notification-level-warning { background-color: #fff3cd; }
+    .notification-level-critical { background-color: #f8d7da; }
+    .notification-level-success { background-color: #d4edda; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-12 d-flex justify-content-between align-items-center">
+            <h1>Notificações</h1>
+            <div>
+                <button id="markAllReadBtn" class="btn btn-sm btn-secondary">
+                    Marcar Todas como Lidas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    Filtros
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label>Nível de Notificação</label>
+                        <select id="notificationLevelFilter" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="info">Informação</option>
+                            <option value="warning">Aviso</option>
+                            <option value="critical">Crítico</option>
+                            <option value="success">Sucesso</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="unreadOnlyCheckbox" class="form-check-input" checked>
+                        <label class="form-check-label" for="unreadOnlyCheckbox">
+                            Apenas Não Lidas
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div id="notificationsContainer">
+                <!-- Notificações serão carregadas via JavaScript -->
+            </div>
+
+            <div id="paginationControls" class="d-flex justify-content-between mt-3">
+                <button id="prevPageBtn" class="btn btn-secondary">Anterior</button>
+                <span id="pageInfo">Página 1</span>
+                <button id="nextPageBtn" class="btn btn-secondary">Próximo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para detalhes da notificação -->
+<div class="modal fade" id="notificationDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="notificationModalBody">
+                <!-- Detalhes da notificação -->
+            </div>
+            <div class="modal-footer">
+                <span id="notificationTimestamp"></span>
+                <button id="markNotificationReadBtn" class="btn btn-primary">
+                    Marcar como Lida
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationsContainer = document.getElementById('notificationsContainer');
+    const notificationLevelFilter = document.getElementById('notificationLevelFilter');
+    const unreadOnlyCheckbox = document.getElementById('unreadOnlyCheckbox');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+    const pageInfo = document.getElementById('pageInfo');
+
+    // Modal
+    const notificationModal = new bootstrap.Modal(document.getElementById('notificationDetailModal'));
+    const notificationModalTitle = document.getElementById('notificationModalTitle');
+    const notificationModalBody = document.getElementById('notificationModalBody');
+    const notificationTimestamp = document.getElementById('notificationTimestamp');
+    const markNotificationReadBtn = document.getElementById('markNotificationReadBtn');
+
+    let currentPage = 1;
+    const notificationsPerPage = 10;
+    let currentNotifications = [];
+
+    function createNotificationCard(notification) {
+        const card = document.createElement('div');
+        card.classList.add('card', 'mb-3', 'notification-card', `notification-level-${notification.level}`);
+        card.dataset.notificationId = notification.id;
+        
+        card.innerHTML = `
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">${notification.title}</h5>
+                    <span class="badge bg-${notification.level === 'critical' ? 'danger' : notification.level}">${notification.level}</span>
+                </div>
+                <p class="card-text">${notification.message.substring(0, 100)}${notification.message.length > 100 ? '...' : ''}</p>
+                <small class="text-muted">${new Date(notification.created_at).toLocaleString()}</small>
+            </div>
+        `;
+
+        card.addEventListener('click', () => showNotificationDetails(notification));
+        return card;
+    }
+
+    function showNotificationDetails(notification) {
+        notificationModalTitle.textContent = notification.title;
+        notificationModalBody.textContent = notification.message;
+        notificationTimestamp.textContent = `Criada em: ${new Date(notification.created_at).toLocaleString()}`;
+        
+        // Configurar botão de marcar como lida
+        markNotificationReadBtn.onclick = () => markNotificationRead(notification.id);
+        
+        notificationModal.show();
+    }
+
+    function loadNotifications(page = 1) {
+        const level = notificationLevelFilter.value;
+        const unreadOnly = unreadOnlyCheckbox.checked;
+
+        const params = new URLSearchParams({
+            unread: unreadOnly,
+            ...(level && { level })
+        });
+
+        fetch(`/notifications?${params}`)
+            .then(response => response.json())
+            .then(notifications => {
+                currentNotifications = notifications;
+                notificationsContainer.innerHTML = '';
+
+                // Calcular início e fim da página
+                const startIndex = (page - 1) * notificationsPerPage;
+                const endIndex = startIndex + notificationsPerPage;
+                const pageNotifications = notifications.slice(startIndex, endIndex);
+
+                pageNotifications.forEach(notification => {
+                    const card = createNotificationCard(notification);
+                    notificationsContainer.appendChild(card);
+                });
+
+                // Atualizar controles de paginação
+                currentPage = page;
+                pageInfo.textContent = `Página ${page}`;
+                prevPageBtn.disabled = page === 1;
+                nextPageBtn.disabled = endIndex >= notifications.length;
+            });
+    }
+
+    function markNotificationRead(notificationId) {
+        fetch(`/notifications/${notificationId}/read`, { method: 'POST' })
+            .then(response => response.json())
+            .then(() => {
+                // Remover notificação da lista
+                const card = document.querySelector(`.notification-card[data-notification-id="${notificationId}"]`);
+                if (card) card.remove();
+                notificationModal.hide();
+                loadNotifications(currentPage);
+            });
+    }
+
+    function markAllNotificationsRead() {
+        fetch('/notifications/read_all', { method: 'POST' })
+            .then(response => response.json())
+            .then(() => {
+                notificationsContainer.innerHTML = '';
+                loadNotifications(currentPage);
+            });
+    }
+
+    // Event Listeners
+    notificationLevelFilter.addEventListener('change', () => loadNotifications());
+    unreadOnlyCheckbox.addEventListener('change', () => loadNotifications());
+    markAllReadBtn.addEventListener('click', markAllNotificationsRead);
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) loadNotifications(currentPage - 1);
+    });
+    nextPageBtn.addEventListener('click', () => {
+        loadNotifications(currentPage + 1);
+    });
+
+    // Inicializar
+    loadNotifications();
+});
+</script>
+{% endblock %}

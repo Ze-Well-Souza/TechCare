@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Cache de Navegadores{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Cache de Navegadores</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('cleaner_cleaning.index') }}">Limpeza</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cache de Navegadores</li>
+                </ol>
+            </nav>
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Esta página permite visualizar e limpar o cache dos navegadores instalados.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Detalhes do Cache de Navegadores</h5>
+                    <form action="{{ url_for('cleaner_cleaning.execute_cleaning') }}" method="POST" id="cleanBrowserForm">
+                        <input type="hidden" name="cleaning_options" value="browser_cache">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-broom me-2"></i>Limpar Todo o Cache
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% if browser_data|length == 0 %}
+                    <div class="alert alert-warning">
+                        <p><i class="fas fa-exclamation-triangle"></i> Nenhum navegador compatível foi detectado no sistema.</p>
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        {% for browser_name, data in browser_data.items() %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">
+                                        {% if browser_name == 'chrome' %}
+                                        <i class="fab fa-chrome me-2"></i>Google Chrome
+                                        {% elif browser_name == 'firefox' %}
+                                        <i class="fab fa-firefox me-2"></i>Mozilla Firefox
+                                        {% elif browser_name == 'edge' %}
+                                        <i class="fab fa-edge me-2"></i>Microsoft Edge
+                                        {% else %}
+                                        <i class="fas fa-globe me-2"></i>{{ browser_name|capitalize }}
+                                        {% endif %}
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center mb-3">
+                                        <div class="col">
+                                            <h4>{{ data.formatted_cache_size }}</h4>
+                                            <p class="text-muted">Cache</p>
+                                        </div>
+                                        <div class="col">
+                                            <h4>{{ data.formatted_cookies_size }}</h4>
+                                            <p class="text-muted">Cookies</p>
+                                        </div>
+                                        <div class="col">
+                                            <h4>{{ data.formatted_history_size }}</h4>
+                                            <p class="text-muted">Histórico</p>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button class="btn btn-outline-primary" 
+                                                data-browser="{{ browser_name }}"
+                                                onclick="cleanBrowserCache('{{ browser_name }}')">
+                                            <i class="fas fa-eraser me-2"></i>Limpar Cache de {{ browser_name|capitalize }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <small class="text-muted">Total: {{ data.formatted_total_size }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cleanBrowserForm = document.getElementById('cleanBrowserForm');
+        
+        cleanBrowserForm.addEventListener('submit', function(e) {
+            const confirmMsg = 'Tem certeza que deseja limpar o cache de todos os navegadores? Esta ação não pode ser desfeita.';
+            if (!confirm(confirmMsg)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    function cleanBrowserCache(browserName) {
+        if (confirm(`Tem certeza que deseja limpar o cache do navegador ${browserName}? Esta ação não pode ser desfeita.`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ url_for('cleaner_cleaning.execute_cleaning') }}";
+            
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cleaning_options';
+            input.value = 'browser_cache';
+            
+            const browserInput = document.createElement('input');
+            browserInput.type = 'hidden';
+            browserInput.name = 'browser';
+            browserInput.value = browserName;
+            
+            form.appendChild(input);
+            form.appendChild(browserInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %} 

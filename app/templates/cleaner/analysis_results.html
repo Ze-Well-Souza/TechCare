@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados da Análise do Sistema{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="mb-4">
+        <a href="{{ url_for('cleaner.cleaner_dashboard') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Voltar para o Dashboard
+        </a>
+    </div>
+
+    <h1 class="mb-4">Resultados da Análise do Sistema</h1>
+    
+    {% if analysis_result.error %}
+    <div class="alert alert-danger">
+        <h4>Erro ao analisar sistema</h4>
+        <p>{{ analysis_result.error }}</p>
+    </div>
+    {% else %}
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Resumo</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ analysis_result.total_cleanup_formatted }}</h3>
+                        <p>Espaço a ser liberado</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ analysis_result.registry_issues.total_issues if analysis_result.registry_issues else 0 }}</h3>
+                        <p>Problemas no registro</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ analysis_result.startup_items.total_items if analysis_result.startup_items else 0 }}</h3>
+                        <p>Itens de inicialização</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ analysis_result.corrupted_files.system_files if analysis_result.corrupted_files else 0 }}</h3>
+                        <p>Arquivos corrompidos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{{ url_for('cleaner.cleaner_dashboard') }}" class="btn btn-primary">Ir para o Dashboard de Limpeza</a>
+        </div>
+    </div>
+    
+    <!-- Arquivos Temporários -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">Arquivos Temporários</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Total:</strong> {{ analysis_result.temp_files.formatted_total_size }}</p>
+            <p><strong>Número de arquivos:</strong> {{ analysis_result.temp_files.total_files }}</p>
+            
+            <h5 class="mt-4">Diretórios Analisados</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Diretório</th>
+                            <th>Tamanho</th>
+                            <th>Arquivos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for path, info in analysis_result.temp_files.paths.items() %}
+                        <tr>
+                            <td>{{ path }}</td>
+                            <td>{{ info.formatted_size }}</td>
+                            <td>{{ info.files }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dados de Navegadores -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0">Dados de Navegadores</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Navegador</th>
+                            <th>Cache</th>
+                            <th>Cookies</th>
+                            <th>Histórico</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for browser, data in analysis_result.browser_data.items() %}
+                        <tr>
+                            <td>{{ browser|capitalize }}</td>
+                            <td>{{ data.formatted_cache_size }}</td>
+                            <td>{{ data.formatted_cookies_size }}</td>
+                            <td>{{ data.formatted_history_size }}</td>
+                            <td>{{ data.formatted_total_size }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Itens de Inicialização -->
+    {% if analysis_result.startup_items and analysis_result.startup_items.total_items > 0 %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">Itens de Inicialização</h3>
+        </div>
+        <div class="card-body">
+            <h5>Itens no Registro ({{ analysis_result.startup_items.registry|length }})</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Comando</th>
+                            <th>Localização</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in analysis_result.startup_items.registry %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.command }}</td>
+                            <td>{{ item.location }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <h5 class="mt-4">Itens na Pasta Startup ({{ analysis_result.startup_items.startup_folder|length }})</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Caminho</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in analysis_result.startup_items.startup_folder %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.path }}</td>
+                            <td>{{ item.type|capitalize }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Espaço em Disco -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Espaço em Disco</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Dispositivo</th>
+                            <th>Ponto de Montagem</th>
+                            <th>Total</th>
+                            <th>Usado</th>
+                            <th>Livre</th>
+                            <th>Uso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for device, info in analysis_result.disk_space.items() %}
+                        <tr>
+                            <td>{{ device }}</td>
+                            <td>{{ info.mountpoint }}</td>
+                            <td>{{ info.formatted_total }}</td>
+                            <td>{{ info.formatted_used }}</td>
+                            <td>{{ info.formatted_free }}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-{{ 'danger' if info.percent > 90 else 'warning' if info.percent > 70 else 'success' }}" 
+                                         role="progressbar" 
+                                         style="width: {{ info.percent }}%" 
+                                         aria-valuenow="{{ info.percent }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ info.percent }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Arquivos Grandes -->
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0">Arquivos Grandes</h3>
+        </div>
+        <div class="card-body">
+            {% if analysis_result.large_files %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Caminho</th>
+                            <th>Tamanho</th>
+                            <th>Modificado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in analysis_result.large_files %}
+                        <tr>
+                            <td>{{ file.name }}</td>
+                            <td>{{ file.path }}</td>
+                            <td>{{ file.formatted_size }}</td>
+                            <td>{{ file.last_modified }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">Nenhum arquivo grande encontrado.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Problemas no Sistema -->
+    {% if analysis_result.corrupted_files %}
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">Problemas no Sistema</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Arquivos de sistema corrompidos
+                    <span class="badge bg-{{ 'danger' if analysis_result.corrupted_files.system_files > 0 else 'success' }} rounded-pill">
+                        {{ analysis_result.corrupted_files.system_files }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Erros no disco
+                    <span class="badge bg-{{ 'danger' if analysis_result.corrupted_files.disk_errors else 'success' }} rounded-pill">
+                        {{ 'Sim' if analysis_result.corrupted_files.disk_errors else 'Não' }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Corrupção no registro
+                    <span class="badge bg-{{ 'danger' if analysis_result.corrupted_files.registry_corruption else 'success' }} rounded-pill">
+                        {{ 'Sim' if analysis_result.corrupted_files.registry_corruption else 'Não' }}
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% endif %}
+</div>
+{% endblock %} 

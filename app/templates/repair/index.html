@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Reparo e Otimização{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-tools me-2" aria-hidden="true"></i> Reparo e Otimização
+            </h1>
+            <p class="lead">Soluções para reparar problemas identificados em seu sistema e otimizar o desempenho do seu computador.</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-heartbeat me-2" aria-hidden="true"></i> Reparo Baseado em Diagnóstico
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p>Resolva problemas identificados em diagnósticos anteriores com nosso assistente de reparo passo a passo.</p>
+                    {% if diagnostics %}
+                        <p>Selecione um diagnóstico para começar:</p>
+                        <div class="list-group">
+                            {% for diagnostic in diagnostics %}
+                                <a href="{{ url_for('repair.generate_repair_plan', diagnostic_id=diagnostic.id) }}" 
+                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <span>
+                                        <i class="fas fa-file-medical me-2" aria-hidden="true"></i>
+                                        Diagnóstico de {{ diagnostic.created_at.strftime('%d/%m/%Y') }}
+                                    </span>
+                                    <span class="badge bg-{{ 'success' if diagnostic.score >= 80 else 'warning' if diagnostic.score >= 60 else 'danger' }} rounded-pill">
+                                        Score: {{ diagnostic.score }}
+                                    </span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            Você ainda não possui diagnósticos. Realize um diagnóstico primeiro para obter um plano de reparo.
+                        </div>
+                        <a href="{{ url_for('diagnostic.index') }}" class="btn btn-primary">
+                            <i class="fas fa-stethoscope me-2" aria-hidden="true"></i>
+                            Realizar Diagnóstico
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-broom me-2" aria-hidden="true"></i> Manutenção e Otimização
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p>Mantenha seu computador funcionando na velocidade máxima com nossas ferramentas de manutenção e otimização.</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('cleaner_maintenance.index') }}" class="btn btn-outline-success">
+                            <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                            Limpeza e Otimização
+                        </a>
+                        <a href="{{ url_for('cleaner_maintenance.disk_cleanup') }}" class="btn btn-outline-success">
+                            <i class="fas fa-hdd me-2" aria-hidden="true"></i>
+                            Limpeza de Disco
+                        </a>
+                        <a href="{{ url_for('drivers.index') }}" class="btn btn-outline-success">
+                            <i class="fas fa-microchip me-2" aria-hidden="true"></i>
+                            Atualização de Drivers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">
+                        <i class="fas fa-tools" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5">Reparo Automático</h3>
+                    <p class="text-muted">Nosso assistente corrige problemas comuns de forma automática com apenas um clique.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5">Otimização de Desempenho</h3>
+                    <p class="text-muted">Melhore a velocidade e o desempenho do seu sistema automaticamente.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-primary mb-3">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="h5">Manutenção Programada</h3>
+                    <p class="text-muted">Agende tarefas de manutenção para manter seu sistema sempre em ótimo estado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes para animações de entrada quando a página carrega
+        const cards = document.querySelectorAll('.card');
+        setTimeout(() => {
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('fade-in-up');
+                }, index * 100);
+            });
+        }, 100);
+    });
+</script>
+{% endblock %} 

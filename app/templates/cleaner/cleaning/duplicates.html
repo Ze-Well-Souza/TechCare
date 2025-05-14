@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Arquivos Duplicados{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Arquivos Duplicados</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('cleaner_cleaning.index') }}">Limpeza</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Arquivos Duplicados</li>
+                </ol>
+            </nav>
+            <div class="alert alert-info">
+                <p><i class="fas fa-info-circle"></i> Esta página permite encontrar e remover arquivos duplicados do sistema.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Localizador de Arquivos Duplicados</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <p><i class="fas fa-exclamation-triangle"></i> Funcionalidade em implementação. Esta página estará disponível em breve.</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ url_for('cleaner_cleaning.index') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Voltar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

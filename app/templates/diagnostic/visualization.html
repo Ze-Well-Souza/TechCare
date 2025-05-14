@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Visualizações de Histórico - TechCare{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script src="https://cdn.plot.ly/plotly-2.28.0.min.js"></script>
+<style>
+    .chart-container {
+        height: 400px;
+        margin-bottom: 30px;
+    }
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 150px auto;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .chart-controls {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Visualizações do Histórico de Diagnósticos</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Histórico de Saúde do Sistema</h2>
+                <div class="chart-controls">
+                    <select id="historyLimit" class="form-select form-select-sm">
+                        <option value="5">Últimos 5</option>
+                        <option value="10" selected>Últimos 10</option>
+                        <option value="20">Últimos 20</option>
+                        <option value="50">Últimos 50</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="health-chart" class="chart-container">
+                <div class="loader"></div>
+            </div>
+            <div class="d-flex justify-content-end mt-2">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary export-btn" data-chart="health" data-format="csv">
+                        <i class="fas fa-file-csv me-1"></i> CSV
+                    </button>
+                    <button class="btn btn-outline-secondary export-btn" data-chart="health" data-format="json">
+                        <i class="fas fa-file-code me-1"></i> JSON
+                    </button>
+                    <button class="btn btn-outline-secondary export-btn" data-chart="health" data-format="png">
+                        <i class="fas fa-file-image me-1"></i> PNG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Histórico de CPU</h2>
+                </div>
+                <div class="card-body">
+                    <div id="cpu-chart" class="chart-container">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Histórico de Memória</h2>
+                </div>
+                <div class="card-body">
+                    <div id="memory-chart" class="chart-container">
+                        <div class="loader"></div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary export-btn" data-chart="memory" data-format="csv">
+                                <i class="fas fa-file-csv me-1"></i> CSV
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="memory" data-format="json">
+                                <i class="fas fa-file-code me-1"></i> JSON
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="memory" data-format="png">
+                                <i class="fas fa-file-image me-1"></i> PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Histórico de Disco</h2>
+                </div>
+                <div class="card-body">
+                    <div id="disk-chart" class="chart-container">
+                        <div class="loader"></div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary export-btn" data-chart="disk" data-format="csv">
+                                <i class="fas fa-file-csv me-1"></i> CSV
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="disk" data-format="json">
+                                <i class="fas fa-file-code me-1"></i> JSON
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="disk" data-format="png">
+                                <i class="fas fa-file-image me-1"></i> PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Problemas por Categoria</h2>
+                </div>
+                <div class="card-body">
+                    <div id="problems-chart" class="chart-container">
+                        <div class="loader"></div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary export-btn" data-chart="problems" data-format="csv">
+                                <i class="fas fa-file-csv me-1"></i> CSV
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="problems" data-format="json">
+                                <i class="fas fa-file-code me-1"></i> JSON
+                            </button>
+                            <button class="btn btn-outline-secondary export-btn" data-chart="problems" data-format="png">
+                                <i class="fas fa-file-image me-1"></i> PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i> Os dados históricos são baseados em diagnósticos anteriores. Para resultados mais precisos, realize diagnósticos regulares.
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('diagnostic.index') }}" class="btn btn-primary w-100">
+                <i class="fas fa-stethoscope me-2"></i> Novo Diagnóstico
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('main.history') }}" class="btn btn-info w-100">
+                <i class="fas fa-history me-2"></i> Ver Histórico Detalhado
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary w-100">
+                <i class="fas fa-home me-2"></i> Voltar para Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Carregar todos os gráficos
+        loadCharts();
+        
+        // Configurar eventos
+        document.getElementById('historyLimit').addEventListener('change', function() {
+            loadCharts();
+        });
+        
+        // Configurar eventos de botões de exportação
+        document.querySelectorAll('.export-btn').forEach(button => {
+            button.addEventListener('click', handleExport);
+        });
+        
+        // Função para carregar todos os gráficos
+        function loadCharts() {
+            const limit = document.getElementById('historyLimit').value;
+            
+            loadHealthChart(limit);
+            loadCpuChart(limit);
+            loadMemoryChart(limit);
+            loadDiskChart(limit);
+            loadProblemsChart(limit);
+        }
+        
+        // Manipulador para exportação de dados
+        function handleExport(event) {
+            const button = event.currentTarget;
+            const chartType = button.getAttribute('data-chart');
+            const format = button.getAttribute('data-format');
+            const limit = document.getElementById('historyLimit').value;
+            
+            // URL para exportação
+            const exportUrl = `/diagnostic/visualization/export/${chartType}?format=${format}&limit=${limit}`;
+            
+            // Para PNG, abrir em nova janela, para outros formatos, fazer download direto
+            if (format === 'png' && false) { // Desabilitando temporariamente a abertura em nova janela
+                window.open(exportUrl, '_blank');
+            } else {
+                // Criar um link oculto e simular um clique para fazer download
+                const downloadLink = document.createElement('a');
+                downloadLink.href = exportUrl;
+                downloadLink.target = '_blank';
+                
+                // Adicionar ao body e clicar
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                
+                // Remover o link
+                setTimeout(() => {
+                    document.body.removeChild(downloadLink);
+                }, 100);
+            }
+        }
+        
+        // Carregar gráfico de saúde geral
+        function loadHealthChart(limit) {
+            fetch(`/diagnostic/visualization/health_history?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('health-chart').innerHTML = '';
+                    Plotly.newPlot('health-chart', data.data, data.layout, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar gráfico de saúde:', error);
+                    document.getElementById('health-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                });
+        }
+        
+        // Carregar gráfico de CPU
+        function loadCpuChart(limit) {
+            fetch(`/diagnostic/visualization/cpu_history?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpu-chart').innerHTML = '';
+                    Plotly.newPlot('cpu-chart', data.data, data.layout, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar gráfico de CPU:', error);
+                    document.getElementById('cpu-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                });
+        }
+        
+        // Carregar gráfico de memória
+        function loadMemoryChart(limit) {
+            fetch(`/diagnostic/visualization/memory_history?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('memory-chart').innerHTML = '';
+                    Plotly.newPlot('memory-chart', data.data, data.layout, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar gráfico de memória:', error);
+                    document.getElementById('memory-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                });
+        }
+        
+        // Carregar gráfico de disco
+        function loadDiskChart(limit) {
+            fetch(`/diagnostic/visualization/disk_history?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('disk-chart').innerHTML = '';
+                    Plotly.newPlot('disk-chart', data.data, data.layout, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar gráfico de disco:', error);
+                    document.getElementById('disk-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                });
+        }
+        
+        // Carregar gráfico de problemas
+        function loadProblemsChart(limit) {
+            fetch(`/diagnostic/visualization/problems_by_category?limit=${limit}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('problems-chart').innerHTML = '';
+                    Plotly.newPlot('problems-chart', data.data, data.layout, {responsive: true});
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar gráfico de problemas:', error);
+                    document.getElementById('problems-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                });
+        }
+    });
+</script>
+{% endblock %} 

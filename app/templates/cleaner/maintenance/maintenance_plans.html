@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cleaner.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('cleaner.index') }}">Limpeza</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('cleaner_maintenance.index') }}">Manutenção</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Planos de Manutenção</li>
+        </ol>
+    </nav>
+    
+    <h1 class="display-4">Planos de Manutenção</h1>
+    <p class="lead">Configure tarefas automáticas de manutenção para manter seu sistema sempre otimizado.</p>
+
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle"></i> A manutenção programada permite que o sistema realize limpezas e otimizações automaticamente nos intervalos definidos.
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Criar Novo Plano de Manutenção</h5>
+        </div>
+        <div class="card-body">
+            <form id="maintenancePlanForm" method="post" action="{{ url_for('cleaner.maintenance_plan_create') }}">
+                <div class="mb-3">
+                    <label for="planName" class="form-label">Nome do Plano</label>
+                    <input type="text" class="form-control" id="planName" name="name" required placeholder="Ex: Limpeza Semanal">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Opções de Limpeza</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="cleaning_types" value="temp_files" id="planTempFiles" checked>
+                        <label class="form-check-label" for="planTempFiles">
+                            Arquivos Temporários
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="cleaning_types" value="recycle_bin" id="planRecycleBin" checked>
+                        <label class="form-check-label" for="planRecycleBin">
+                            Lixeira
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="cleaning_types" value="browser_cache" id="planBrowserCache" checked>
+                        <label class="form-check-label" for="planBrowserCache">
+                            Cache de Navegadores
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="cleaning_types" value="system_logs" id="planSystemLogs">
+                        <label class="form-check-label" for="planSystemLogs">
+                            Logs do Sistema
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="cleaning_types" value="update_cleanup" id="planUpdateCleanup">
+                        <label class="form-check-label" for="planUpdateCleanup">
+                            Arquivos de Atualização
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="frequency" class="form-label">Frequência</label>
+                        <select class="form-select" id="frequency" name="frequency" required>
+                            <option value="daily">Diariamente</option>
+                            <option value="weekly" selected>Semanalmente</option>
+                            <option value="monthly">Mensalmente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6" id="dayOfWeekContainer">
+                        <label for="dayOfWeek" class="form-label">Dia da Semana</label>
+                        <select class="form-select" id="dayOfWeek" name="day_of_week">
+                            <option value="monday">Segunda-feira</option>
+                            <option value="tuesday">Terça-feira</option>
+                            <option value="wednesday">Quarta-feira</option>
+                            <option value="thursday">Quinta-feira</option>
+                            <option value="friday">Sexta-feira</option>
+                            <option value="saturday" selected>Sábado</option>
+                            <option value="sunday">Domingo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 d-none" id="dayOfMonthContainer">
+                        <label for="dayOfMonth" class="form-label">Dia do Mês</label>
+                        <select class="form-select" id="dayOfMonth" name="day_of_month">
+                            {% for day in range(1, 32) %}
+                            <option value="{{ day }}" {% if day == 1 %}selected{% endif %}>{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="time" class="form-label">Horário</label>
+                    <input type="time" class="form-control" id="time" name="time" value="03:00" required>
+                    <small class="text-muted">Recomendamos escolher um horário em que o computador esteja ligado, mas não em uso intenso.</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Notificações</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="notify_email" value="1" id="notifyEmail" checked>
+                        <label class="form-check-label" for="notifyEmail">
+                            Enviar relatório por e-mail
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="notify_sms" value="1" id="notifySms">
+                        <label class="form-check-label" for="notifySms">
+                            Enviar notificação por SMS
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="enabled" value="1" id="planEnabled" checked>
+                    <label class="form-check-label" for="planEnabled">
+                        Ativar plano de manutenção
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus"></i> Criar Plano
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Planos Ativos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Limpeza Semanal</h5>
+                                <small class="text-success">Ativo</small>
+                            </div>
+                            <p class="mb-1">Limpeza de arquivos temporários, lixeira e cache de navegadores.</p>
+                            <small class="text-muted">Todo sábado às 03:00</small>
+                            <div class="mt-2">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger">Desativar</a>
+                            </div>
+                        </div>
+                        
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Limpeza de Emergência</h5>
+                                <small class="text-success">Ativo</small>
+                            </div>
+                            <p class="mb-1">Limpeza completa quando o espaço em disco estiver abaixo de 10%.</p>
+                            <small class="text-muted">Baseado em evento</small>
+                            <div class="mt-2">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="#" class="btn btn-sm btn-outline-danger">Desativar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Planos Inativos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <div class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Limpeza Mensal</h5>
+                                <small class="text-secondary">Inativo</small>
+                            </div>
+                            <p class="mb-1">Limpeza completa do sistema, incluindo logs e arquivos de atualização.</p>
+                            <small class="text-muted">Todo dia 1 às 02:00</small>
+                            <div class="mt-2">
+                                <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <a href="#" class="btn btn-sm btn-outline-success">Ativar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Histórico de Execuções</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Plano</th>
+                        <th>Status</th>
+                        <th>Espaço Liberado</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>07/05/2025 03:00</td>
+                        <td>Limpeza Semanal</td>
+                        <td><span class="badge bg-success">Sucesso</span></td>
+                        <td>4.2 GB</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-info">Ver</a></td>
+                    </tr>
+                    <tr>
+                        <td>01/05/2025 02:00</td>
+                        <td>Limpeza Mensal</td>
+                        <td><span class="badge bg-success">Sucesso</span></td>
+                        <td>8.7 GB</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-info">Ver</a></td>
+                    </tr>
+                    <tr>
+                        <td>30/04/2025 14:23</td>
+                        <td>Limpeza de Emergência</td>
+                        <td><span class="badge bg-success">Sucesso</span></td>
+                        <td>5.1 GB</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-info">Ver</a></td>
+                    </tr>
+                    <tr>
+                        <td>24/04/2025 03:00</td>
+                        <td>Limpeza Semanal</td>
+                        <td><span class="badge bg-warning">Incompleto</span></td>
+                        <td>1.8 GB</td>
+                        <td><a href="#" class="btn btn-sm btn-outline-info">Ver</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/cleaner.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Controlar a visibilidade dos campos de dia da semana e dia do mês
+            const frequencySelect = document.getElementById('frequency');
+            const dayOfWeekContainer = document.getElementById('dayOfWeekContainer');
+            const dayOfMonthContainer = document.getElementById('dayOfMonthContainer');
+            
+            frequencySelect.addEventListener('change', function() {
+                if (this.value === 'weekly') {
+                    dayOfWeekContainer.classList.remove('d-none');
+                    dayOfMonthContainer.classList.add('d-none');
+                } else if (this.value === 'monthly') {
+                    dayOfWeekContainer.classList.add('d-none');
+                    dayOfMonthContainer.classList.remove('d-none');
+                } else {
+                    dayOfWeekContainer.classList.add('d-none');
+                    dayOfMonthContainer.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+{% endblock %} 

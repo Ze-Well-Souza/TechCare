@@ -1,0 +1,26 @@
+{% extends "base/base.html" %}
+
+{% block title %}Erro Interno{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger mb-3">
+                <div class="card-header bg-danger text-white">
+                    <h2>500 - Erro Interno do Servidor</h2>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Ocorreu um erro inesperado em nosso sistema.
+                        Nossa equipe já foi notificada e está trabalhando para resolver.
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        Voltar para a Página Inicial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

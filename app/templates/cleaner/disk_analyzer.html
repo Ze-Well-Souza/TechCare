@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Analisador de Disco{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-chart-pie me-2" aria-hidden="true"></i> Analisador de Disco
+            </h1>
+            <p class="lead">Analise o uso do seu disco para identificar arquivos e pastas que ocupam mais espaço e otimize seu armazenamento.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-primary mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-hdd me-2" aria-hidden="true"></i> Selecione a Unidade para Análise
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form id="disk-analyzer-form" method="post" action="{{ url_for('cleaner.analyze_disk') }}">
+                        <div class="mb-4">
+                            <label for="drive-select" class="form-label">Unidade de Disco:</label>
+                            <select class="form-select form-select-lg mb-3" id="drive-select" name="drive">
+                                {% if drives %}
+                                    {% for drive in drives %}
+                                        <option value="{{ drive.path }}" {% if drive.is_system %}selected{% endif %}>
+                                            {{ drive.path }} ({{ drive.label }}{% if drive.is_system %} - Sistema{% endif %}) - {{ drive.free_space }} livres de {{ drive.total_space }}
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="C:">C: (Nenhuma informação disponível)</option>
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Opções de Análise:</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="include_system" name="options" value="include_system">
+                                <label class="form-check-label" for="include_system">
+                                    Incluir arquivos do sistema
+                                    <small class="text-muted d-block">Analisa também pastas protegidas do sistema</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="deep_scan" name="options" value="deep_scan">
+                                <label class="form-check-label" for="deep_scan">
+                                    Análise profunda
+                                    <small class="text-muted d-block">Análise mais detalhada, mas pode levar mais tempo</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="start-analysis">
+                                <i class="fas fa-search me-2" aria-hidden="true"></i>
+                                Iniciar Análise de Disco
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if analysis_results %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Resultados da Análise</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="h6 mb-3">Maiores Pastas (por tamanho):</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Pasta</th>
+                                    <th>Tamanho</th>
+                                    <th>% do Disco</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for folder in analysis_results.largest_folders %}
+                                <tr>
+                                    <td class="text-truncate" style="max-width: 300px;">{{ folder.path }}</td>
+                                    <td>{{ folder.size_formatted }}</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ folder.percentage }}%" aria-valuenow="{{ folder.percentage }}" aria-valuemin="0" aria-valuemax="100">{{ folder.percentage }}%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary open-folder" data-path="{{ folder.path }}">
+                                            <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                            Abrir
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="h6 mb-3 mt-4">Tipos de Arquivos:</h3>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <canvas id="file-types-chart" width="400" height="300"></canvas>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Tamanho</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for type in analysis_results.file_types %}
+                                        <tr>
+                                            <td>{{ type.name }}</td>
+                                            <td>{{ type.size_formatted }}</td>
+                                            <td>{{ type.percentage }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="h6 mb-3 mt-4">Arquivos Grandes (mais de 100 MB):</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Arquivo</th>
+                                    <th>Tamanho</th>
+                                    <th>Última Modificação</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in analysis_results.large_files %}
+                                <tr>
+                                    <td class="text-truncate" style="max-width: 300px;">{{ file.name }}</td>
+                                    <td>{{ file.size_formatted }}</td>
+                                    <td>{{ file.last_modified }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary open-folder" data-path="{{ file.folder_path }}">
+                                            <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                            Localizar
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Status do Disco</h3>
+                </div>
+                <div class="card-body">
+                    {% if selected_drive %}
+                    <div class="mb-3">
+                        <h4 class="h6">{{ selected_drive.path }} ({{ selected_drive.label }})</h4>
+                        <div class="progress mb-2" style="height: 24px;">
+                            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: {{ selected_drive.usage_percent }}%" aria-valuenow="{{ selected_drive.usage_percent }}" aria-valuemin="0" aria-valuemax="100">{{ selected_drive.usage_percent }}%</div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Espaço Total: {{ selected_drive.total_space }}</small>
+                            <small class="text-muted">Espaço Livre: {{ selected_drive.free_space }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div id="disk-analyzer-status">
+                        <p class="text-center mt-3">
+                            <i class="fas fa-info-circle text-info me-2" aria-hidden="true"></i>
+                            Selecione uma unidade e clique em "Iniciar Análise de Disco"
+                        </p>
+                    </div>
+
+                    <div id="disk-analyzer-progress" class="d-none">
+                        <div class="text-center mt-3 mb-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Analisando disco...</span>
+                            </div>
+                            <p class="mt-2 mb-0" id="progress-text">Analisando disco...</p>
+                        </div>
+                        <div class="progress mt-3">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+
+                    {% if analysis_results %}
+                    <div class="alert alert-success mt-3">
+                        <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                        Análise concluída com sucesso!
+                    </div>
+                    <div class="mt-3">
+                        <h4 class="h6">Recomendações de Limpeza:</h4>
+                        <ul class="list-group">
+                            {% for recommendation in analysis_results.recommendations %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ recommendation.description }}
+                                <span class="badge bg-primary rounded-pill">{{ recommendation.size_formatted }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{{ url_for('cleaner.disk_cleanup') }}" class="btn btn-success">
+                                <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                                Ir para Limpeza de Disco
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-info">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">Dicas</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="small list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Arquivos de mídia, como vídeos e imagens, costumam ocupar mais espaço em disco.
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Considere usar armazenamento em nuvem para arquivos grandes que são usados com pouca frequência.
+                        </li>
+                        <li>
+                            <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                            Mantenha pelo menos 10% do disco livre para um melhor desempenho do sistema.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('disk-analyzer-form');
+        const statusDiv = document.getElementById('disk-analyzer-status');
+        const progressDiv = document.getElementById('disk-analyzer-progress');
+        
+        // Abre a pasta quando o botão "Abrir" é clicado
+        document.querySelectorAll('.open-folder').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const path = this.getAttribute('data-path');
+                alert('Esta funcionalidade abriria o explorador de arquivos no caminho: ' + path);
+            });
+        });
+        
+        // Inicializa o gráfico de tipos de arquivo, se existir
+        const chartCanvas = document.getElementById('file-types-chart');
+        if (chartCanvas) {
+            const data = {
+                labels: [
+                    {% for type in analysis_results.file_types %}
+                    '{{ type.name }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'Tipos de Arquivo',
+                    data: [
+                        {% for type in analysis_results.file_types %}
+                        {{ type.size_bytes }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)',
+                        'rgba(83, 102, 255, 0.7)',
+                        'rgba(40, 159, 64, 0.7)',
+                        'rgba(210, 199, 199, 0.7)'
+                    ],
+                    hoverOffset: 4
+                }]
+            };
+            
+            const config = {
+                type: 'pie',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            };
+            
+            new Chart(chartCanvas, config);
+        }
+        
+        // Formulário de análise de disco
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostra o progresso
+                statusDiv.classList.add('d-none');
+                progressDiv.classList.remove('d-none');
+                
+                // Obtém os valores do formulário
+                const drive = document.getElementById('drive-select').value;
+                const includeSystem = document.getElementById('include_system').checked;
+                const deepScan = document.getElementById('deep_scan').checked;
+                
+                // Simula o progresso da análise
+                let progress = 0;
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                const interval = setInterval(function() {
+                    progress += Math.floor(Math.random() * 3) + 1;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        
+                        // Redireciona para a página de resultados
+                        setTimeout(function() {
+                            // Em uma implementação real, aqui você poderia usar o resultado da análise
+                            // para construir a URL de redirecionamento
+                            window.location.href = '{{ url_for('cleaner.analyze_disk') }}?drive=' + encodeURIComponent(drive) + 
+                                                  '&include_system=' + includeSystem + 
+                                                  '&deep_scan=' + deepScan;
+                        }, 500);
+                    }
+                    
+                    progressBar.style.width = progress + '%';
+                    progressBar.setAttribute('aria-valuenow', progress);
+                    
+                    if (progress < 20) {
+                        progressText.textContent = 'Inicializando análise...';
+                    } else if (progress < 40) {
+                        progressText.textContent = 'Escaneando pastas...';
+                    } else if (progress < 60) {
+                        progressText.textContent = 'Analisando tipos de arquivo...';
+                    } else if (progress < 80) {
+                        progressText.textContent = 'Identificando arquivos grandes...';
+                    } else {
+                        progressText.textContent = 'Finalizando análise...';
+                    }
+                }, 100);
+                
+                // Em uma implementação real, aqui você faria a chamada AJAX para o servidor
+                /*
+                fetch('{{ url_for('cleaner.analyze_disk') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ 
+                        drive: drive,
+                        include_system: includeSystem,
+                        deep_scan: deepScan
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Redireciona para a página de resultados
+                    window.location.href = '{{ url_for('cleaner.analyze_disk') }}?results_id=' + data.results_id;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Ocorreu um erro durante a análise. Por favor, tente novamente.');
+                });
+                */
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title | default('TechCare - Diagnóstico e Manutenção de Computadores') }}{% endblock %}
+
+{% block content %}
+<div class="row align-items-center my-5">
+    <div class="col-lg-6">
+        <h1 class="display-4 fw-bold text-primary mb-3">Diagnóstico profissional para seu computador</h1>
+        <p class="lead mb-4">Identifique e resolva problemas do seu sistema com nosso diagnóstico completo baseado em tecnologia avançada. Otimize o desempenho do seu PC com facilidade.</p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{{ url_for('diagnostic_overview.index') }}" class="btn btn-primary btn-lg px-4 me-md-2">Começar Diagnóstico</a>
+            <a href="{{ url_for('main.about') }}" class="btn btn-outline-secondary btn-lg px-4">Saiba Mais</a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <img src="{{ url_for('static', filename='img/diagnostic.svg') }}" alt="Diagnóstico de Computador" class="img-fluid">
+    </div>
+</div>
+
+<hr class="my-5">
+
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">Como funciona?</h2>
+        <p class="lead">Diagnóstico completo em apenas 3 passos simples</p>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                    <i class="fas fa-search fa-2x p-3"></i>
+                </div>
+                <h3>1. Diagnóstico</h3>
+                <p>Nossa ferramenta analisa seu hardware e software para identificar problemas que afetam o desempenho.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                    <i class="fas fa-clipboard-list fa-2x p-3"></i>
+                </div>
+                <h3>2. Relatório</h3>
+                <p>Receba um relatório detalhado com problemas encontrados e recomendações personalizadas.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                    <i class="fas fa-wrench fa-2x p-3"></i>
+                </div>
+                <h3>3. Otimização</h3>
+                <p>Aplique as correções recomendadas para melhorar o desempenho e a estabilidade do seu sistema.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">O que analisamos?</h2>
+        <p class="lead">Diagnóstico completo para todos os componentes críticos</p>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="d-flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-microchip text-primary fa-2x me-3"></i>
+            </div>
+            <div>
+                <h3>Processador</h3>
+                <p>Uso, temperatura e desempenho do seu processador</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="d-flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-memory text-primary fa-2x me-3"></i>
+            </div>
+            <div>
+                <h3>Memória RAM</h3>
+                <p>Capacidade e utilização da memória do sistema</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="d-flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-hdd text-primary fa-2x me-3"></i>
+            </div>
+            <div>
+                <h3>Disco</h3>
+                <p>Espaço, fragmentação e saúde dos discos</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="d-flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-shield-alt text-primary fa-2x me-3"></i>
+            </div>
+            <div>
+                <h3>Segurança</h3>
+                <p>Verificação de antivírus, firewall e atualizações</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body p-5 text-center">
+                <h2 class="display-6 fw-bold text-primary mb-3">Pronto para otimizar seu computador?</h2>
+                <p class="lead mb-4">Faça um diagnóstico completo e descubra como melhorar o desempenho do seu sistema.</p>
+                <a href="{{ url_for('diagnostic_overview.index') }}" class="btn btn-primary btn-lg px-5">Iniciar Diagnóstico Agora</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if system_info %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Informações do Sistema</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Sistema Operacional
+                                <span class="badge bg-primary rounded-pill">{{ system_info.platform }} {{ system_info.platform_release }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Versão
+                                <span class="badge bg-primary rounded-pill">{{ system_info.platform_version }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Processador
+                                <span class="badge bg-primary rounded-pill">{{ system_info.processor }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Versão Python
+                                <span class="badge bg-primary rounded-pill">{{ system_info.python_version }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Aplicação
+                                <span class="badge bg-primary rounded-pill">{{ system_info.app_name }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Versão da Aplicação
+                                <span class="badge bg-primary rounded-pill">{{ system_info.app_version }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 70px;
+        height: 70px;
+    }
+    
+    .card {
+        transition: transform 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %} 

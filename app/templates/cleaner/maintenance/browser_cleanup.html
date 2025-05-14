@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-globe me-2" aria-hidden="true"></i> Limpeza de Navegadores
+            </h1>
+            <p class="lead">Limpe cache, cookies e histórico de navegação para otimizar o desempenho e proteger sua privacidade.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Navegadores Detectados</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                        Selecione os navegadores e os elementos que deseja limpar.
+                    </div>
+                    
+                    <form id="browserCleanupForm">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="chromeCheck" checked>
+                                            <label class="form-check-label" for="chromeCheck">
+                                                <i class="fab fa-chrome me-2" aria-hidden="true"></i> Chrome
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="chromeCache" checked>
+                                            <label class="form-check-label" for="chromeCache">
+                                                Cache (245 MB)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="chromeCookies">
+                                            <label class="form-check-label" for="chromeCookies">
+                                                Cookies
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="chromeHistory">
+                                            <label class="form-check-label" for="chromeHistory">
+                                                Histórico
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="firefoxCheck" checked>
+                                            <label class="form-check-label" for="firefoxCheck">
+                                                <i class="fab fa-firefox me-2" aria-hidden="true"></i> Firefox
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="firefoxCache" checked>
+                                            <label class="form-check-label" for="firefoxCache">
+                                                Cache (180 MB)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="firefoxCookies">
+                                            <label class="form-check-label" for="firefoxCookies">
+                                                Cookies
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="firefoxHistory">
+                                            <label class="form-check-label" for="firefoxHistory">
+                                                Histórico
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="edgeCheck" checked>
+                                            <label class="form-check-label" for="edgeCheck">
+                                                <i class="fab fa-edge me-2" aria-hidden="true"></i> Edge
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="edgeCache" checked>
+                                            <label class="form-check-label" for="edgeCache">
+                                                Cache (210 MB)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="edgeCookies">
+                                            <label class="form-check-label" for="edgeCookies">
+                                                Cookies
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="edgeHistory">
+                                            <label class="form-check-label" for="edgeHistory">
+                                                Histórico
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button id="startCleanupBtn" type="button" class="btn btn-primary">
+                                <i class="fas fa-broom me-2" aria-hidden="true"></i>
+                                Iniciar Limpeza
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="cleanupProgress" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Progresso da Limpeza</h3>
+                        <div class="progress mb-3">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="progressStatus" class="text-muted">Iniciando limpeza...</p>
+                    </div>
+                    
+                    <div id="cleanupResults" class="mt-4" style="display: none;">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            <span id="resultsMessage">Limpeza concluída com sucesso!</span>
+                        </div>
+                        <p id="spaceSaved" class="badge bg-success">Espaço liberado: 0 MB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h2 class="h5 mb-0">Benefícios da Limpeza</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex">
+                            <i class="fas fa-tachometer-alt me-2 text-primary" aria-hidden="true"></i>
+                            <div>
+                                <strong>Melhor Desempenho</strong>
+                                <p class="mb-0 small">Navegadores mais rápidos e responsivos.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <i class="fas fa-shield-alt me-2 text-primary" aria-hidden="true"></i>
+                            <div>
+                                <strong>Maior Privacidade</strong>
+                                <p class="mb-0 small">Proteja suas informações pessoais.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <i class="fas fa-hdd me-2 text-primary" aria-hidden="true"></i>
+                            <div>
+                                <strong>Economia de Espaço</strong>
+                                <p class="mb-0 small">Libere espaço em seu disco rígido.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="h5 mb-0">Importante</h2>
+                </div>
+                <div class="card-body">
+                    <p>A limpeza de cookies pode fazer com que você tenha que entrar novamente em sites onde estava logado.</p>
+                    <p>Considere adicionar exceções para sites importantes se você limpar cookies regularmente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startBtn = document.getElementById('startCleanupBtn');
+        const progressSection = document.getElementById('cleanupProgress');
+        const resultsSection = document.getElementById('cleanupResults');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const spaceSaved = document.getElementById('spaceSaved');
+        
+        startBtn.addEventListener('click', function() {
+            // Mostrar progresso
+            progressSection.style.display = 'block';
+            startBtn.disabled = true;
+            
+            // Calcular espaço total que será limpo
+            let totalSpace = 0;
+            if (document.getElementById('chromeCheck').checked && document.getElementById('chromeCache').checked) {
+                totalSpace += 245;
+            }
+            if (document.getElementById('firefoxCheck').checked && document.getElementById('firefoxCache').checked) {
+                totalSpace += 180;
+            }
+            if (document.getElementById('edgeCheck').checked && document.getElementById('edgeCache').checked) {
+                totalSpace += 210;
+            }
+            
+            // Simular progresso de limpeza
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                
+                // Atualizar mensagem de status
+                if (progress < 30) {
+                    progressStatus.textContent = 'Limpando cache do Chrome...';
+                } else if (progress < 60) {
+                    progressStatus.textContent = 'Limpando cache do Firefox...';
+                } else if (progress < 90) {
+                    progressStatus.textContent = 'Limpando cache do Edge...';
+                } else {
+                    progressStatus.textContent = 'Finalizando limpeza...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    completeCleanup();
+                }
+            }, 200);
+            
+            // Função para completar a limpeza
+            function completeCleanup() {
+                progressStatus.textContent = 'Limpeza concluída!';
+                
+                // Exibir resultados
+                resultsSection.style.display = 'block';
+                spaceSaved.textContent = `Espaço liberado: ${totalSpace} MB`;
+                
+                // Re-abilitar botão
+                startBtn.disabled = false;
+                startBtn.textContent = 'Limpar Novamente';
+            }
+        });
+    });
+</script>
+{% endblock %} 

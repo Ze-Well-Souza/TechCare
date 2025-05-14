@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-hdd me-2" aria-hidden="true"></i> Analisador de Disco
+            </h1>
+            <p class="lead">Encontre arquivos grandes e duplicados para liberar espaço em disco e otimizar o armazenamento.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Analisar Disco</h2>
+                </div>
+                <div class="card-body">
+                    <form id="analyzerForm">
+                        <div class="row mb-3">
+                            <label for="driveSelect" class="col-sm-3 col-form-label">Selecione o Drive:</label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="driveSelect">
+                                    <option value="C:" selected>C: (Sistema) - 120 GB</option>
+                                    <option value="D:">D: (Dados) - 500 GB</option>
+                                    <option value="E:">E: (Backup) - 1 TB</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label for="analysisType" class="col-sm-3 col-form-label">Tipo de Análise:</label>
+                            <div class="col-sm-9">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="largeFilesCheck" checked>
+                                    <label class="form-check-label" for="largeFilesCheck">
+                                        Arquivos grandes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="duplicatesCheck" checked>
+                                    <label class="form-check-label" for="duplicatesCheck">
+                                        Arquivos duplicados
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="oldFilesCheck">
+                                    <label class="form-check-label" for="oldFilesCheck">
+                                        Arquivos não acessados (> 1 ano)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <label for="minFileSize" class="col-sm-3 col-form-label">Tamanho Mínimo:</label>
+                            <div class="col-sm-9">
+                                <select class="form-select" id="minFileSize">
+                                    <option value="10">10 MB</option>
+                                    <option value="50">50 MB</option>
+                                    <option value="100" selected>100 MB</option>
+                                    <option value="500">500 MB</option>
+                                    <option value="1000">1 GB</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button id="startAnalysisBtn" type="button" class="btn btn-primary">
+                                <i class="fas fa-search me-2" aria-hidden="true"></i>
+                                Iniciar Análise
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="analysisProgress" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Progresso da Análise</h3>
+                        <div class="progress mb-3">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="progressStatus" class="text-muted">Iniciando análise...</p>
+                        <p id="filesScanned" class="text-muted">0 arquivos escaneados</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="analysisResults" class="card mt-4" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h5 mb-0">Resultados da Análise</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-3" id="resultTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="large-tab" data-bs-toggle="tab" data-bs-target="#large" 
+                                    type="button" role="tab" aria-controls="large" aria-selected="true">
+                                Arquivos Grandes
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="duplicates-tab" data-bs-toggle="tab" data-bs-target="#duplicates" 
+                                    type="button" role="tab" aria-controls="duplicates" aria-selected="false">
+                                Duplicados
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="old-tab" data-bs-toggle="tab" data-bs-target="#old" 
+                                    type="button" role="tab" aria-controls="old" aria-selected="false">
+                                Antigos
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="resultTabsContent">
+                        <div class="tab-pane fade show active" id="large" role="tabpanel" aria-labelledby="large-tab">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Caminho</th>
+                                            <th>Tamanho</th>
+                                            <th>Última Modificação</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="largeFilesTable">
+                                        <!-- Arquivos grandes serão inseridos aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="duplicates" role="tabpanel" aria-labelledby="duplicates-tab">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Caminhos</th>
+                                            <th>Tamanho</th>
+                                            <th>Cópias</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="duplicatesTable">
+                                        <!-- Arquivos duplicados serão inseridos aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="old" role="tabpanel" aria-labelledby="old-tab">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Caminho</th>
+                                            <th>Tamanho</th>
+                                            <th>Último Acesso</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="oldFilesTable">
+                                        <!-- Arquivos antigos serão inseridos aqui -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button id="selectAllBtn" class="btn btn-outline-primary">
+                            <i class="fas fa-check-square me-2" aria-hidden="true"></i>
+                            Selecionar Todos
+                        </button>
+                        <button id="deleteSelectedBtn" class="btn btn-danger">
+                            <i class="fas fa-trash me-2" aria-hidden="true"></i>
+                            Excluir Selecionados
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h2 class="h5 mb-0">Informações de Disco</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="h6">C: (Sistema)</h3>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>Espaço Usado:</span>
+                            <span>78%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 78%" 
+                                 aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">93.6 GB usados de 120 GB</small>
+                    </div>
+                    
+                    <div id="storageChart" style="height: 200px;">
+                        <!-- Gráfico de distribuição de armazenamento será exibido aqui -->
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h3 class="h6">Distribuição por Tipo</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-film me-2 text-primary" aria-hidden="true"></i> Vídeos</span>
+                                <span>32.5 GB</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-image me-2 text-primary" aria-hidden="true"></i> Imagens</span>
+                                <span>15.2 GB</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-file-alt me-2 text-primary" aria-hidden="true"></i> Documentos</span>
+                                <span>4.8 GB</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-cogs me-2 text-primary" aria-hidden="true"></i> Sistema</span>
+                                <span>28.1 GB</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-cubes me-2 text-primary" aria-hidden="true"></i> Outros</span>
+                                <span>13.0 GB</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startBtn = document.getElementById('startAnalysisBtn');
+        const progressSection = document.getElementById('analysisProgress');
+        const resultsSection = document.getElementById('analysisResults');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const filesScanned = document.getElementById('filesScanned');
+        const largeFilesTable = document.getElementById('largeFilesTable');
+        const duplicatesTable = document.getElementById('duplicatesTable');
+        const oldFilesTable = document.getElementById('oldFilesTable');
+        
+        // Dados simulados
+        const largeFiles = [
+            { name: 'GrandTheftAuto5.iso', path: 'D:\\Games\\GTA5\\', size: '65.3 GB', modified: '2023-05-15' },
+            { name: 'Cyberpunk2077.iso', path: 'D:\\Games\\', size: '58.2 GB', modified: '2023-08-22' },
+            { name: 'FamiliaPraia2023.mp4', path: 'C:\\Users\\Usuario\\Videos\\', size: '4.8 GB', modified: '2023-12-30' },
+            { name: 'BackupTrabalho.zip', path: 'D:\\Backup\\', size: '3.2 GB', modified: '2024-03-10' },
+            { name: 'ApresentacaoFinal.pptx', path: 'C:\\Users\\Usuario\\Documents\\', size: '1.5 GB', modified: '2024-04-05' },
+            { name: 'RelatorioAnual.pdf', path: 'C:\\Users\\Usuario\\Documents\\', size: '750 MB', modified: '2024-02-28' }
+        ];
+        
+        const duplicateFiles = [
+            { name: 'ContasAbril.xlsx', paths: ['C:\\Users\\Usuario\\Documents\\', 'D:\\Backup\\Financeiro\\'], size: '2.8 MB', copies: 2 },
+            { name: 'ImagemPerfil.jpg', paths: ['C:\\Users\\Usuario\\Pictures\\', 'C:\\Users\\Usuario\\Downloads\\', 'D:\\Backup\\Fotos\\'], size: '3.5 MB', copies: 3 },
+            { name: 'Apresentacao.pptx', paths: ['C:\\Users\\Usuario\\Documents\\', 'C:\\Users\\Usuario\\Desktop\\'], size: '12.4 MB', copies: 2 },
+            { name: 'Curriculo.pdf', paths: ['C:\\Users\\Usuario\\Documents\\', 'D:\\Backup\\Pessoal\\', 'C:\\Users\\Usuario\\Downloads\\'], size: '1.2 MB', copies: 3 },
+            { name: 'FotoFamilia.jpg', paths: ['C:\\Users\\Usuario\\Pictures\\', 'D:\\Backup\\Fotos\\'], size: '5.7 MB', copies: 2 }
+        ];
+        
+        const oldFiles = [
+            { name: 'NotasAula2022.docx', path: 'C:\\Users\\Usuario\\Documents\\Estudos\\', size: '2.3 MB', accessed: '2022-05-20' },
+            { name: 'FestaAniversario.mp4', path: 'C:\\Users\\Usuario\\Videos\\', size: '1.8 GB', accessed: '2022-08-15' },
+            { name: 'ProjetoAntigo.zip', path: 'C:\\Users\\Usuario\\Documents\\Projetos\\', size: '458 MB', accessed: '2022-11-03' },
+            { name: 'RelatorioFinanceiro2022.xlsx', path: 'D:\\Backup\\Trabalho\\', size: '5.2 MB', accessed: '2022-12-30' },
+            { name: 'LogoEmpresa.psd', path: 'C:\\Users\\Usuario\\Pictures\\Trabalho\\', size: '48.7 MB', accessed: '2022-10-12' }
+        ];
+        
+        startBtn.addEventListener('click', function() {
+            // Mostrar progresso
+            progressSection.style.display = 'block';
+            startBtn.disabled = true;
+            
+            // Simular progresso de análise
+            let progress = 0;
+            let scannedCount = 0;
+            const progressInterval = setInterval(function() {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                
+                // Simular arquivos escaneados
+                scannedCount += Math.floor(Math.random() * 1000) + 500;
+                filesScanned.textContent = scannedCount.toLocaleString() + ' arquivos escaneados';
+                
+                // Atualizar mensagem de status
+                if (progress < 25) {
+                    progressStatus.textContent = 'Escaneando arquivos do sistema...';
+                } else if (progress < 50) {
+                    progressStatus.textContent = 'Analisando documentos e imagens...';
+                } else if (progress < 75) {
+                    progressStatus.textContent = 'Procurando arquivos duplicados...';
+                } else {
+                    progressStatus.textContent = 'Finalizando análise...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    displayResults();
+                }
+            }, 100);
+        });
+        
+        function displayResults() {
+            progressStatus.textContent = 'Análise concluída!';
+            resultsSection.style.display = 'block';
+            
+            // Preencher tabela de arquivos grandes
+            largeFilesTable.innerHTML = '';
+            largeFiles.forEach(function(file) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${file.name}</td>
+                    <td><small>${file.path}</small></td>
+                    <td>${file.size}</td>
+                    <td>${file.modified}</td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input file-check" type="checkbox" value="">
+                        </div>
+                    </td>
+                `;
+                largeFilesTable.appendChild(row);
+            });
+            
+            // Preencher tabela de arquivos duplicados
+            duplicatesTable.innerHTML = '';
+            duplicateFiles.forEach(function(file) {
+                const row = document.createElement('tr');
+                const pathsHtml = file.paths.map(path => `<div><small>${path}</small></div>`).join('');
+                
+                row.innerHTML = `
+                    <td>${file.name}</td>
+                    <td>${pathsHtml}</td>
+                    <td>${file.size}</td>
+                    <td>${file.copies}</td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input duplicate-check" type="checkbox" value="">
+                        </div>
+                    </td>
+                `;
+                duplicatesTable.appendChild(row);
+            });
+            
+            // Preencher tabela de arquivos antigos
+            oldFilesTable.innerHTML = '';
+            oldFiles.forEach(function(file) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${file.name}</td>
+                    <td><small>${file.path}</small></td>
+                    <td>${file.size}</td>
+                    <td>${file.accessed}</td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input old-check" type="checkbox" value="">
+                        </div>
+                    </td>
+                `;
+                oldFilesTable.appendChild(row);
+            });
+            
+            // Configurar botões
+            document.getElementById('selectAllBtn').addEventListener('click', function() {
+                const currentTab = document.querySelector('.tab-pane.active');
+                const checkboxes = currentTab.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = true;
+                });
+            });
+            
+            document.getElementById('deleteSelectedBtn').addEventListener('click', function() {
+                const currentTab = document.querySelector('.tab-pane.active');
+                const checkedBoxes = currentTab.querySelectorAll('input[type="checkbox"]:checked');
+                
+                if (checkedBoxes.length === 0) {
+                    alert('Selecione pelo menos um arquivo para excluir.');
+                    return;
+                }
+                
+                if (confirm(`Tem certeza que deseja excluir ${checkedBoxes.length} arquivo(s)?`)) {
+                    // Simular exclusão (apenas remove da interface)
+                    checkedBoxes.forEach(function(checkbox) {
+                        checkbox.closest('tr').remove();
+                    });
+                    
+                    alert('Arquivos excluídos com sucesso!');
+                }
+            });
+            
+            // Re-abilitar análise
+            startBtn.disabled = false;
+        }
+    });
+</script>
+{% endblock %} 

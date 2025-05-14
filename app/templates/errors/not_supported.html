@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}TechCare - Funcionalidade Não Suportada{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="error-container">
+                <div class="display-1 text-warning mb-3">
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                </div>
+                <h1 class="mb-4">Funcionalidade Não Suportada</h1>
+                <p class="lead mb-4">{{ feature|default("Esta funcionalidade") }} não está disponível no seu sistema operacional.</p>
+                <p>{{ message|default("Algumas funcionalidades do TechCare são específicas para determinados sistemas operacionais.") }}</p>
+                <div class="mt-5">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class="fas fa-home me-2" aria-hidden="true"></i> Voltar para a Página Inicial
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-arrow-left me-2" aria-hidden="true"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+ 

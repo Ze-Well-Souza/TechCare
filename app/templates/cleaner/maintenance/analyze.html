@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-search me-2" aria-hidden="true"></i> Análise Detalhada
+            </h1>
+            <p class="lead">Análise detalhada do seu sistema para identificar problemas e oportunidades de otimização.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Análise de Sistema</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                        Clique em "Iniciar Análise" para verificar em detalhes o estado do seu sistema.
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <button id="startAnalysisBtn" class="btn btn-primary">
+                            <i class="fas fa-play me-2" aria-hidden="true"></i>
+                            Iniciar Análise
+                        </button>
+                    </div>
+                    
+                    <div id="analysisProgress" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Progresso da Análise</h3>
+                        <div class="progress mb-3">
+                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="progressStatus" class="text-muted">Iniciando análise...</p>
+                    </div>
+                    
+                    <div id="analysisResults" class="mt-4" style="display: none;">
+                        <h3 class="h6 mb-3">Resultados da Análise</h3>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th>Status</th>
+                                        <th>Detalhes</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTable">
+                                    <!-- Os resultados serão inseridos aqui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h2 class="h5 mb-0">Ferramentas de Otimização</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="{{ url_for('cleaner_maintenance.disk_cleanup') }}" class="text-decoration-none">
+                                <i class="fas fa-hdd me-2 text-primary" aria-hidden="true"></i>
+                                Limpeza de Disco
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{{ url_for('cleaner_maintenance.temp_cleanup') }}" class="text-decoration-none">
+                                <i class="fas fa-trash-alt me-2 text-primary" aria-hidden="true"></i>
+                                Limpeza de Temporários
+                            </a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{{ url_for('cleaner_maintenance.browser_cleanup') }}" class="text-decoration-none">
+                                <i class="fas fa-globe me-2 text-primary" aria-hidden="true"></i>
+                                Limpeza de Navegadores
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h5 mb-0">Dicas de Otimização</h2>
+                </div>
+                <div class="card-body">
+                    <p><strong>1.</strong> Mantenha pelo menos 15% do espaço livre no disco rígido.</p>
+                    <p><strong>2.</strong> Atualize regularmente drivers e software do sistema.</p>
+                    <p><strong>3.</strong> Remova programas não utilizados para liberar recursos.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startBtn = document.getElementById('startAnalysisBtn');
+        const progressSection = document.getElementById('analysisProgress');
+        const resultsSection = document.getElementById('analysisResults');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const resultsTable = document.getElementById('resultsTable');
+        
+        startBtn.addEventListener('click', function() {
+            // Mostrar progresso
+            progressSection.style.display = 'block';
+            startBtn.disabled = true;
+            
+            // Simular progresso de análise
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                
+                // Atualizar mensagem de status
+                if (progress < 30) {
+                    progressStatus.textContent = 'Verificando sistema de arquivos...';
+                } else if (progress < 60) {
+                    progressStatus.textContent = 'Analisando uso de memória e CPU...';
+                } else if (progress < 90) {
+                    progressStatus.textContent = 'Verificando programas inicializados...';
+                } else {
+                    progressStatus.textContent = 'Finalizando análise...';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    completeAnalysis();
+                }
+            }, 200);
+            
+            // Função para completar a análise
+            function completeAnalysis() {
+                progressStatus.textContent = 'Análise concluída!';
+                
+                // Exibir resultados
+                resultsSection.style.display = 'block';
+                
+                // Resultados simulados
+                const results = [
+                    {
+                        component: 'Disco Rígido',
+                        status: 'Atenção',
+                        details: 'Espaço livre: 22% (recomendado: >15%)',
+                        action: '<button class="btn btn-sm btn-outline-primary">Limpar</button>'
+                    },
+                    {
+                        component: 'Arquivos Temporários',
+                        status: 'Problema',
+                        details: '3.2 GB de arquivos temporários',
+                        action: '<button class="btn btn-sm btn-outline-primary">Limpar</button>'
+                    },
+                    {
+                        component: 'Cache de Navegadores',
+                        status: 'Atenção',
+                        details: '780 MB de dados em cache',
+                        action: '<button class="btn btn-sm btn-outline-primary">Limpar</button>'
+                    },
+                    {
+                        component: 'Programas na Inicialização',
+                        status: 'Bom',
+                        details: '10 programas na inicialização',
+                        action: '<button class="btn btn-sm btn-outline-primary">Otimizar</button>'
+                    },
+                    {
+                        component: 'Fragmentação',
+                        status: 'Bom',
+                        details: 'Disco não fragmentado (2%)',
+                        action: '<button class="btn btn-sm btn-outline-primary">Desfragmentar</button>'
+                    }
+                ];
+                
+                // Preencher tabela de resultados
+                resultsTable.innerHTML = '';
+                results.forEach(function(result) {
+                    const row = document.createElement('tr');
+                    
+                    const statusClass = result.status === 'Bom' ? 'success' : 
+                                       result.status === 'Atenção' ? 'warning' : 'danger';
+                    
+                    row.innerHTML = `
+                        <td>${result.component}</td>
+                        <td><span class="badge bg-${statusClass}">${result.status}</span></td>
+                        <td>${result.details}</td>
+                        <td>${result.action}</td>
+                    `;
+                    
+                    resultsTable.appendChild(row);
+                });
+                
+                // Re-abilitar botão
+                startBtn.disabled = false;
+                startBtn.textContent = 'Executar Novamente';
+            }
+        });
+    });
+</script>
+{% endblock %} 

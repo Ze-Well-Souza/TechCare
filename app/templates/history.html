@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico - TechCare{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Histórico de Diagnósticos e Reparos</h1>
+    
+    <ul class="nav nav-tabs mb-4" id="historyTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="diagnostics-tab" data-bs-toggle="tab" data-bs-target="#diagnostics" 
+                    type="button" role="tab" aria-controls="diagnostics" aria-selected="true">
+                Diagnósticos
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="repairs-tab" data-bs-toggle="tab" data-bs-target="#repairs" 
+                    type="button" role="tab" aria-controls="repairs" aria-selected="false">
+                Reparos
+            </button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="historyTabContent">
+        <!-- Diagnósticos -->
+        <div class="tab-pane fade show active" id="diagnostics" role="tabpanel" aria-labelledby="diagnostics-tab">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>CPU</th>
+                            <th>Memória</th>
+                            <th>Disco</th>
+                            <th>Geral</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for diagnostic in data.diagnostics %}
+                        <tr>
+                            <td>{{ diagnostic.id }}</td>
+                            <td>{{ diagnostic.date }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {{ 'bg-danger' if diagnostic.cpu_health < 60 else 'bg-warning' if diagnostic.cpu_health < 80 else 'bg-success' }}" 
+                                         role="progressbar" style="width: {{ diagnostic.cpu_health }}%;" 
+                                         aria-valuenow="{{ diagnostic.cpu_health }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ diagnostic.cpu_health }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {{ 'bg-danger' if diagnostic.memory_health < 60 else 'bg-warning' if diagnostic.memory_health < 80 else 'bg-success' }}" 
+                                         role="progressbar" style="width: {{ diagnostic.memory_health }}%;" 
+                                         aria-valuenow="{{ diagnostic.memory_health }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ diagnostic.memory_health }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {{ 'bg-danger' if diagnostic.disk_health < 60 else 'bg-warning' if diagnostic.disk_health < 80 else 'bg-success' }}" 
+                                         role="progressbar" style="width: {{ diagnostic.disk_health }}%;" 
+                                         aria-valuenow="{{ diagnostic.disk_health }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ diagnostic.disk_health }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar {{ 'bg-danger' if diagnostic.overall_health < 60 else 'bg-warning' if diagnostic.overall_health < 80 else 'bg-success' }}" 
+                                         role="progressbar" style="width: {{ diagnostic.overall_health }}%;" 
+                                         aria-valuenow="{{ diagnostic.overall_health }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ diagnostic.overall_health }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">Detalhes</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Reparos -->
+        <div class="tab-pane fade" id="repairs" role="tabpanel" aria-labelledby="repairs-tab">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Resultado</th>
+                            <th>Detalhes</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for repair in data.repairs %}
+                        <tr>
+                            <td>{{ repair.id }}</td>
+                            <td>{{ repair.date }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ repair.type|replace('_', ' ')|title }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ 'bg-success' if repair.result == 'success' else 'bg-danger' }}">
+                                    {{ repair.result|title }}
+                                </span>
+                            </td>
+                            <td>{{ repair.details }}</td>
+                            <td>
+                                <a href="#" class="btn btn-sm btn-primary">Detalhes</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+    </div>
+</div>
+{% endblock %} 

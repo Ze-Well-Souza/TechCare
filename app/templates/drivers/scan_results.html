@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados do Escaneamento de Drivers{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="mb-4">
+        <a href="{{ url_for('drivers.driver_dashboard') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Voltar para o Dashboard
+        </a>
+    </div>
+
+    <h1 class="mb-4">Resultados do Escaneamento de Drivers</h1>
+    
+    {% if scan_result.error %}
+    <div class="alert alert-danger">
+        <h4>Erro ao escanear drivers</h4>
+        <p>{{ scan_result.error }}</p>
+    </div>
+    {% else %}
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Resumo</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ scan_result.total_drivers }}</h3>
+                        <p>Drivers no total</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ scan_result.outdated_drivers|length }}</h3>
+                        <p>Drivers desatualizados</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ scan_result.problematic_drivers|length }}</h3>
+                        <p>Drivers com problemas</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h3>{{ scan_result.up_to_date_drivers|length }}</h3>
+                        <p>Drivers atualizados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Drivers Desatualizados -->
+    {% if scan_result.outdated_drivers %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0">Drivers Desatualizados ({{ scan_result.outdated_drivers|length }})</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Fabricante</th>
+                            <th>Categoria</th>
+                            <th>Versão Atual</th>
+                            <th>Idade</th>
+                            <th>Importância</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in scan_result.outdated_drivers %}
+                        <tr>
+                            <td>{{ driver.name }}</td>
+                            <td>{{ driver.manufacturer }}</td>
+                            <td>
+                                <span class="badge {% if driver.category == 'display' %}bg-primary{% elif driver.category == 'audio' %}bg-purple{% elif driver.category == 'network' %}bg-success{% elif driver.category == 'storage' %}bg-warning{% elif driver.category == 'chipset' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ driver.category|capitalize }}
+                                </span>
+                            </td>
+                            <td>{{ driver.version }}</td>
+                            <td>{{ driver.age_years }} anos</td>
+                            <td>
+                                <span class="badge {% if driver.importance == 'high' %}bg-danger{% elif driver.importance == 'medium' %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ driver.importance|capitalize }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="{{ url_for('drivers.driver_dashboard') }}" class="btn btn-primary">Atualizar Drivers</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Drivers com Problemas -->
+    {% if scan_result.problematic_drivers %}
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0">Drivers com Problemas ({{ scan_result.problematic_drivers|length }})</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Fabricante</th>
+                            <th>Categoria</th>
+                            <th>Status</th>
+                            <th>Versão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in scan_result.problematic_drivers %}
+                        <tr>
+                            <td>{{ driver.name }}</td>
+                            <td>{{ driver.manufacturer }}</td>
+                            <td>
+                                <span class="badge {% if driver.category == 'display' %}bg-primary{% elif driver.category == 'audio' %}bg-purple{% elif driver.category == 'network' %}bg-success{% elif driver.category == 'storage' %}bg-warning{% elif driver.category == 'chipset' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ driver.category|capitalize }}
+                                </span>
+                            </td>
+                            <td>{{ driver.status }}</td>
+                            <td>{{ driver.version }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="https://support.microsoft.com/pt-br/windows/como-corrigir-problemas-de-driver-do-windows-10-d05e82fe-09cd-9c90-151c-a393c4469614" target="_blank" class="btn btn-danger">Solucionar Problemas</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Drivers Atualizados -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">Drivers Atualizados ({{ scan_result.up_to_date_drivers|length }})</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Fabricante</th>
+                            <th>Categoria</th>
+                            <th>Versão</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for driver in scan_result.up_to_date_drivers %}
+                        <tr>
+                            <td>{{ driver.name }}</td>
+                            <td>{{ driver.manufacturer }}</td>
+                            <td>
+                                <span class="badge {% if driver.category == 'display' %}bg-primary{% elif driver.category == 'audio' %}bg-purple{% elif driver.category == 'network' %}bg-success{% elif driver.category == 'storage' %}bg-warning{% elif driver.category == 'chipset' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ driver.category|capitalize }}
+                                </span>
+                            </td>
+                            <td>{{ driver.version }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

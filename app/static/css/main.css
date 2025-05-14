@@ -1,0 +1,13 @@
+/* 
+ * UlyTech Informática - Estilos principais (Arquivo main.css)
+ * Este arquivo é um link para o arquivo styles.css
+ */
+
+/* Incorpora os estilos do arquivo principal */
+@import 'styles.css';
+
+/* Adiciona alguns estilos específicos para testes de performance */
+.performance-test {
+    transition: none !important;
+    animation: none !important;
+} 

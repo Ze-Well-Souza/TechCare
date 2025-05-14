@@ -1,0 +1,33 @@
+{
+  "score": 75,
+  "id": "diag-test-001",
+  "timestamp": "2025-05-08T16:46:45.854500+00:00",
+  "cpu": {
+    "usage": 45,
+    "status": "good"
+  },
+  "memory": {
+    "usage": 85,
+    "status": "warning"
+  },
+  "disk": {
+    "usage": 90,
+    "status": "critical"
+  },
+  "problems": [
+    {
+      "id": "prob-001",
+      "category": "memory",
+      "title": "Alto uso de memória",
+      "description": "Seu sistema está com pouca memória disponível.",
+      "severity": "warning"
+    },
+    {
+      "id": "prob-002",
+      "category": "disk",
+      "title": "Disco quase cheio",
+      "description": "Seu disco está quase sem espaço livre.",
+      "severity": "critical"
+    }
+  ]
+}
