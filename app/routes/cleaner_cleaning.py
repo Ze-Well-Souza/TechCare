@@ -68,4 +68,70 @@ def system_logs():
         return render_template('errors/not_supported.html', feature="Limpeza de Logs do Sistema", message="Esta funcionalidade está disponível apenas para Windows.")
     cleaner_service = CleanerService()
     system_logs = cleaner_service.get_system_logs()
-    return render_template('cleaner/cleaning/system_logs.html', system_logs=system_logs, title="Logs do Sistema") 
+    return render_template('cleaner/cleaning/system_logs.html', system_logs=system_logs, title="Logs do Sistema")
+
+@cleaner_cleaning.route('/recycle_bin')
+@login_required
+def recycle_bin():
+    """Página para esvaziar a lixeira"""
+    is_windows = platform.system() == 'Windows'
+    if not is_windows:
+        return render_template('errors/not_supported.html', feature="Limpeza da Lixeira", message="Esta funcionalidade está disponível apenas para Windows.")
+    
+    return render_template('cleaner/cleaning/recycle_bin.html', title="Esvaziar Lixeira")
+
+@cleaner_cleaning.route('/recycle_bin/empty', methods=['POST'])
+@login_required
+def empty_recycle_bin():
+    """Esvazia a lixeira"""
+    try:
+        cleaner_service = CleanerService()
+        result = cleaner_service.empty_recycle_bin()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(result)
+        else:
+            if result.get('success', False):
+                flash('Lixeira esvaziada com sucesso!', 'success')
+            else:
+                flash(f'Erro ao esvaziar a lixeira: {result.get("error", "Erro desconhecido")}', 'danger')
+            return redirect(url_for('cleaner_cleaning.recycle_bin'))
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': str(e)}), 500
+        else:
+            flash(f'Erro ao esvaziar a lixeira: {str(e)}', 'danger')
+            return redirect(url_for('cleaner_cleaning.recycle_bin'))
+
+@cleaner_cleaning.route('/downloads')
+@login_required
+def downloads_folder():
+    """Página para limpar a pasta de downloads"""
+    is_windows = platform.system() == 'Windows'
+    if not is_windows:
+        return render_template('errors/not_supported.html', feature="Limpeza da Pasta de Downloads", message="Esta funcionalidade está disponível apenas para Windows.")
+    
+    return render_template('cleaner/cleaning/downloads.html', title="Limpar Pasta de Downloads")
+
+@cleaner_cleaning.route('/downloads/clean', methods=['POST'])
+@login_required
+def clean_downloads():
+    """Limpa a pasta de downloads"""
+    try:
+        cleaner_service = CleanerService()
+        result = cleaner_service.clean_downloads_folder()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify(result)
+        else:
+            if result.get('success', False):
+                flash('Pasta de downloads limpa com sucesso!', 'success')
+            else:
+                flash(f'Erro ao limpar a pasta de downloads: {result.get("error", "Erro desconhecido")}', 'danger')
+            return redirect(url_for('cleaner_cleaning.downloads_folder'))
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': str(e)}), 500
+        else:
+            flash(f'Erro ao limpar a pasta de downloads: {str(e)}', 'danger')
+            return redirect(url_for('cleaner_cleaning.downloads_folder')) 

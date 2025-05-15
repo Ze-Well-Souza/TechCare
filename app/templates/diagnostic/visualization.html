@@ -26,6 +26,18 @@
     .chart-controls {
         margin-bottom: 15px;
     }
+    .no-data-message {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #6c757d;
+    }
+    .no-data-message i {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
 </style>
 {% endblock %}
 
@@ -163,7 +175,7 @@
     <div class="row mt-4">
         <div class="col-12">
             <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i> Os dados históricos são baseados em diagnósticos anteriores. Para resultados mais precisos, realize diagnósticos regulares.
+                <i class="fas fa-info-circle me-2"></i> Os dados históricos são baseados em diagnósticos anteriores. Para visualizar gráficos, realize um diagnóstico completo do sistema.
             </div>
         </div>
     </div>
@@ -249,71 +261,139 @@
         // Carregar gráfico de saúde geral
         function loadHealthChart(limit) {
             fetch(`/diagnostic/visualization/health_history?limit=${limit}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar dados');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('health-chart').innerHTML = '';
-                    Plotly.newPlot('health-chart', data.data, data.layout, {responsive: true});
+                    
+                    // Verificar se há dados para exibir
+                    if (data && data.data && data.data.length > 0) {
+                        Plotly.newPlot('health-chart', data.data, data.layout, {responsive: true});
+                    } else {
+                        showNoDataMessage('health-chart', 'Sem dados de histórico disponíveis');
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar gráfico de saúde:', error);
-                    document.getElementById('health-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                    showNoDataMessage('health-chart', 'Erro ao carregar dados');
                 });
         }
         
         // Carregar gráfico de CPU
         function loadCpuChart(limit) {
             fetch(`/diagnostic/visualization/cpu_history?limit=${limit}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar dados');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('cpu-chart').innerHTML = '';
-                    Plotly.newPlot('cpu-chart', data.data, data.layout, {responsive: true});
+                    
+                    // Verificar se há dados para exibir
+                    if (data && data.data && data.data.length > 0) {
+                        Plotly.newPlot('cpu-chart', data.data, data.layout, {responsive: true});
+                    } else {
+                        showNoDataMessage('cpu-chart', 'Sem dados de histórico disponíveis');
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar gráfico de CPU:', error);
-                    document.getElementById('cpu-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                    showNoDataMessage('cpu-chart', 'Erro ao carregar dados');
                 });
         }
         
         // Carregar gráfico de memória
         function loadMemoryChart(limit) {
             fetch(`/diagnostic/visualization/memory_history?limit=${limit}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar dados');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('memory-chart').innerHTML = '';
-                    Plotly.newPlot('memory-chart', data.data, data.layout, {responsive: true});
+                    
+                    // Verificar se há dados para exibir
+                    if (data && data.data && data.data.length > 0) {
+                        Plotly.newPlot('memory-chart', data.data, data.layout, {responsive: true});
+                    } else {
+                        showNoDataMessage('memory-chart', 'Sem dados de histórico disponíveis');
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar gráfico de memória:', error);
-                    document.getElementById('memory-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                    showNoDataMessage('memory-chart', 'Erro ao carregar dados');
                 });
         }
         
         // Carregar gráfico de disco
         function loadDiskChart(limit) {
             fetch(`/diagnostic/visualization/disk_history?limit=${limit}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar dados');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('disk-chart').innerHTML = '';
-                    Plotly.newPlot('disk-chart', data.data, data.layout, {responsive: true});
+                    
+                    // Verificar se há dados para exibir
+                    if (data && data.data && data.data.length > 0) {
+                        Plotly.newPlot('disk-chart', data.data, data.layout, {responsive: true});
+                    } else {
+                        showNoDataMessage('disk-chart', 'Sem dados de histórico disponíveis');
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar gráfico de disco:', error);
-                    document.getElementById('disk-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                    showNoDataMessage('disk-chart', 'Erro ao carregar dados');
                 });
         }
         
         // Carregar gráfico de problemas
         function loadProblemsChart(limit) {
             fetch(`/diagnostic/visualization/problems_by_category?limit=${limit}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao carregar dados');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     document.getElementById('problems-chart').innerHTML = '';
-                    Plotly.newPlot('problems-chart', data.data, data.layout, {responsive: true});
+                    
+                    // Verificar se há dados para exibir
+                    if (data && data.data && data.data.length > 0) {
+                        Plotly.newPlot('problems-chart', data.data, data.layout, {responsive: true});
+                    } else {
+                        showNoDataMessage('problems-chart', 'Sem dados de problemas disponíveis');
+                    }
                 })
                 .catch(error => {
                     console.error('Erro ao carregar gráfico de problemas:', error);
-                    document.getElementById('problems-chart').innerHTML = '<div class="alert alert-danger">Erro ao carregar gráfico</div>';
+                    showNoDataMessage('problems-chart', 'Erro ao carregar dados');
                 });
+        }
+        
+        // Função para exibir mensagem quando não há dados
+        function showNoDataMessage(containerId, message) {
+            const container = document.getElementById(containerId);
+            const noDataDiv = document.createElement('div');
+            noDataDiv.className = 'no-data-message';
+            noDataDiv.innerHTML = `
+                <i class="fas fa-chart-area"></i>
+                <p>${message}</p>
+                <p class="text-muted">Realize diagnósticos para visualizar dados históricos</p>
+            `;
+            container.appendChild(noDataDiv);
         }
     });
 </script>

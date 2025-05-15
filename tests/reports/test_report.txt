@@ -1,0 +1,5 @@
+ERROR: usage: pytest [options] [file_or_dir] [file_or_dir] [...]
+pytest: error: unrecognized arguments: --cov=app --cov-report=term-missing --cov-report=html:tests\coverage_html --cov-report=json:tests\reports\coverage.json
+  inifile: C:\Projetos_python\projet_tech_v2\pytest.ini
+  rootdir: C:\Projetos_python\projet_tech_v2
+

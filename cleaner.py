@@ -1,15 +1,20 @@
+import json
+import os
+from pathlib import Path
+import time
+import uuid
+import logging
+
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_required, current_user
 import platform
-import os
-import datetime
-import json
-from pathlib import Path
 
 from app.services.service_factory import ServiceFactory
 from app.services.cleaner_service import CleanerService
 
 cleaner = Blueprint('cleaner', __name__)
+
+logger = logging.getLogger(__name__)
 
 
 @cleaner.route('/')
@@ -328,4 +333,134 @@ def execute_cleanup():
     # Caso contrário, redireciona para a página de limpeza com uma mensagem
     flash('Limpeza concluída com sucesso!', 'success')
     return redirect(url_for('cleaner.disk_cleanup'))
+
+
+@cleaner.route('/analyze_disk', methods=['GET', 'POST'])
+@login_required
+def analyze_disk():
+    """
+    Rota para executar e exibir resultados da análise de disco.
+    Suporta GET e POST:
+    - GET: Exibe resultados ou formulário de análise
+    - POST: Executa análise baseada nos parâmetros recebidos
+    """
+    cleaner_service = ServiceFactory.get_service(CleanerService)
+    
+    # Manipular requisições POST (início de nova análise)
+    if request.method == 'POST':
+        try:
+            # Obter parâmetros da requisição
+            if request.is_json:
+                data = request.get_json()
+                drive = data.get('drive', 'C:')
+                include_system = data.get('include_system', False)
+                deep_scan = data.get('deep_scan', False)
+            else:
+                drive = request.form.get('drive', 'C:')
+                include_system = request.form.get('include_system') == 'on'
+                deep_scan = request.form.get('deep_scan') == 'on'
+            
+            # Obter informações do disco
+            disk_info = cleaner_service._analyze_disk_space()
+            
+            # Executar a análise
+            results = {
+                'drive': drive,
+                'include_system': include_system,
+                'deep_scan': deep_scan,
+                'disk_info': disk_info,
+                'timestamp': time.time(),
+                'large_files': cleaner_service._find_large_files(min_size_mb=50, max_files=100),
+                'status': 'completed'
+            }
+            
+            # Gerar ID único para esta análise
+            results_id = str(uuid.uuid4())
+            
+            # Salvar resultado em arquivo temporário para recuperação posterior
+            result_dir = Path('data/disk_analysis')
+            result_dir.mkdir(parents=True, exist_ok=True)
+            
+            with open(result_dir / f"{results_id}.json", 'w', encoding='utf-8') as f:
+                json.dump(results, f, ensure_ascii=False, default=str)
+            
+            # Se for XHR, retornar ID do resultado
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'results_id': results_id})
+            
+            # Se for submissão normal de formulário, redirecionar para resultados
+            return redirect(url_for('cleaner.analyze_disk', results_id=results_id))
+            
+        except Exception as e:
+            logger.error(f"Erro na análise de disco: {str(e)}", exc_info=True)
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'error': str(e)}), 500
+            flash(f"Erro ao analisar disco: {str(e)}", 'danger')
+            return redirect(url_for('cleaner.disk_analyzer'))
+    
+    # Manipular requisições GET (exibir resultados ou formulário)
+    else:
+        # Verifica se está solicitando resultados de uma análise prévia
+        results_id = request.args.get('results_id')
+        
+        if results_id:
+            # Tenta carregar resultados de análise anterior
+            try:
+                result_file = Path(f'data/disk_analysis/{results_id}.json')
+                
+                if not result_file.exists():
+                    flash("Resultado de análise não encontrado.", 'warning')
+                    return redirect(url_for('cleaner.disk_analyzer'))
+                
+                with open(result_file, 'r', encoding='utf-8') as f:
+                    results = json.load(f)
+                
+                return render_template('cleaner/disk_analysis_results.html',
+                                    results=results,
+                                    title="Resultados da Análise de Disco")
+            
+            except Exception as e:
+                logger.error(f"Erro ao carregar resultados de análise: {str(e)}", exc_info=True)
+                flash(f"Erro ao carregar resultados: {str(e)}", 'danger')
+                return redirect(url_for('cleaner.disk_analyzer'))
+        
+        # Obtém informações para o formulário de análise
+        try:
+            # Lista as unidades disponíveis
+            disk_info = cleaner_service._analyze_disk_space()
+            drives = []
+            
+            for device, info in disk_info.items():
+                # Identifica se é a unidade do sistema
+                is_system = (os.environ.get('SYSTEMDRIVE', 'C:').lower() == 
+                            info.get('mountpoint', '').lower().rstrip('\\'))
+                
+                drives.append({
+                    'path': info.get('mountpoint', ''),
+                    'label': device,
+                    'free_space': info.get('formatted_free', '0 B'),
+                    'total_space': info.get('formatted_total', '0 B'),
+                    'is_system': is_system
+                })
+            
+            # Se não houver drives, adiciona um padrão
+            if not drives:
+                drives.append({
+                    'path': 'C:',
+                    'label': 'Disco Principal',
+                    'free_space': 'Desconhecido',
+                    'total_space': 'Desconhecido',
+                    'is_system': True
+                })
+            
+            return render_template('cleaner/disk_analyzer.html',
+                                drives=drives,
+                                title="Analisador de Disco")
+                                
+        except Exception as e:
+            logger.error(f"Erro ao preparar formulário de análise de disco: {str(e)}", exc_info=True)
+            flash(f"Erro ao carregar informações de disco: {str(e)}", 'danger')
+            return render_template('cleaner/disk_analyzer.html',
+                                drives=[],
+                                title="Analisador de Disco")
 

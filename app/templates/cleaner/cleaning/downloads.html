@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 text-primary mb-4">
+                <i class="fas fa-download me-2"></i> Limpar Pasta de Downloads
+            </h1>
+            <p class="lead">Remova arquivos desnecessários da sua pasta de downloads para liberar espaço em disco.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i> Sobre a Pasta de Downloads
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>A pasta de downloads é frequentemente esquecida e pode acumular grandes quantidades de arquivos que você não precisa mais, como instaladores, PDFs, imagens e outros arquivos baixados da internet.</p>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i> <strong>Atenção:</strong> Ao limpar a pasta de downloads, todos os arquivos serão excluídos permanentemente. Certifique-se de que não há arquivos importantes antes de continuar.
+                    </div>
+
+                    <form action="{{ url_for('cleaner_cleaning.clean_downloads') }}" method="post" id="cleanDownloadsForm">
+                        <button type="submit" class="btn btn-primary btn-lg mt-3" id="cleanDownloadsBtn">
+                            <i class="fas fa-broom me-2"></i> Limpar Pasta de Downloads
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i> Dicas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i> Limpe a pasta de downloads regularmente para evitar acúmulo de arquivos.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i> Antes de limpar, copie arquivos importantes para outras pastas.
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check text-success me-2"></i> Configure seu navegador para perguntar onde salvar os arquivos, ao invés de salvá-los automaticamente na pasta de downloads.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmação -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Você está prestes a limpar sua pasta de downloads. Todos os arquivos serão <strong>permanentemente excluídos</strong> e não poderão ser recuperados.</p>
+                <p>Tem certeza que deseja continuar?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="confirmCleanBtn">Limpar Downloads</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de progresso -->
+<div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="progressModalLabel">Limpando Downloads</h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Limpando...</span>
+                </div>
+                <p>Limpando a pasta de downloads. Por favor, aguarde...</p>
+                <div class="progress mt-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de resultado -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultModalLabel">Resultado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" id="resultModalBody">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Mostrar modal de confirmação ao clicar no botão
+        $('#cleanDownloadsBtn').click(function(e) {
+            e.preventDefault();
+            $('#confirmModal').modal('show');
+        });
+        
+        // Ao confirmar, executar a limpeza
+        $('#confirmCleanBtn').click(function() {
+            $('#confirmModal').modal('hide');
+            $('#progressModal').modal('show');
+            
+            $.ajax({
+                url: "{{ url_for('cleaner_cleaning.clean_downloads') }}",
+                type: "POST",
+                dataType: "json",
+                success: function(response) {
+                    $('#progressModal').modal('hide');
+                    
+                    let modalClass = response.success ? 'bg-success' : 'bg-danger';
+                    let iconClass = response.success ? 'fa-check-circle' : 'fa-exclamation-circle';
+                    let title = response.success ? 'Sucesso' : 'Erro';
+                    let message = response.success ? 
+                        'A pasta de downloads foi limpa com sucesso!' : 
+                        'Ocorreu um erro ao limpar a pasta de downloads: ' + (response.error || 'Erro desconhecido');
+                    
+                    $('#resultModalLabel').text(title);
+                    $('.modal-header').removeClass('bg-success bg-danger').addClass(modalClass);
+                    $('.modal-header').removeClass('text-dark').addClass('text-white');
+                    
+                    $('#resultModalBody').html(`
+                        <div class="text-center mb-3">
+                            <i class="fas ${iconClass} fa-4x ${response.success ? 'text-success' : 'text-danger'}"></i>
+                        </div>
+                        <p>${message}</p>
+                    `);
+                    
+                    if (response.success && response.formatted_cleaned_size) {
+                        $('#resultModalBody').append(`
+                            <div class="alert alert-info">
+                                <strong>Espaço liberado:</strong> ${response.formatted_cleaned_size}
+                            </div>
+                        `);
+                    }
+                    
+                    if (response.success && response.deleted_files_count) {
+                        $('#resultModalBody').append(`
+                            <div class="alert alert-info">
+                                <strong>Arquivos removidos:</strong> ${response.deleted_files_count}
+                            </div>
+                        `);
+                    }
+                    
+                    $('#resultModal').modal('show');
+                },
+                error: function(xhr) {
+                    $('#progressModal').modal('hide');
+                    
+                    let errorMsg = 'Ocorreu um erro ao processar a solicitação.';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.error) {
+                            errorMsg = response.error;
+                        }
+                    } catch (e) {
+                        // Ignora erro de parsing
+                    }
+                    
+                    $('#resultModalLabel').text('Erro');
+                    $('.modal-header').removeClass('bg-success bg-danger').addClass('bg-danger');
+                    $('.modal-header').removeClass('text-dark').addClass('text-white');
+                    
+                    $('#resultModalBody').html(`
+                        <div class="text-center mb-3">
+                            <i class="fas fa-exclamation-circle fa-4x text-danger"></i>
+                        </div>
+                        <p>${errorMsg}</p>
+                    `);
+                    
+                    $('#resultModal').modal('show');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

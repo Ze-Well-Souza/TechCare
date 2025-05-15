@@ -62,10 +62,10 @@ git commit -m "Commit inicial do projeto TechCare"
 
 ## Passo 8: Conectar o repositório local ao GitHub
 
-Copie a URL do seu repositório (https://github.com/seu-usuario/techcare.git) e execute:
+Copie a URL do seu repositório (https://github.com/Ze-Well-Souza/TechCare) e execute:
 
 ```
-git remote add origin https://github.com/seu-usuario/techcare.git
+git remote add origin https://github.com/Ze-Well-Souza/TechCare
 ```
 
 ## Passo 9: Enviar o código para o GitHub

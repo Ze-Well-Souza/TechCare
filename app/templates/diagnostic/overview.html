@@ -525,7 +525,7 @@
         // Script para atualizar automáticamente as informações do sistema a cada 60 segundos
         function refreshSystemInfo() {
             $.ajax({
-                url: "{{ url_for('diagnostic_api.system_status') }}",
+                url: "{{ url_for('diagnostic.system_status') }}",
                 method: "GET",
                 dataType: "json",
                 success: function(data) {
@@ -534,6 +534,9 @@
                         // Aqui você pode atualizar elementos específicos da página com os novos dados
                         // sem precisar recarregar a página inteira
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Erro ao atualizar informações do sistema:", error);
                 }
             });
         }

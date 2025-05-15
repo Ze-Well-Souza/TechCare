@@ -1,108 +1,84 @@
-<<<<<<< HEAD
-# TechCare
-O TechCare é um sistema híbrido de manutenção de computadores que oferece diagnóstico automatizado, serviços de otimização e suporte técnico remoto/presencial. O site foi desenvolvido com tecnologias modernas e está pronto para uso imediato.
-=======
-# TechCare - Sistema de Manutenção e Diagnóstico de Computadores
+# TechCare - Sistema de Manutenção de Computadores
 
-## 📋 Descrição
-TechCare é uma aplicação web desenvolvida em Python Flask para diagnóstico e manutenção de computadores Windows. O sistema realiza análise de diversos componentes do sistema, incluindo CPU, memória, disco, rede e registro, oferecendo recomendações e ferramentas de correção.
+## Descrição
+TechCare é um sistema completo para diagnóstico, manutenção e otimização de computadores. Desenvolvido em Python/Flask, oferece uma interface web intuitiva para realizar diagnósticos de hardware e software, limpar sistemas, atualizar drivers e gerar relatórios detalhados.
 
-## ✨ Funcionalidades
-
-### 🔍 Diagnóstico de Sistema
-- Análise de CPU e desempenho
-- Análise de memória RAM
-- Análise de disco e armazenamento
-- Análise de rede
-- Diagnóstico de inicialização
-
-### 🧹 Sistema de Limpeza
-- Limpeza de arquivos temporários
-- Remoção de cache de navegadores
-- Limpeza de logs e arquivos desnecessários
-- Agendamento de limpezas periódicas
-
-### 🔧 Sistema de Reparo
-- Correção de problemas no registro do Windows
+## Principais Funcionalidades
+- Diagnóstico completo de sistema (CPU, memória, disco, rede)
+- Limpeza de arquivos temporários e otimização de disco
+- Atualização e reparo de drivers
 - Otimização de inicialização
-- Log detalhado de ações e reparos
+- Reparo de registros do Windows
+- Relatórios detalhados com gráficos interativos
+- API REST para integrações externas
 
-### 🔄 Atualização de Drivers
-- Detecção de drivers instalados
-- Verificação de drivers desatualizados
-- Backup e restauração de drivers
+## Arquitetura
+O projeto segue uma arquitetura MVC com:
+- **Models**: Representações das entidades do banco de dados
+- **Views**: Templates Flask com Jinja2
+- **Controllers**: Rotas Flask organizadas por módulo
+- **Services**: Lógica de negócio encapsulada em classes de serviço
+- **Repositories**: Camada de acesso aos dados
 
-### 📊 Visualização e Relatórios
-- Gráficos de desempenho do sistema
-- Histórico de diagnósticos
-- Comparação de resultados antes e depois
-- Exportação de relatórios
+## Tecnologias Utilizadas
+- **Backend**: Python 3.12, Flask, SQLAlchemy
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap, Plotly.js
+- **Banco de Dados**: SQLite (desenvolvimento), PostgreSQL (produção)
+- **Diagnóstico**: Bibliotecas psutil, wmi, win32com
+- **Testes**: Pytest, Coverage
 
-## 🛠️ Tecnologias Utilizadas
-- **Flask**: Framework web
-- **SQLAlchemy**: ORM para banco de dados
-- **Pandas e Plotly**: Análise de dados e visualizações
-- **WMI e PyWin32**: Interação com sistema Windows
-- **Pytest**: Framework de testes
+## Status do Projeto
+O projeto encontra-se em fase avançada de desenvolvimento, com a maioria das funcionalidades principais implementadas e testadas. Os módulos de diagnóstico, limpeza, reparo e atualização estão operacionais.
 
-## 📦 Instalação e Execução
+### Próximos Passos
+- Otimização de memória
+- Suporte a múltiplos bancos de dados
+- Compatibilidade multi-plataforma (Linux, macOS)
+- Análise preditiva com machine learning
+- Desenvolvimento de aplicativo móvel
 
-### Requisitos
-- Python 3.8 ou superior
-- Windows 10/11 (algumas funcionalidades são específicas para Windows)
+## Documentação
+Para informações detalhadas sobre o estado atual do projeto, tarefas concluídas, pendências e planos de desenvolvimento futuros, consulte o arquivo **[TASK_MASTER.md](TASK_MASTER.md)**.
 
-### Instalação
-1. Clone o repositório
+## Requisitos
+- Python 3.11+ 
+- Windows 10+ (para funcionalidades completas)
+- Linux/macOS (suporte parcial, em desenvolvimento)
+
+## Instalação e Execução
+
+### Desenvolvimento Local
 ```bash
+# Clonar o repositório
 git clone https://github.com/seu-usuario/techcare.git
 cd techcare
-```
 
-2. Crie e ative um ambiente virtual
-```bash
+# Configurar ambiente virtual
 python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
-```
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
 
-3. Instale as dependências
-```bash
+# Instalar dependências
 pip install -r requirements.txt
-```
 
-4. Execute a aplicação
-```bash
+# Executar aplicação
 python run_local.py
 ```
 
-5. Acesse a aplicação em `http://localhost:5000`
-
-## 🚀 Deploy no PythonAnywhere
-O TechCare pode ser hospedado no PythonAnywhere. Consulte o arquivo `DEPLOY_PYTHONANYWHERE.md` para instruções detalhadas.
-
-## 📝 Licença
-Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
-
-## 👥 Contribuição
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e enviar pull requests.
-
-## 🔄 Status do Projeto
-O projeto está em fase avançada de desenvolvimento com todos os módulos principais implementados e testados.
-
-## 🧪 Testes
-Para executar os testes:
+### Testes
 ```bash
-python -m pytest tests/
+# Executar todos os testes
+python run_complete_test_suite.py
+
+# Executar testes específicos
+pytest tests/test_diagnostic_service.py
 ```
 
-Para verificar a cobertura de código:
-```bash
-python -m pytest --cov=app tests/
-```
+## Deploy
+Para informações sobre deploy no PythonAnywhere, consulte o arquivo **[DEPLOY_PYTHONANYWHERE.md](DEPLOY_PYTHONANYWHERE.md)**.
 
-## 📞 Contato
-Para mais informações, entre em contato através do GitHub ou email.
+## Contribuição
+Contribuições são bem-vindas! Por favor, leia o guia de contribuição antes de enviar pull requests.
 
----
-Última atualização: 14/05/2025
->>>>>>> 75bb5cb (Commit inicial do projeto TechCare)
+## Licença
+Este projeto está licenciado sob a Licença MIT - veja o arquivo LICENSE para mais detalhes.

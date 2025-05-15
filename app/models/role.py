@@ -24,20 +24,34 @@ class Role(db.Model):
     
     def __init__(self, **kwargs):
         super(Role, self).__init__(**kwargs)
+        # Garante que permissions nunca seja None
+        if self.permissions is None:
+            self.permissions = 0
     
     def has_permission(self, permission):
         """Verifica se o papel tem uma permissão específica"""
         if isinstance(permission, PermissionType):
-            return bool(self.permissions & (1 << permission.value))
+            # Garante que permissions nunca seja None durante a verificação
+            perms = self.permissions or 0
+            return bool(perms & (1 << permission.value))
         return False
     
     def add_permission(self, permission):
         """Adiciona uma permissão específica"""
+        # Garante que permissions nunca seja None durante a adição
+        if self.permissions is None:
+            self.permissions = 0
+        
         if not self.has_permission(permission):
             self.permissions += 1 << permission.value
     
     def remove_permission(self, permission):
         """Remove uma permissão específica"""
+        # Garante que permissions nunca seja None durante a remoção
+        if self.permissions is None:
+            self.permissions = 0
+            return
+            
         if self.has_permission(permission):
             self.permissions -= 1 << permission.value
     

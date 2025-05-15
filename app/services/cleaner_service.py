@@ -1278,6 +1278,139 @@ class CleanerService:
         """Stub: Retorna histórico de manutenções (não implementado para MVP Windows)"""
         return {"status": "not_implemented", "history": []}
 
+    def empty_recycle_bin(self):
+        """
+        Limpa a lixeira no Windows.
+        
+        Returns:
+            dict: Resultados da operação
+        """
+        logger.info("Esvaziando a lixeira")
+        result = {
+            "success": False,
+            "message": "",
+            "cleaned_size": 0,
+            "formatted_cleaned_size": "0 B"
+        }
+        
+        if not self.is_windows:
+            result["message"] = "Operação disponível apenas no Windows"
+            return result
+            
+        # Método 1: Tentar usar o comando shell
+        try:
+            recycle_bin_size = self._get_recycle_bin_size()
+            
+            # Executa o comando para limpar a lixeira via PowerShell
+            cmd = ['powershell.exe', '-Command', 'Clear-RecycleBin -Force -ErrorAction SilentlyContinue']
+            subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+            
+            result["success"] = True
+            result["message"] = "Lixeira esvaziada com sucesso"
+            result["cleaned_size"] = recycle_bin_size
+            result["formatted_cleaned_size"] = self._format_size(recycle_bin_size)
+            
+            logger.info(f"Lixeira esvaziada com sucesso, liberando {result['formatted_cleaned_size']}")
+            return result
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Erro ao executar PowerShell para limpar lixeira: {str(e)}")
+            # Continua para o método alternativo
+        except Exception as e:
+            logger.warning(f"Erro ao limpar lixeira via PowerShell: {str(e)}")
+            # Continua para o método alternativo
+            
+        # Método 2: Limpar diretamente os arquivos da lixeira
+        try:
+            recycle_bin_size = self._get_recycle_bin_size()
+            recycle_bin = os.path.join(os.environ.get('SYSTEMDRIVE', 'C:'), '$Recycle.Bin')
+            
+            if os.path.exists(recycle_bin):
+                cleaned = self._delete_files_in_directory(recycle_bin)
+                result["success"] = True
+                result["message"] = "Lixeira esvaziada com sucesso (método alternativo)"
+                result["cleaned_size"] = cleaned.get("cleaned_size", recycle_bin_size)
+                result["formatted_cleaned_size"] = self._format_size(result["cleaned_size"])
+                logger.info(f"Lixeira esvaziada com sucesso (método alternativo), liberando {result['formatted_cleaned_size']}")
+            else:
+                result["success"] = True
+                result["message"] = "A lixeira já está vazia"
+                logger.info("A lixeira já está vazia ou não foi encontrada")
+                
+            return result
+        except Exception as e:
+            logger.error(f"Erro ao limpar lixeira diretamente: {str(e)}", exc_info=True)
+            result["message"] = f"Erro ao limpar lixeira: {str(e)}"
+            return result
+    
+    def _get_recycle_bin_size(self):
+        """
+        Obtém o tamanho da lixeira
+        
+        Returns:
+            int: Tamanho em bytes
+        """
+        if not self.is_windows:
+            return 0
+            
+        try:
+            recycle_bin = os.path.join(os.environ.get('SYSTEMDRIVE', 'C:'), '$Recycle.Bin')
+            if os.path.exists(recycle_bin):
+                return self._get_directory_size(recycle_bin)
+            return 0
+        except Exception as e:
+            logger.warning(f"Erro ao obter tamanho da lixeira: {str(e)}")
+            return 0
+    
+    def clean_downloads_folder(self, days_old=30):
+        """
+        Limpa arquivos antigos da pasta de Downloads
+        
+        Args:
+            days_old (int): Idade mínima dos arquivos para serem removidos (em dias)
+            
+        Returns:
+            dict: Resultados da operação
+        """
+        logger.info(f"Limpando pasta de Downloads (arquivos com mais de {days_old} dias)")
+        
+        result = {
+            "success": False,
+            "message": "",
+            "cleaned_size": 0,
+            "formatted_cleaned_size": "0 B",
+            "cleaned_count": 0
+        }
+        
+        try:
+            # Obtém o caminho da pasta de Downloads
+            downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+            
+            if not os.path.exists(downloads_folder):
+                result["success"] = True
+                result["message"] = "Pasta de Downloads não encontrada"
+                return result
+                
+            # Calcula a data limite (hoje - days_old)
+            cutoff_date = datetime.datetime.now() - datetime.timedelta(days=days_old)
+            cutoff_timestamp = cutoff_date.timestamp()
+            
+            # Remove arquivos antigos
+            cleaned = self._delete_files_in_directory(downloads_folder, older_than_days=days_old)
+            
+            result["success"] = True
+            result["message"] = f"Pasta de Downloads limpa com sucesso (arquivos > {days_old} dias)"
+            result["cleaned_size"] = cleaned.get("cleaned_size", 0)
+            result["formatted_cleaned_size"] = self._format_size(result["cleaned_size"])
+            result["cleaned_count"] = cleaned.get("cleaned_count", 0)
+            
+            logger.info(f"Pasta de Downloads limpa: {result['cleaned_count']} arquivos, {result['formatted_cleaned_size']}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Erro ao limpar pasta de Downloads: {str(e)}", exc_info=True)
+            result["message"] = f"Erro ao limpar pasta de Downloads: {str(e)}"
+            return result
+
     def repair_system_files(self):
         """
         Repara arquivos do sistema (sfc /scannow no Windows).
@@ -1290,11 +1423,42 @@ class CleanerService:
             return {'success': True, 'commands_executed': ['sfc /scannow'], 'output': 'Nenhum problema encontrado.'}
         if test_mode == 'error':
             return {'success': False, 'error': 'Erro simulado no modo de teste'}
+            
         logger.info("Reparando arquivos do sistema")
+        
         if not self.is_windows:
-            return {'success': True, 'commands_executed': [], 'output': 'Stub: Não aplicável para não-Windows.'}
-        # Simulação para Windows real (mockável)
-        return {'success': True, 'commands_executed': ['sfc /scannow'], 'output': 'Simulação: comando executado.'}
+            return {'success': True, 'commands_executed': [], 'output': 'Funcionalidade disponível apenas para Windows.'}
+            
+        # Implementação real para Windows
+        try:
+            # Tenta executar SFC /scannow via PowerShell (com elevação)
+            # O comando SFC requer privilégios de administrador
+            repair_command = ['powershell.exe', '-Command', 'Start-Process "sfc.exe" -ArgumentList "/scannow" -Verb RunAs -WindowStyle Hidden']
+            
+            logger.info("Executando comando SFC /scannow (isso pode levar algum tempo)")
+            subprocess.run(repair_command, shell=True, check=False, timeout=5)
+            
+            return {
+                'success': True, 
+                'commands_executed': ['sfc /scannow'], 
+                'output': 'Comando de reparo do sistema iniciado. Este processo pode levar vários minutos para ser concluído em segundo plano.',
+                'background': True
+            }
+        except subprocess.TimeoutExpired:
+            # Timeout é esperado, pois o processo vai continuar em segundo plano
+            return {
+                'success': True, 
+                'commands_executed': ['sfc /scannow'], 
+                'output': 'Comando de reparo do sistema iniciado em segundo plano.',
+                'background': True
+            }
+        except Exception as e:
+            logger.error(f"Erro ao reparar arquivos do sistema: {str(e)}", exc_info=True)
+            return {
+                'success': False, 
+                'error': f'Erro ao iniciar reparo do sistema: {str(e)}', 
+                'commands_executed': ['sfc /scannow']
+            }
 
     def _clear_directory(self, directory):
         """Stub: Limpa um diretório (não implementado para MVP Windows)"""
@@ -1315,7 +1479,7 @@ class CleanerService:
             logger.warning("Correção de registro não aplicável neste sistema operacional.")
             return False
             
-        if not issue or 'key' not in issue:
+        if not issue or 'key' not in issue or 'path' not in issue or 'name' not in issue:
             logger.error("Dados insuficientes para corrigir problema de registro.")
             return False
             
@@ -1327,20 +1491,43 @@ class CleanerService:
                 
                 # Abre a chave de registro
                 try:
-                    root_key = getattr(winreg, issue.get('key', 'HKEY_CURRENT_USER'))
-                    key = winreg.OpenKey(root_key, path, 0, winreg.KEY_SET_VALUE)
+                    root_key_name = issue.get('key', 'HKEY_CURRENT_USER')
+                    root_key = getattr(winreg, root_key_name)
+                    logger.debug(f"Tentando abrir chave de registro: {root_key_name}\\{path}")
+                    
+                    # Tenta abrir a chave com permissões adequadas
+                    try:
+                        key = winreg.OpenKey(root_key, path, 0, winreg.KEY_SET_VALUE)
+                    except PermissionError:
+                        logger.warning(f"Sem permissão para modificar a chave: {root_key_name}\\{path}")
+                        return False
                     
                     # Dependendo do tipo de correção necessária
                     if issue.get('action') == 'delete':
                         # Excluir o valor
-                        winreg.DeleteValue(key, name)
+                        try:
+                            winreg.DeleteValue(key, name)
+                            logger.info(f"Valor de registro corrigido: {path}\\{name}")
+                        except FileNotFoundError:
+                            logger.warning(f"Valor de registro não encontrado: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
+                        except PermissionError:
+                            logger.error(f"Sem permissão para excluir valor de registro: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
                     elif issue.get('action') == 'update' and 'new_value' in issue:
                         # Atualizar para o novo valor
                         value_type = issue.get('value_type', winreg.REG_SZ)
-                        winreg.SetValueEx(key, name, 0, value_type, issue['new_value'])
+                        try:
+                            winreg.SetValueEx(key, name, 0, value_type, issue['new_value'])
+                            logger.info(f"Valor de registro atualizado: {path}\\{name}")
+                        except PermissionError:
+                            logger.error(f"Sem permissão para atualizar valor de registro: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
                     
                     winreg.CloseKey(key)
-                    logger.info(f"Valor de registro corrigido: {path}\\{name}")
                     return True
                 except FileNotFoundError:
                     logger.warning(f"Chave de registro não encontrada: {path}")
@@ -1354,20 +1541,33 @@ class CleanerService:
                     parent_path = '\\'.join(path.split('\\')[:-1])
                     key_name = path.split('\\')[-1]
                     
-                    root_key = getattr(winreg, issue.get('key', 'HKEY_CURRENT_USER'))
-                    parent_key = winreg.OpenKey(root_key, parent_path, 0, winreg.KEY_ALL_ACCESS)
+                    root_key_name = issue.get('key', 'HKEY_CURRENT_USER')
+                    root_key = getattr(winreg, root_key_name)
+                    logger.debug(f"Tentando excluir chave órfã: {root_key_name}\\{path}")
+                    
+                    try:
+                        parent_key = winreg.OpenKey(root_key, parent_path, 0, winreg.KEY_ALL_ACCESS)
+                    except PermissionError:
+                        logger.error(f"Sem permissão para acessar chave pai: {root_key_name}\\{parent_path}")
+                        return False
                     
                     # Excluir a subchave
-                    winreg.DeleteKey(parent_key, key_name)
+                    try:
+                        winreg.DeleteKey(parent_key, key_name)
+                        logger.info(f"Chave de registro órfã removida: {path}")
+                    except FileNotFoundError:
+                        logger.warning(f"Chave de registro não encontrada: {path}")
+                        winreg.CloseKey(parent_key)
+                        return False
+                    except PermissionError:
+                        logger.error(f"Sem permissão para excluir chave de registro: {path}")
+                        winreg.CloseKey(parent_key)
+                        return False
                     
                     winreg.CloseKey(parent_key)
-                    logger.info(f"Chave de registro órfã removida: {path}")
                     return True
                 except FileNotFoundError:
                     logger.warning(f"Chave de registro pai não encontrada: {parent_path}")
-                    return False
-                except PermissionError:
-                    logger.error(f"Sem permissão para excluir chave de registro: {path}")
                     return False
                     
             elif issue.get('issue_type') == 'startup_item':
@@ -1376,25 +1576,52 @@ class CleanerService:
                 name = issue.get('name', '')
                 
                 try:
-                    root_key = getattr(winreg, issue.get('key', 'HKEY_CURRENT_USER'))
-                    key = winreg.OpenKey(root_key, path, 0, winreg.KEY_SET_VALUE)
+                    root_key_name = issue.get('key', 'HKEY_CURRENT_USER')
+                    root_key = getattr(winreg, root_key_name)
+                    logger.debug(f"Tentando modificar item de inicialização: {root_key_name}\\{path}\\{name}")
+                    
+                    try:
+                        key = winreg.OpenKey(root_key, path, 0, winreg.KEY_SET_VALUE | winreg.KEY_QUERY_VALUE)
+                    except PermissionError:
+                        logger.error(f"Sem permissão para modificar item de inicialização: {path}\\{name}")
+                        return False
                     
                     # Renomeia adicionando '.disabled' ou exclui
                     if issue.get('action') == 'disable':
-                        value = winreg.QueryValueEx(key, name)[0]
-                        winreg.SetValueEx(key, f"{name}.disabled", 0, winreg.REG_SZ, value)
-                        winreg.DeleteValue(key, name)
+                        try:
+                            # Primeiro verifica se o valor existe
+                            try:
+                                value, _ = winreg.QueryValueEx(key, name)
+                            except FileNotFoundError:
+                                logger.warning(f"Item de inicialização não encontrado: {path}\\{name}")
+                                winreg.CloseKey(key)
+                                return False
+                            
+                            # Cria um novo valor com .disabled e exclui o original
+                            winreg.SetValueEx(key, f"{name}.disabled", 0, winreg.REG_SZ, value)
+                            winreg.DeleteValue(key, name)
+                            logger.info(f"Item de inicialização desabilitado: {path}\\{name}")
+                        except PermissionError:
+                            logger.error(f"Sem permissão para modificar item de inicialização: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
                     elif issue.get('action') == 'delete':
-                        winreg.DeleteValue(key, name)
+                        try:
+                            winreg.DeleteValue(key, name)
+                            logger.info(f"Item de inicialização excluído: {path}\\{name}")
+                        except FileNotFoundError:
+                            logger.warning(f"Item de inicialização não encontrado: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
+                        except PermissionError:
+                            logger.error(f"Sem permissão para excluir item de inicialização: {path}\\{name}")
+                            winreg.CloseKey(key)
+                            return False
                     
                     winreg.CloseKey(key)
-                    logger.info(f"Item de inicialização {issue.get('action')}: {path}\\{name}")
                     return True
                 except FileNotFoundError:
                     logger.warning(f"Chave de registro para item de inicialização não encontrada: {path}")
-                    return False
-                except PermissionError:
-                    logger.error(f"Sem permissão para modificar item de inicialização: {path}\\{name}")
                     return False
                     
             else:
@@ -1437,6 +1664,18 @@ class CleanerService:
                 "id": "browser_cache",
                 "name": "Cache de Navegadores",
                 "description": "Limpa o cache de navegadores instalados",
+                "always_available": True
+            },
+            {
+                "id": "recycle_bin",
+                "name": "Lixeira",
+                "description": "Esvazia a lixeira do Windows",
+                "always_available": self.is_windows
+            },
+            {
+                "id": "download_folder",
+                "name": "Pasta de Downloads",
+                "description": "Limpa arquivos antigos da pasta de Downloads",
                 "always_available": True
             }
         ]
@@ -1490,6 +1729,18 @@ class CleanerService:
             browser_result = self.clean_browser_data(data_types=["cache"])
             result["details"]["browser_cache"] = browser_result
             result["total_cleaned"] += browser_result.get("total_cleaned_size", 0)
+            
+        # Limpar a lixeira
+        if "recycle_bin" in options and self.is_windows:
+            recycle_bin_result = self.empty_recycle_bin()
+            result["details"]["recycle_bin"] = recycle_bin_result
+            result["total_cleaned"] += recycle_bin_result.get("cleaned_size", 0)
+            
+        # Limpar pasta de downloads
+        if "download_folder" in options:
+            downloads_result = self.clean_downloads_folder(days_old=30)  # Define 30 dias como padrão
+            result["details"]["download_folder"] = downloads_result
+            result["total_cleaned"] += downloads_result.get("cleaned_size", 0)
             
         # Limpeza de registro (Windows)
         if "registry" in options and self.is_windows:

@@ -1,0 +1,20 @@
+app\services\diagnostic_service.py:228:17: F821 undefined name 'db'
+                db.session.add(diagnostic)
+                ^
+app\services\diagnostic_service.py:229:17: F821 undefined name 'db'
+                db.session.commit()
+                ^
+app\services\diagnostic_service_platform.py:276:23: F821 undefined name 'subprocess'
+            process = subprocess.run(cmd, capture_output=True, text=True)
+                      ^
+app\services\diagnostic_service_platform.py:304:23: F821 undefined name 'subprocess'
+            process = subprocess.run(cmd, capture_output=True, text=True)
+                      ^
+app\services\diagnostic_service_platform.py:310:28: F821 undefined name 'subprocess'
+                process2 = subprocess.run(cmd2, capture_output=True, text=True)
+                           ^
+app\services\diagnostic_service_platform.py:318:32: F821 undefined name 'subprocess'
+                    process3 = subprocess.run(cmd3, capture_output=True, text=True)
+                               ^
+6     F821 undefined name 'db'
+6

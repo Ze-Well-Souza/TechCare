@@ -1,0 +1,695 @@
+{
+    "temp_files": {
+        "paths": {
+            "C:\\Users\\saras\\AppData\\Local\\Temp": {
+                "path": "C:\\Users\\saras\\AppData\\Local\\Temp",
+                "size": 362327023,
+                "files": 1290,
+                "formatted_size": "345.54 MB"
+            },
+            "C:\\Windows\\Temp": {
+                "path": "C:\\Windows\\Temp",
+                "size": 2169204,
+                "files": 46,
+                "formatted_size": "2.07 MB"
+            }
+        },
+        "total_size": 1089150273,
+        "total_files": 3916,
+        "formatted_total_size": "1.01 GB"
+    },
+    "browser_data": {
+        "chrome": {
+            "cache_size": 0,
+            "cookies_size": 0,
+            "history_size": 1966080,
+            "total_size": 1966080,
+            "formatted_cache_size": "0B",
+            "formatted_cookies_size": "0B",
+            "formatted_history_size": "1.88 MB",
+            "formatted_total_size": "1.88 MB"
+        },
+        "edge": {
+            "cache_size": 136208630,
+            "cookies_size": 0,
+            "history_size": 1671168,
+            "total_size": 137879798,
+            "formatted_cache_size": "129.9 MB",
+            "formatted_cookies_size": "0B",
+            "formatted_history_size": "1.59 MB",
+            "formatted_total_size": "131.49 MB"
+        }
+    },
+    "startup_items": {
+        "registry": [
+            {
+                "name": "OneDrive",
+                "command": "\"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background",
+                "location": "18446744071562067969\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "Steam",
+                "command": "\"C:\\Program Files (x86)\\Steam\\steam.exe\" -silent",
+                "location": "18446744071562067969\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "MicrosoftEdgeAutoLaunch_7EC3701BB65E83A4FB8C8757AA7BB720",
+                "command": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --no-startup-window --win-session-start",
+                "location": "18446744071562067969\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "Docker Desktop.disabled",
+                "command": "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart",
+                "location": "18446744071562067969\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "SecurityHealth",
+                "command": "%windir%\\system32\\SecurityHealthSystray.exe",
+                "location": "18446744071562067970\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "RtkAudUService",
+                "command": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_c51a65fb5ec70f9d\\RtkAudUService64.exe\" -background",
+                "location": "18446744071562067970\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            },
+            {
+                "name": "Logitech Download Assistant",
+                "command": "C:\\Windows\\system32\\rundll32.exe C:\\Windows\\System32\\LogiLDA.dll,LogiFetch",
+                "location": "18446744071562067970\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "type": "registry"
+            }
+        ],
+        "startup_folder": [
+            {
+                "name": "desktop.ini",
+                "path": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\desktop.ini",
+                "location": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+                "type": "file"
+            },
+            {
+                "name": "Ollama.lnk",
+                "path": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\Ollama.lnk",
+                "location": "C:\\Users\\saras\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+                "type": "file"
+            },
+            {
+                "name": "desktop.ini",
+                "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\desktop.ini",
+                "location": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Startup",
+                "type": "file"
+            }
+        ],
+        "total_items": 10
+    },
+    "registry_issues": {
+        "issues": [
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "79",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "28",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "83",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "130",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "98",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "5",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "36",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "141",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "19",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "18",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "21",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "25",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "30",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "23",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "108",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "31",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "2",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "96",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "58",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs",
+                "name": "8",
+                "issue_type": "invalid_value",
+                "description": "Atalho para arquivo inexistente",
+                "action": "delete"
+            },
+            {
+                "key": "HKEY_CURRENT_USER",
+                "path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "name": "Docker Desktop.disabled",
+                "issue_type": "startup_item",
+                "description": "Item de inicialização com caminho inválido: C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart",
+                "action": "disable"
+            },
+            {
+                "key": "HKEY_LOCAL_MACHINE",
+                "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "name": "SecurityHealth",
+                "issue_type": "startup_item",
+                "description": "Item de inicialização com caminho inválido: %windir%\\system32\\SecurityHealthSystray.exe",
+                "action": "disable"
+            },
+            {
+                "key": "HKEY_LOCAL_MACHINE",
+                "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "name": "Logitech Download Assistant",
+                "issue_type": "startup_item",
+                "description": "Item de inicialização com caminho inválido: C:\\Windows\\system32\\rundll32.exe C:\\Windows\\System32\\LogiLDA.dll,LogiFetch",
+                "action": "disable"
+            }
+        ],
+        "total_issues": 23,
+        "details": {
+            "invalid_shortcuts": 20,
+            "obsolete_software": 0,
+            "startup_entries": 3,
+            "missing_shared_dlls": 0
+        },
+        "startup_items": [
+            {
+                "name": "OneDrive",
+                "command": "\"C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe\" /background",
+                "type": "Run",
+                "file_exists": true,
+                "registry_key": "HKCU",
+                "registry_path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "OK"
+            },
+            {
+                "name": "Steam",
+                "command": "\"C:\\Program Files (x86)\\Steam\\steam.exe\" -silent",
+                "type": "Run",
+                "file_exists": true,
+                "registry_key": "HKCU",
+                "registry_path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "OK"
+            },
+            {
+                "name": "MicrosoftEdgeAutoLaunch_7EC3701BB65E83A4FB8C8757AA7BB720",
+                "command": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --no-startup-window --win-session-start",
+                "type": "Run",
+                "file_exists": true,
+                "registry_key": "HKCU",
+                "registry_path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "OK"
+            },
+            {
+                "name": "Docker Desktop.disabled",
+                "command": "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe -Autostart",
+                "type": "Run",
+                "file_exists": false,
+                "registry_key": "HKCU",
+                "registry_path": "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "Missing file"
+            },
+            {
+                "name": "SecurityHealth",
+                "command": "%windir%\\system32\\SecurityHealthSystray.exe",
+                "type": "Run",
+                "file_exists": false,
+                "registry_key": "HKLM",
+                "registry_path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "Missing file"
+            },
+            {
+                "name": "RtkAudUService",
+                "command": "\"C:\\Windows\\System32\\DriverStore\\FileRepository\\realtekservice.inf_amd64_c51a65fb5ec70f9d\\RtkAudUService64.exe\" -background",
+                "type": "Run",
+                "file_exists": true,
+                "registry_key": "HKLM",
+                "registry_path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "OK"
+            },
+            {
+                "name": "Logitech Download Assistant",
+                "command": "C:\\Windows\\system32\\rundll32.exe C:\\Windows\\System32\\LogiLDA.dll,LogiFetch",
+                "type": "Run",
+                "file_exists": false,
+                "registry_key": "HKLM",
+                "registry_path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "status": "Missing file"
+            }
+        ]
+    },
+    "disk_space": {
+        "C:\\": {
+            "mountpoint": "C:\\",
+            "fstype": "NTFS",
+            "total": 254721126400,
+            "used": 199416426496,
+            "free": 55304699904,
+            "percent": 78.3,
+            "formatted_total": "237.23 GB",
+            "formatted_used": "185.72 GB",
+            "formatted_free": "51.51 GB"
+        }
+    },
+    "large_files": [
+        {
+            "path": "C:\\hiberfil.sys",
+            "size": 3366264832,
+            "formatted_size": "3.14 GB",
+            "last_modified": "2025-05-15T09:18:01.517152"
+        },
+        {
+            "path": "C:\\pagefile.sys",
+            "size": 22642749440,
+            "formatted_size": "21.09 GB",
+            "last_modified": "2025-05-15T14:13:39.617360"
+        },
+        {
+            "path": "C:\\swapfile.sys",
+            "size": 285212672,
+            "formatted_size": "272.0 MB",
+            "last_modified": "2025-05-12T11:01:58.384392"
+        },
+        {
+            "path": "C:\\Arquivos de Programas RFB\\IRPF2024\\jre\\lib\\modules",
+            "size": 116100956,
+            "formatted_size": "110.72 MB",
+            "last_modified": "2024-05-25T12:13:12.134000"
+        },
+        {
+            "path": "C:\\Arquivos de Programas RFB\\IRPF2025\\jre\\lib\\modules",
+            "size": 116100956,
+            "formatted_size": "110.72 MB",
+            "last_modified": "2025-03-17T14:07:28.919000"
+        },
+        {
+            "path": "C:\\Drivers\\Audio\\source\\ThirdParty\\Forte\\FMAPO\\fmapo64.dll",
+            "size": 111881176,
+            "formatted_size": "106.7 MB",
+            "last_modified": "2021-01-14T13:34:40"
+        },
+        {
+            "path": "C:\\ProgramData\\Microsoft\\Windows Defender\\Definition Updates\\Backup\\mpasbase.lkg",
+            "size": 119170144,
+            "formatted_size": "113.65 MB",
+            "last_modified": "2025-04-02T12:16:24.096966"
+        },
+        {
+            "path": "C:\\ProgramData\\Microsoft\\Windows Defender\\Definition Updates\\Backup\\mpasbase.vdm",
+            "size": 119170144,
+            "formatted_size": "113.65 MB",
+            "last_modified": "2025-04-02T12:16:24.096966"
+        },
+        {
+            "path": "C:\\ProgramData\\Microsoft\\Windows Defender\\Definition Updates\\{8F11BFE9-85AB-4E33-B7B6-6DDB44822F2A}\\mpasbase.vdm",
+            "size": 125173872,
+            "formatted_size": "119.38 MB",
+            "last_modified": "2025-05-15T09:20:06.096017"
+        },
+        {
+            "path": "C:\\Users\\Public\\Documents\\Wondershare\\filmora_64bit_full1083.exe",
+            "size": 511951912,
+            "formatted_size": "488.24 MB",
+            "last_modified": "2023-08-09T23:45:26.967223"
+        },
+        {
+            "path": "C:\\Users\\Public\\Documents\\Wondershare\\filmora_64bit_full7590.exe",
+            "size": 506709704,
+            "formatted_size": "483.24 MB",
+            "last_modified": "2023-07-18T09:10:49.695657"
+        },
+        {
+            "path": "C:\\Users\\saras\\.bun\\bin\\bun.exe",
+            "size": 115462144,
+            "formatted_size": "110.11 MB",
+            "last_modified": "2025-05-10T06:33:16"
+        },
+        {
+            "path": "C:\\Users\\saras\\.bun\\bin\\bunx.exe",
+            "size": 115462144,
+            "formatted_size": "110.11 MB",
+            "last_modified": "2025-05-10T06:33:16"
+        },
+        {
+            "path": "C:\\Users\\saras\\.cache\\puppeteer\\chrome\\win64-131.0.6778.204\\chrome-win64\\chrome.dll",
+            "size": 242637312,
+            "formatted_size": "231.4 MB",
+            "last_modified": "2025-05-15T10:31:17.625631"
+        },
+        {
+            "path": "C:\\Users\\saras\\.cache\\puppeteer\\chrome-headless-shell\\win64-131.0.6778.204\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+            "size": 173524992,
+            "formatted_size": "165.49 MB",
+            "last_modified": "2025-05-15T10:31:14.251293"
+        },
+        {
+            "path": "C:\\Users\\saras\\.ollama\\models\\blobs\\sha256-2a9b718fde09b9237da3edde181fb74d8731f09d5ae5f9478d95af1932feda4b",
+            "size": 4109853280,
+            "formatted_size": "3.83 GB",
+            "last_modified": "2025-04-25T08:07:08.753079"
+        },
+        {
+            "path": "C:\\Users\\saras\\.ollama\\models\\blobs\\sha256-ff82381e2bea77d91c1b824c7afb83f6fb73e9f7de9dda631bcdbca564aa5435",
+            "size": 4113289152,
+            "formatted_size": "3.83 GB",
+            "last_modified": "2025-04-24T16:48:53.285787"
+        },
+        {
+            "path": "C:\\Users\\saras\\.vscode\\extensions\\ms-azuretools.vscode-azure-github-copilot-0.3.265-win32-x64\\dist\\node_modules\\aidriver.win-x64\\AIServiceLocalPackage.exe",
+            "size": 221998161,
+            "formatted_size": "211.71 MB",
+            "last_modified": "2025-05-05T12:46:41.649048"
+        },
+        {
+            "path": "C:\\Users\\saras\\anaconda3\\Library\\bin\\Qt5WebEngineCore_conda.dll",
+            "size": 111974912,
+            "formatted_size": "106.79 MB",
+            "last_modified": "2023-08-11T02:28:06"
+        },
+        {
+            "path": "C:\\Users\\saras\\anaconda3\\pkgs\\mkl-2023.1.0-h6b88ed4_46358.conda",
+            "size": 163440210,
+            "formatted_size": "155.87 MB",
+            "last_modified": "2024-10-17T20:06:56"
+        },
+        {
+            "path": "C:\\Users\\saras\\anaconda3\\pkgs\\qt-webengine-5.15.9-h5bd16bc_7\\Library\\bin\\Qt5WebEngineCore_conda.dll",
+            "size": 111974912,
+            "formatted_size": "106.79 MB",
+            "last_modified": "2023-08-11T02:28:06"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ\\1.1.0\\servers.zip",
+            "size": 142271352,
+            "formatted_size": "135.68 MB",
+            "last_modified": "2025-05-07T16:47:54.294470"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ\\1.1.0\\servers\\indexing\\models\\codesage\\codesage-small-model.onnx.preprocessed.quantize_dynamic",
+            "size": 128392457,
+            "formatted_size": "122.44 MB",
+            "last_modified": "2025-04-21T23:13:12"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ\\1.2.0\\servers.zip",
+            "size": 142536661,
+            "formatted_size": "135.93 MB",
+            "last_modified": "2025-05-12T08:52:59.419836"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ\\1.2.0\\servers\\indexing\\models\\codesage\\codesage-small-model.onnx.preprocessed.quantize_dynamic",
+            "size": 128392457,
+            "formatted_size": "122.44 MB",
+            "last_modified": "2025-04-21T23:13:12"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ-Workspace\\0.1.46\\qserver-win32-x64.zip",
+            "size": 113752012,
+            "formatted_size": "108.48 MB",
+            "last_modified": "2025-03-29T15:43:53.567451"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ-Workspace\\0.1.46\\qserver-win32-x64\\qserver\\models\\codesage\\codesage-small-model.onnx.preprocessed.quantize_dynamic",
+            "size": 128392457,
+            "formatted_size": "122.44 MB",
+            "last_modified": "2025-03-21T12:37:26"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ-Workspace\\0.1.47\\qserver-win32-x64.zip",
+            "size": 113754952,
+            "formatted_size": "108.49 MB",
+            "last_modified": "2025-04-15T15:03:11.326200"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\aws\\toolkits\\language-servers\\AmazonQ-Workspace\\0.1.47\\qserver-win32-x64\\qserver\\models\\codesage\\codesage-small-model.onnx.preprocessed.quantize_dynamic",
+            "size": 128392457,
+            "formatted_size": "122.44 MB",
+            "last_modified": "2025-04-04T16:21:00"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\cursor-updater\\installer.exe",
+            "size": 281243968,
+            "formatted_size": "268.22 MB",
+            "last_modified": "2025-02-21T01:54:06.248385"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\cursor-updater\\pending\\Cursor Setup 0.45.14 - Build 250219jnihavxsz.exe",
+            "size": 281243968,
+            "formatted_size": "268.22 MB",
+            "last_modified": "2025-02-21T01:54:06.248385"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Docker\\wsl\\data\\ext4.vhdx",
+            "size": 1153433600,
+            "formatted_size": "1.07 GB",
+            "last_modified": "2025-05-05T16:52:19.889597"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Docker\\wsl\\main\\ext4.vhdx",
+            "size": 146800640,
+            "formatted_size": "140.0 MB",
+            "last_modified": "2025-05-05T11:39:18.211600"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache\\Cache_Data\\data_3",
+            "size": 109060096,
+            "formatted_size": "104.01 MB",
+            "last_modified": "2025-05-15T14:25:46.398452"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\ms-playwright\\chromium-1169\\chrome-win\\chrome.dll",
+            "size": 248189952,
+            "formatted_size": "236.69 MB",
+            "last_modified": "2025-05-12T18:04:46.211478"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1169\\chrome-win\\headless_shell.exe",
+            "size": 175695872,
+            "formatted_size": "167.56 MB",
+            "last_modified": "2025-05-12T18:04:51.610728"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\ms-playwright\\firefox-1482\\firefox\\xul.dll",
+            "size": 153837568,
+            "formatted_size": "146.71 MB",
+            "last_modified": "2025-05-12T18:04:57.611571"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Ollama\\updates\\0x8DD8B682821BE6A\\OllamaSetup.exe",
+            "size": 1026308024,
+            "formatted_size": "978.76 MB",
+            "last_modified": "2025-05-05T16:58:31.237052"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\pip\\cache\\http-v2\\7\\b\\b\\a\\7\\7bba78c30224c259e96ef6c2b56a6af59fa5ee1c879d6c2ddd18ed58.body",
+            "size": 317214975,
+            "formatted_size": "302.52 MB",
+            "last_modified": "2025-04-07T10:43:03.120588"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\pip\\cache\\wheels\\8f\\cb\\c0\\cc57eb1bf0f9dc87cdaf2b0dbac49e58a210ff68d21d6fc709\\pyspark-3.5.5-py2.py3-none-any.whl",
+            "size": 317747900,
+            "formatted_size": "303.03 MB",
+            "last_modified": "2025-04-15T10:07:38.166955"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\pip\\cache\\wheels\\9a\\81\\ff\\d0378800053965023f8bdd676d306e93104e948cea3d1d5e70\\pyspark-3.5.5-py2.py3-none-any.whl",
+            "size": 317747963,
+            "formatted_size": "303.03 MB",
+            "last_modified": "2025-04-07T10:44:35.275766"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+            "size": 190830208,
+            "formatted_size": "181.99 MB",
+            "last_modified": "2025-05-14T16:42:30"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+            "size": 182493752,
+            "formatted_size": "174.04 MB",
+            "last_modified": "2025-04-16T00:14:20"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Microsoft VS Code\\_\\Code.exe",
+            "size": 182493752,
+            "formatted_size": "174.04 MB",
+            "last_modified": "2025-04-16T00:14:20"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v11\\cublas64_11.dll",
+            "size": 113725880,
+            "formatted_size": "108.46 MB",
+            "last_modified": "2025-05-04T23:43:46"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v11\\cublasLt64_11.dll",
+            "size": 241664952,
+            "formatted_size": "230.47 MB",
+            "last_modified": "2025-05-04T23:43:46"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v11\\ggml-cuda.dll",
+            "size": 796594112,
+            "formatted_size": "759.69 MB",
+            "last_modified": "2025-05-04T23:43:48"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v12\\cublas64_12.dll",
+            "size": 113720768,
+            "formatted_size": "108.45 MB",
+            "last_modified": "2025-05-04T23:43:48"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v12\\cublasLt64_12.dll",
+            "size": 692449728,
+            "formatted_size": "660.37 MB",
+            "last_modified": "2025-05-04T23:43:48"
+        },
+        {
+            "path": "C:\\Users\\saras\\AppData\\Local\\Programs\\Ollama\\lib\\ollama\\cuda_v12\\ggml-cuda.dll",
+            "size": 1285813184,
+            "formatted_size": "1.2 GB",
+            "last_modified": "2025-05-04T23:43:50"
+        }
+    ],
+    "duplicates": [],
+    "corrupted_files": {
+        "status": "Verificação concluída. Problemas podem ter sido encontrados ou o comando falhou.",
+        "details": [
+            "SFC stdout: \n\u0000\n\u0000\n\u0000V\u0000o\u0000c\u0000ê\u0000 \u0000p\u0000r\u0000e\u0000c\u0000i\u0000s\u0000a\u0000 \u0000s\u0000e\u0000r\u0000 \u0000u\u0000m\u0000 \u0000a\u0000d\u0000m\u0000i\u0000n\u0000i\u0000s\u0000t\u0000r\u0000a\u0000d\u0000o\u0000r\u0000 \u0000e\u0000x\u0000e\u0000c\u0000u\u0000t\u0000a\u0000n\u0000d\u0000o\u0000 \u0000u\u0000m\u0000a\u0000 \u0000s\u0000e\u0000s\u0000s\u0000ã\u0000o\u0000 \u0000d\u0000o\u0000 \u0000c\u0000o\u0000n\u0000s\u0000o\u0000l\u0000e\u0000\n\u0000\n\u0000\n\u0000p\u0000a\u0000r\u0000a\u0000 \u0000p\u0000o\u0000d\u0000e\u0000r\u0000 \u0000u\u0000s\u0000a\u0000r\u0000 \u0000o\u0000 \u0000u\u0000t\u0000i\u0000l\u0000i\u0000t\u0000á\u0000r\u0000i\u0000o\u0000 \u0000s\u0000f\u0000c\u0000.\u0000\n\u0000\n\u0000\n\u0000",
+            "SFC stderr: "
+        ]
+    },
+    "total_cleanup_size": 1225358903,
+    "total_cleanup_formatted": "1.14 GB"
+}

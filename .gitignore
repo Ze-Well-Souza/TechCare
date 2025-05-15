@@ -1,10 +1,66 @@
-# Arquivos temporários e configurações
-.cursor/
-nested_project_content/Desenvolvimento de site para manutenЗ╞o de computadores/.cursor/
-**/*.pyc
+# Arquivos específicos do Python
 __pycache__/
-*.log
-.vscode/
-venv/
-.env
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Cobertura e relatórios de testes
+.coverage
+htmlcov/
+tests/coverage_html/
+.pytest_cache/
+coverage.xml
+*.cover
+
+# Arquivos específicos do aplicativo
+instance/
 *.db
+*.sqlite
+*.sqlite3
+
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+resultado_testes*.txt
+
+# Arquivos de IDE e editores
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# Pacotes de deploy
+techcare_deploy_*.zip
+deploy_package/
+
+# Outros
+.env
+node_modules/

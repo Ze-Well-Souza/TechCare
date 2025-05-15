@@ -56,7 +56,7 @@ class User(UserMixin, db.Model):
     
     def is_technician(self):
         """Verifica se o usuário é técnico"""
-        return self.role == 'tech'
+        return self.role and 'Technician' in self.role.name
     
     def is_active(self):
         """Implementa o método is_active requerido pelo Flask-Login"""

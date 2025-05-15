@@ -264,6 +264,75 @@ class PlatformAdapter:
             }
     
     @staticmethod
+    def _check_ssd_status(device_id):
+        """Verifica se um disco é SSD usando comandos avançados do Windows"""
+        try:
+            # Extrair número do disco do DeviceID (ex: \\.\\PHYSICALDRIVE0 -> 0)
+            disk_number = device_id.split('PHYSICALDRIVE')[-1]
+            
+            # Comando PowerShell para verificar se é SSD
+            cmd = ['powershell', '-Command', 
+                  f"(Get-PhysicalDisk -DeviceNumber {disk_number}).MediaType"]
+            process = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if process.returncode == 0 and process.stdout:
+                media_type = process.stdout.strip()
+                if media_type == 'SSD':
+                    return "SSD"
+                elif media_type == 'HDD':
+                    return "HDD"
+            
+            # Tentativa alternativa baseada no nome/modelo
+            if 'SSD' in device_id or 'Solid' in device_id:
+                return "SSD"
+                
+            return "HDD"  # Padrão para segurança
+            
+        except Exception as e:
+            logger.warning(f"Erro ao verificar tipo de disco: {str(e)}")
+            return "Desconhecido"
+    
+    @staticmethod
+    def _check_available_disk_slots():
+        """Verifica slots disponíveis para discos adicionais"""
+        available_slots = []
+        
+        try:
+            # Verificar slots SATA disponíveis
+            cmd = ['powershell', '-Command', 
+                  "Get-WmiObject -Class Win32_SCSIController | Select-Object -ExpandProperty DeviceID | ConvertTo-Json"]
+            process = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if process.returncode == 0 and process.stdout and "[]" not in process.stdout:
+                # Obter discos conectados
+                cmd2 = ['powershell', '-Command', 
+                       "Get-PhysicalDisk | Measure-Object | Select-Object -ExpandProperty Count"]
+                process2 = subprocess.run(cmd2, capture_output=True, text=True)
+                
+                if process2.returncode == 0 and process2.stdout:
+                    connected_disks = int(process2.stdout.strip())
+                    
+                    # Verificar slots PCI Express para NVMe
+                    cmd3 = ['powershell', '-Command', 
+                           "Get-WmiObject -Class Win32_SystemSlot | Where-Object {$_.SlotDesignation -like '*PCIe*' -and $_.Status -eq 'OK' -and $_.CurrentUsage -eq 'Available'} | Measure-Object | Select-Object -ExpandProperty Count"]
+                    process3 = subprocess.run(cmd3, capture_output=True, text=True)
+                    
+                    if process3.returncode == 0 and process3.stdout and process3.stdout.strip():
+                        pcie_slots = int(process3.stdout.strip())
+                        if pcie_slots > 0:
+                            available_slots.append(f"{pcie_slots} slot(s) PCIe disponível(is) para SSD NVMe")
+                    
+                    # Verificar espaços físicos para discos SATA/SAS (estimativa)
+                    if connected_disks < 4:  # A maioria dos sistemas suporta até 4 discos SATA
+                        free_sata = 4 - connected_disks
+                        if free_sata > 0:
+                            available_slots.append(f"{free_sata} slot(s) SATA disponível(is)")
+        except Exception as e:
+            logger.warning(f"Erro ao verificar slots disponíveis: {str(e)}")
+        
+        return available_slots
+    
+    @staticmethod
     def get_disk_info_windows(path=None):
         """
         Obtém informações específicas do disco no Windows
@@ -287,16 +356,38 @@ class PlatformAdapter:
             # Obtém informações sobre os discos físicos
             physical_disks = []
             for disk in w.Win32_DiskDrive():
-                physical_disks.append({
-                    'model': disk.Model,
-                    'serial': disk.SerialNumber,
-                    'size': int(disk.Size) if disk.Size else 0,
-                    'status': disk.Status
-                })
+                disk_info = {
+                    'device_id': disk.DeviceID if hasattr(disk, 'DeviceID') else '',
+                    'model': disk.Model if hasattr(disk, 'Model') else 'Desconhecido',
+                    'serial': disk.SerialNumber if hasattr(disk, 'SerialNumber') else '',
+                    'size': int(disk.Size) if hasattr(disk, 'Size') and disk.Size else 0,
+                    'status': disk.Status if hasattr(disk, 'Status') else 'Desconhecido',
+                    'media_type': 'Desconhecido'  # Será preenchido abaixo
+                }
+                physical_disks.append(disk_info)
             
-            return {
+            result = {
                 'physical_disks': physical_disks
             }
+            
+            # Determinar tipo de disco (SSD/HDD)
+            for disk in physical_disks:
+                if 'media_type' not in disk or disk['media_type'] == 'Desconhecido':
+                    if 'model' in disk and disk['model']:
+                        if 'SSD' in disk['model'] or 'Solid' in disk['model']:
+                            disk['media_type'] = 'SSD'
+                        else:
+                            disk['media_type'] = PlatformAdapter._check_ssd_status(disk.get('device_id', ''))
+            
+            # Verificar slots disponíveis para discos adicionais
+            try:
+                available_slots = PlatformAdapter._check_available_disk_slots()
+                result['available_slots'] = available_slots
+            except Exception as ex:
+                logger.warning(f"Erro ao verificar slots disponíveis para discos: {str(ex)}")
+                result['available_slots'] = []
+            
+            return result
         except Exception as e:
             logger.warning(f"Erro ao obter informações específicas do disco no Windows: {str(e)}")
             return {}

@@ -3,6 +3,40 @@ from flask_login import login_required, current_user
 from app.services.diagnostic_service import DiagnosticService
 from app.services.service_factory import ServiceFactory
 from .diagnostic import diagnostic
+import copy
+import logging
+
+logger = logging.getLogger(__name__)
+
+def _fix_severity_issues(results):
+    """
+    Corrige problemas com o campo 'severity' nos resultados do diagnóstico
+    """
+    try:
+        # Cria uma cópia dos resultados para evitar alteração do original
+        fixed_results = copy.deepcopy(results)
+        
+        # Corrige issues na seção de memória
+        if 'memory' in fixed_results and isinstance(fixed_results['memory'], dict):
+            if 'issues' in fixed_results['memory'] and isinstance(fixed_results['memory']['issues'], list):
+                for issue in fixed_results['memory']['issues']:
+                    if isinstance(issue, dict) and 'severity' not in issue:
+                        issue['severity'] = 'high'  # Valor padrão para severity
+        
+        # Corrige todos os problemas na lista principal
+        if 'problems' in fixed_results and isinstance(fixed_results['problems'], list):
+            for problem in fixed_results['problems']:
+                if isinstance(problem, dict) and 'severity' not in problem:
+                    # Usa o campo 'impact' como severity se estiver disponível
+                    if 'impact' in problem:
+                        problem['severity'] = problem['impact']
+                    else:
+                        problem['severity'] = 'high'  # Valor padrão para severity
+        
+        return fixed_results
+    except Exception as e:
+        logger.error(f"Erro ao corrigir severity: {str(e)}")
+        return results  # Retorna o original em caso de erro
 
 @diagnostic.route('/api/repository/history')
 @login_required
@@ -22,7 +56,11 @@ def api_repository_diagnostic(diagnostic_id):
         diagnostic_data = service.get_diagnostic_by_id(diagnostic_id, user_id=str(current_user.id))
         if not diagnostic_data:
             return jsonify({'success': False, 'error': 'Diagnóstico não encontrado'}), 404
-        return jsonify({'success': True, 'diagnostic': diagnostic_data})
+        
+        # Aplica correção para o problema de severity
+        fixed_data = _fix_severity_issues(diagnostic_data)
+        
+        return jsonify({'success': True, 'diagnostic': fixed_data})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -32,7 +70,11 @@ def api_run_diagnostic():
     try:
         service = ServiceFactory.get_service(DiagnosticService)
         results = service.run_diagnostics(user_id=str(current_user.id))
-        return jsonify({'success': True, 'results': results})
+        
+        # Aplica correção para o problema de severity
+        fixed_results = _fix_severity_issues(results)
+        
+        return jsonify({'success': True, 'results': fixed_results})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -54,7 +96,11 @@ def api_get_diagnostic(diagnostic_id):
         diagnostic_data = service.get_diagnostic_by_id(diagnostic_id, user_id=str(current_user.id))
         if not diagnostic_data:
             return jsonify({'success': False, 'error': 'Diagnóstico não encontrado'}), 404
-        return jsonify({'success': True, 'diagnostic': diagnostic_data})
+        
+        # Aplica correção para o problema de severity
+        fixed_data = _fix_severity_issues(diagnostic_data)
+        
+        return jsonify({'success': True, 'diagnostic': fixed_data})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -87,6 +133,10 @@ def system_status():
     try:
         service = ServiceFactory.get_service(DiagnosticService)
         system_info = service.get_system_summary()
-        return jsonify({'success': True, 'system_info': system_info})
+        
+        # Aplica correção para o problema de severity
+        fixed_info = _fix_severity_issues(system_info)
+        
+        return jsonify({'success': True, 'system_info': fixed_info})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500 

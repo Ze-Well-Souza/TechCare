@@ -33,6 +33,18 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
 
+def datetime_filter(value, format="%d/%m/%Y %H:%M"):
+    """Formata um timestamp ou objeto datetime para exibição"""
+    if not value:
+        return ""
+    
+    if isinstance(value, (int, float)):
+        # Timestamp em segundos
+        import datetime
+        value = datetime.datetime.fromtimestamp(value)
+        
+    return value.strftime(format)
+
 def create_app(config_name='default'):
     """
     Função factory para criar a aplicação Flask
@@ -46,6 +58,9 @@ def create_app(config_name='default'):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    
+    # Registra o filtro datetime
+    app.jinja_env.filters['datetime'] = datetime_filter
     
     # Inicialização das extensões com a aplicação
     db.init_app(app)

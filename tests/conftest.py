@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # Importações corretas agora
 from app import create_app, db
 from app.models.user import User
+from app.models.role import Role, PermissionType
 
 @pytest.fixture
 def app():
@@ -69,10 +70,19 @@ def runner(app):
 def test_user(app):
     """Cria um usuário de teste no banco de dados."""
     with app.app_context():
+        # Verificar se já existe o Role ou criar um novo
+        user_role = db.session.query(Role).filter_by(name='User').first()
+        if not user_role:
+            user_role = Role(name='User', description='Usuário comum')
+            user_role.add_permission(PermissionType.VIEW_DASHBOARD)
+            user_role.add_permission(PermissionType.RUN_DIAGNOSTICS)
+            db.session.add(user_role)
+            db.session.commit()
+        
         user = User(
             username='testuser',
             email='test@example.com',
-            role='user',
+            role=user_role,
             active=True
         )
         user.password = 'password123'  # Usando a propriedade password em vez de set_password
@@ -84,10 +94,23 @@ def test_user(app):
 def test_admin(app):
     """Cria um usuário administrador de teste no banco de dados."""
     with app.app_context():
+        # Verificar se já existe o Role ou criar um novo
+        admin_role = db.session.query(Role).filter_by(name='Admin Master').first()
+        if not admin_role:
+            admin_role = Role(name='Admin Master', description='Administrador com acesso total')
+            admin_role.add_permission(PermissionType.ADMIN_ACCESS)
+            admin_role.add_permission(PermissionType.MANAGE_USERS)
+            admin_role.add_permission(PermissionType.VIEW_DASHBOARD)
+            admin_role.add_permission(PermissionType.RUN_DIAGNOSTICS)
+            admin_role.add_permission(PermissionType.RUN_REPAIRS)
+            admin_role.add_permission(PermissionType.VIEW_LOGS)
+            db.session.add(admin_role)
+            db.session.commit()
+        
         admin = User(
             username='testadmin',
             email='admin@example.com',
-            role='admin',
+            role=admin_role,
             active=True
         )
         admin.password = 'adminpass123'  # Usando a propriedade password em vez de set_password
@@ -99,10 +122,20 @@ def test_admin(app):
 def test_technician(app):
     """Cria um usuário técnico de teste no banco de dados."""
     with app.app_context():
+        # Verificar se já existe o Role ou criar um novo
+        tech_role = db.session.query(Role).filter_by(name='Technician').first()
+        if not tech_role:
+            tech_role = Role(name='Technician', description='Técnico com permissões especiais')
+            tech_role.add_permission(PermissionType.RUN_DIAGNOSTICS)
+            tech_role.add_permission(PermissionType.RUN_REPAIRS)
+            tech_role.add_permission(PermissionType.VIEW_DASHBOARD)
+            db.session.add(tech_role)
+            db.session.commit()
+        
         tech = User(
             username='testtechnician',
             email='tech@example.com',
-            role='technician',
+            role=tech_role,
             active=True
         )
         tech.password = 'techpass123'  # Usando a propriedade password em vez de set_password

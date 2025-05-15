@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import uuid
 import datetime
+import subprocess
 
 # Configuração de logging
 logging.basicConfig(
@@ -29,6 +30,10 @@ class RepairService:
         """Inicializa o serviço de reparo"""
         logger.info("Iniciando RepairService")
         self.repairs = {}
+        self.data_dir = Path("data/repairs")
+        
+        # Cria o diretório de dados se não existir
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         
         # Mantem o dicionário repair_guides para compatibilidade com testes existentes
         self.repair_guides = {
@@ -40,6 +45,40 @@ class RepairService:
             'security': self._get_security_repair_guides(),
             'network': self._get_network_repair_guides()
         }
+        
+        # Carrega os planos de reparo existentes
+        self._load_existing_repairs()
+    
+    def _load_existing_repairs(self):
+        """Carrega planos de reparo existentes do sistema de arquivos"""
+        try:
+            if not self.data_dir.exists():
+                return
+            
+            for file_path in self.data_dir.glob("*.json"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        repair_plan = json.load(f)
+                        if 'plan_id' in repair_plan:
+                            self.repairs[repair_plan['plan_id']] = repair_plan
+                except Exception as e:
+                    logger.error(f"Erro ao carregar plano de reparo {file_path}: {str(e)}")
+        except Exception as e:
+            logger.error(f"Erro ao carregar planos de reparo existentes: {str(e)}")
+    
+    def _save_repair_plan(self, plan):
+        """Salva um plano de reparo no sistema de arquivos"""
+        try:
+            if not plan or 'plan_id' not in plan:
+                return False
+                
+            file_path = self.data_dir / f"{plan['plan_id']}.json"
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(plan, f, ensure_ascii=False, indent=2)
+            return True
+        except Exception as e:
+            logger.error(f"Erro ao salvar plano de reparo: {str(e)}")
+            return False
     
     def create_repair_plan(self, diagnostic_id):
         """
@@ -51,6 +90,8 @@ class RepairService:
         Returns:
             dict: Plano de reparo contendo passos para resolver problemas
         """
+        logger.info(f"Criando plano de reparo para diagnóstico {diagnostic_id}")
+        
         # Em uma implementação real, buscaria o diagnóstico e analisaria os problemas
         # Aqui vamos criar um plano de reparo simulado
         
@@ -63,14 +104,27 @@ class RepairService:
                 'problem_id': 'prob-mem-001',
                 'title': 'Liberar memória',
                 'description': 'Fechar programas que consomem muita memória ou reiniciar o sistema.',
-                'status': 'pending'
+                'status': 'pending',
+                'is_automated': True,
+                'command': 'memory_optimization'
             },
             {
                 'id': f"step-{uuid.uuid4().hex[:8]}",
                 'problem_id': 'prob-disk-001',
                 'title': 'Limpar arquivos temporários',
                 'description': 'Remover arquivos desnecessários para liberar espaço em disco.',
-                'status': 'pending'
+                'status': 'pending',
+                'is_automated': True,
+                'command': 'clean_temp_files'
+            },
+            {
+                'id': f"step-{uuid.uuid4().hex[:8]}",
+                'problem_id': 'prob-sys-001',
+                'title': 'Reparar arquivos do sistema',
+                'description': 'Verificar e corrigir arquivos do sistema corrompidos.',
+                'status': 'pending',
+                'is_automated': True,
+                'command': 'repair_system_files'
             }
         ]
         
@@ -79,12 +133,18 @@ class RepairService:
             'plan_id': plan_id,
             'diagnostic_id': diagnostic_id,
             'created_at': datetime.datetime.now().isoformat(),
+            'updated_at': datetime.datetime.now().isoformat(),
+            'status': 'created',
             'total_steps': len(steps),
+            'completed_steps': 0,
             'steps': steps
         }
         
         # Armazena o plano para uso posterior
         self.repairs[plan_id] = repair_plan
+        
+        # Salva o plano no sistema de arquivos
+        self._save_repair_plan(repair_plan)
         
         return repair_plan
     
@@ -99,23 +159,94 @@ class RepairService:
         Returns:
             dict: Resultado da execução
         """
-        # Em uma implementação real, executaria ações específicas baseadas no tipo de problema
+        logger.info(f"Executando passo {step_id} do plano {plan_id}")
         
-        # Simula a execução bem-sucedida do passo
-        result = {
-            'success': True,
-            'step_id': step_id,
-            'new_status': 'completed',
-            'message': 'Reparo executado com sucesso. O sistema deve ter melhor desempenho agora.'
-        }
+        if plan_id not in self.repairs:
+            raise ValueError(f"Plano de reparo {plan_id} não encontrado")
+            
+        repair_plan = self.repairs[plan_id]
+        step = None
         
-        # Atualiza o status do passo no plano
-        if plan_id in self.repairs:
-            for step in self.repairs[plan_id]['steps']:
-                if step['id'] == step_id:
-                    step['status'] = 'completed'
+        # Encontra o passo específico
+        for s in repair_plan['steps']:
+            if s['id'] == step_id:
+                step = s
+                break
         
-        return result
+        if not step:
+            raise ValueError(f"Passo {step_id} não encontrado no plano {plan_id}")
+            
+        # Executa o passo conforme seu comando
+        try:
+            command = step.get('command', '')
+            result = {
+                'success': True,
+                'step_id': step_id,
+                'new_status': 'completed',
+                'message': 'Reparo executado com sucesso.'
+            }
+            
+            if command == 'memory_optimization':
+                result['message'] = 'Otimização de memória concluída.'
+                # Simulação de otimização de memória
+            elif command == 'clean_temp_files':
+                # Integração com o serviço de limpeza para limpar arquivos temporários
+                from app.services.cleaner_service import CleanerService
+                cleaner = CleanerService()
+                clean_result = cleaner.clean_temp_files()
+                result['details'] = clean_result
+                result['message'] = f"Arquivos temporários limpos. {clean_result.get('formatted_cleaned_size', '0 B')} liberados."
+            elif command == 'repair_system_files':
+                # Integração com o serviço de limpeza para reparar arquivos do sistema
+                from app.services.cleaner_service import CleanerService
+                cleaner = CleanerService()
+                repair_result = cleaner.repair_system_files()
+                result['details'] = repair_result
+                result['message'] = repair_result.get('output', 'Reparo de arquivos do sistema concluído.')
+            else:
+                # Comando personalizado ou não reconhecido - simulação genérica
+                result['message'] = f"Comando '{command}' executado com sucesso."
+                
+            # Atualiza o status do passo
+            step['status'] = 'completed'
+            step['executed_at'] = datetime.datetime.now().isoformat()
+            
+            # Atualiza o contador de passos concluídos
+            repair_plan['completed_steps'] += 1
+            
+            # Verifica se todos os passos foram concluídos
+            if repair_plan['completed_steps'] >= repair_plan['total_steps']:
+                repair_plan['status'] = 'completed'
+                
+            # Atualiza a data de última modificação
+            repair_plan['updated_at'] = datetime.datetime.now().isoformat()
+            
+            # Salva as alterações
+            self._save_repair_plan(repair_plan)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Erro ao executar passo {step_id} do plano {plan_id}: {str(e)}", exc_info=True)
+            
+            # Marca o passo como falho
+            step['status'] = 'failed'
+            step['error'] = str(e)
+            step['executed_at'] = datetime.datetime.now().isoformat()
+            
+            # Atualiza a data de última modificação
+            repair_plan['updated_at'] = datetime.datetime.now().isoformat()
+            
+            # Salva as alterações
+            self._save_repair_plan(repair_plan)
+            
+            return {
+                'success': False,
+                'step_id': step_id,
+                'new_status': 'failed',
+                'message': f"Erro ao executar reparo: {str(e)}",
+                'error': str(e)
+            }
     
     def get_repair_plan(self, plan_id):
         """
@@ -127,7 +258,11 @@ class RepairService:
         Returns:
             dict: Plano de reparo ou None se não encontrado
         """
-        return self.repairs.get(plan_id)
+        try:
+            return self.repairs.get(plan_id)
+        except Exception as e:
+            logger.error(f"Erro ao recuperar plano de reparo {plan_id}: {str(e)}")
+            return None
     
     def get_all_repair_plans(self, user_id=None):
         """
@@ -139,14 +274,18 @@ class RepairService:
         Returns:
             list: Lista de planos de reparo
         """
-        plans = list(self.repairs.values())
-        
-        if user_id is not None:
-            # Filtra por usuário, se especificado
-            # Na implementação real, os planos teriam um user_id
-            pass
-        
-        return plans
+        try:
+            plans = list(self.repairs.values())
+            
+            if user_id is not None:
+                # Filtra por usuário, se especificado
+                # Na implementação real, os planos teriam um user_id
+                pass
+            
+            return plans
+        except Exception as e:
+            logger.error(f"Erro ao recuperar planos de reparo: {str(e)}")
+            return []
     
     def generate_repair_plan(self, problems):
         """
